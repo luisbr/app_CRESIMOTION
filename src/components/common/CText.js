@@ -1,0 +1,99 @@
+import React from 'react';
+import {Text} from 'react-native';
+import Typography from '../../theme/typography';
+import {useSelector} from 'react-redux';
+
+//Text Component
+const CText = ({type, style, align, color, children, ...props}) => {
+  const colors = useSelector(state => state.theme.theme);
+  const fontWeights = () => {
+    switch (type.charAt(0).toUpperCase()) {
+      case 'R':
+        return Typography.fontWeights.Regular;
+      case 'M':
+        return Typography.fontWeights.Medium;
+      case 'S':
+        return Typography.fontWeights.SemiBold;
+      case 'B':
+        return Typography.fontWeights.Bold;
+      case 'L':
+        return Typography.fontWeights.Light;
+      default:
+        return Typography.fontWeights.Regular;
+    }
+  };
+
+  const fontSize = () => {
+    switch (type.slice(1)) {
+      case '8':
+        return Typography.fontSizes.f8;
+      case '10':
+        return Typography.fontSizes.f10;
+      case '11':
+        return Typography.fontSizes.f11;
+      case '12':
+        return Typography.fontSizes.f12;
+      case '13':
+        return Typography.fontSizes.f13;
+      case '14':
+        return Typography.fontSizes.f14;
+      case '15':
+        return Typography.fontSizes.f15;
+      case '16':
+        return Typography.fontSizes.f16;
+      case '17':
+        return Typography.fontSizes.f17;
+      case '18':
+        return Typography.fontSizes.f18;
+      case '19':
+        return Typography.fontSizes.f19;
+      case '20':
+        return Typography.fontSizes.f20;
+      case '22':
+        return Typography.fontSizes.f22;
+      case '24':
+        return Typography.fontSizes.f24;
+      case '26':
+        return Typography.fontSizes.f26;
+      case '28':
+        return Typography.fontSizes.f28;
+      case '30':
+        return Typography.fontSizes.f30;
+      case '32':
+        return Typography.fontSizes.f32;
+      case '34':
+        return Typography.fontSizes.f34;
+      case '35':
+        return Typography.fontSizes.f35;
+      case '36':
+        return Typography.fontSizes.f36;
+      case '40':
+        return Typography.fontSizes.f40;
+      case '44':
+        return Typography.fontSizes.f44;
+      case '48':
+        return Typography.fontSizes.f48;
+      case '46':
+        return Typography.fontSizes.f46;
+      case '66':
+        return Typography.fontSizes.f66;
+      default:
+        return Typography.fontSizes.f14;
+    }
+  };
+
+  return (
+    <Text
+      style={[
+        type && {...fontWeights(), ...fontSize()},
+        {color: color ? color : colors.textColor},
+        align && {textAlign: align},
+        style,
+      ]}
+      {...props}>
+      {children}
+    </Text>
+  );
+};
+
+export default React.memo(CText);

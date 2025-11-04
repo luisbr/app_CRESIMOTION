@@ -1,0 +1,2789 @@
+{
+    "status": true,
+    "message": "Encuestas encontrados",
+    "data": [
+        {
+            "id": "1",
+            "encuesta": "Motivos de tu estado emocional",
+            "introduccion": "<p><strong>Cu&eacute;ntanos cu&aacute;les son los motivos de tu estado emocional.</strong> As&iacute;, podremos ofrecerte un enfoque positivo, constructivo e inteligente. Elige todas las opciones que correspondan a tu situaci&oacute;n.</p>",
+            "estatus": "activo",
+            "creado_en": null,
+            "actualizado_en": "2025-10-23 07:17:03",
+            "eliminado_en": null,
+            "motivos": [
+                {
+                    "id": "7",
+                    "encuesta_id": "1",
+                    "motivo": "Abandono (sensación de)",
+                    "creado_en": "2025-10-23 01:21:50",
+                    "actualizado_en": "2025-10-23 01:21:50",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "8",
+                    "encuesta_id": "1",
+                    "motivo": "Abandono (sensación de)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "9",
+                    "encuesta_id": "1",
+                    "motivo": "Adicción a compras",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "10",
+                    "encuesta_id": "1",
+                    "motivo": "Adicción a juegos de apuestas",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "11",
+                    "encuesta_id": "1",
+                    "motivo": "Adicción a drogas",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "12",
+                    "encuesta_id": "1",
+                    "motivo": "Adicción a redes sociales",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "13",
+                    "encuesta_id": "1",
+                    "motivo": "Adicción a videojuegos",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "14",
+                    "encuesta_id": "1",
+                    "motivo": "Adicción al alcohol",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "15",
+                    "encuesta_id": "1",
+                    "motivo": "Adicción al tabaco",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "16",
+                    "encuesta_id": "1",
+                    "motivo": "Adicciones en general",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "17",
+                    "encuesta_id": "1",
+                    "motivo": "Ansiedad",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "18",
+                    "encuesta_id": "1",
+                    "motivo": "Apego emocional",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "19",
+                    "encuesta_id": "1",
+                    "motivo": "Baja autoestima ",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "20",
+                    "encuesta_id": "1",
+                    "motivo": "Burnout (agotamiento laboral)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "21",
+                    "encuesta_id": "1",
+                    "motivo": "Cambio de casa o ciudad",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "22",
+                    "encuesta_id": "1",
+                    "motivo": "Claustrofobia",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "23",
+                    "encuesta_id": "1",
+                    "motivo": "Conflictos familiares",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "24",
+                    "encuesta_id": "1",
+                    "motivo": "Déficit de atención con hiperactividad",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "25",
+                    "encuesta_id": "1",
+                    "motivo": "Depresión posparto",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "26",
+                    "encuesta_id": "1",
+                    "motivo": "Desaprobación constante por parte mía",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "27",
+                    "encuesta_id": "1",
+                    "motivo": "Duelo por ruptura de una amistad",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "28",
+                    "encuesta_id": "1",
+                    "motivo": "Enfermedad terminal",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "29",
+                    "encuesta_id": "1",
+                    "motivo": "Enfermedades crónicas",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "30",
+                    "encuesta_id": "1",
+                    "motivo": "Estrés laboral",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "31",
+                    "encuesta_id": "1",
+                    "motivo": "Estrés postraumático",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "32",
+                    "encuesta_id": "1",
+                    "motivo": "Falta de aceptación de la condición de género",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "33",
+                    "encuesta_id": "1",
+                    "motivo": "Falta de aceptación de la imagen corporal",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "34",
+                    "encuesta_id": "1",
+                    "motivo": "Falta de motivación ",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "35",
+                    "encuesta_id": "1",
+                    "motivo": "Falta de sentido de vida",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "36",
+                    "encuesta_id": "1",
+                    "motivo": "Falta de pareja (sufrimiento por)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "37",
+                    "encuesta_id": "1",
+                    "motivo": "Fobias",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "38",
+                    "encuesta_id": "1",
+                    "motivo": "Fracaso constante en empleo o negocio",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "39",
+                    "encuesta_id": "1",
+                    "motivo": "Heridas de la infancia",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "40",
+                    "encuesta_id": "1",
+                    "motivo": "Impulsividad",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "41",
+                    "encuesta_id": "1",
+                    "motivo": "Infidelidad por parte de la pareja",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "42",
+                    "encuesta_id": "1",
+                    "motivo": "Insatisfacción laboral",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "43",
+                    "encuesta_id": "1",
+                    "motivo": "Inseguridad personal",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "44",
+                    "encuesta_id": "1",
+                    "motivo": "Intolerancia ",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "45",
+                    "encuesta_id": "1",
+                    "motivo": "Maltrato físico y emocional",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "46",
+                    "encuesta_id": "1",
+                    "motivo": "Miedo a conducir un automóvil",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "47",
+                    "encuesta_id": "1",
+                    "motivo": "Miedo a poner límites (a decir no)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "48",
+                    "encuesta_id": "1",
+                    "motivo": "Miedo a volar en avión",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "49",
+                    "encuesta_id": "1",
+                    "motivo": "Muerte de un ser querido",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "50",
+                    "encuesta_id": "1",
+                    "motivo": "Pérdida de trabajo",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "51",
+                    "encuesta_id": "1",
+                    "motivo": "Problemas de comunicación en la pareja",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "52",
+                    "encuesta_id": "1",
+                    "motivo": "Problemas de intimidad en pareja (sexualidad)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "53",
+                    "encuesta_id": "1",
+                    "motivo": "Problemas económicos",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "54",
+                    "encuesta_id": "1",
+                    "motivo": "Procrastinación (postergación innecesaria)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "55",
+                    "encuesta_id": "1",
+                    "motivo": "Rechazo (sensación de)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "56",
+                    "encuesta_id": "1",
+                    "motivo": "Relaciones tóxicas",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "57",
+                    "encuesta_id": "1",
+                    "motivo": "Rompimiento de pareja",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "58",
+                    "encuesta_id": "1",
+                    "motivo": "Separación o abandono por parte de seres queridos",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "59",
+                    "encuesta_id": "1",
+                    "motivo": "Soledad (sensación de)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "60",
+                    "encuesta_id": "1",
+                    "motivo": "Trauma por asaltos",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "61",
+                    "encuesta_id": "1",
+                    "motivo": "Trauma por violación o abuso sexual",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "62",
+                    "encuesta_id": "1",
+                    "motivo": "Vacío (sensación de)",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "63",
+                    "encuesta_id": "1",
+                    "motivo": "Otro",
+                    "creado_en": "2025-10-23 01:22:14",
+                    "actualizado_en": "2025-10-23 01:22:14",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "encuesta": "Sintomatología fisica.",
+            "introduccion": "Para ayudarte a entender mejor cómo te encuentras hoy y brindarte un servicio de calidad, por favor cuéntanos sobre tu sintomatología física. ",
+            "estatus": "activo",
+            "creado_en": "2025-09-05 08:39:57",
+            "actualizado_en": "2025-09-26 13:09:54",
+            "eliminado_en": null,
+            "motivos": [
+                {
+                    "id": "4",
+                    "encuesta_id": "2",
+                    "motivo": "Abandono",
+                    "creado_en": "2025-09-05 13:52:47",
+                    "actualizado_en": "2025-09-05 23:26:32",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "5",
+                    "encuesta_id": "2",
+                    "motivo": "Adicción a compras.",
+                    "creado_en": "2025-09-05 13:55:03",
+                    "actualizado_en": "2025-09-05 14:16:51",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "1",
+                            "intensidad": "Bajo",
+                            "orden": "1",
+                            "peso": "10",
+                            "creado_en": "2025-09-05 01:58:52",
+                            "actualizado_en": "2025-09-05 17:40:20",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                },
+                {
+                    "id": "6",
+                    "encuesta_id": "2",
+                    "motivo": "Adicción casino",
+                    "creado_en": "2025-09-05 16:08:01",
+                    "actualizado_en": "2025-09-05 16:16:47",
+                    "eliminado_en": null,
+                    "intensidades": [
+                        {
+                            "id": "2",
+                            "intensidad": "Medio",
+                            "orden": "2",
+                            "peso": "20",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "3",
+                            "intensidad": "Alto",
+                            "orden": "3",
+                            "peso": "30",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        },
+                        {
+                            "id": "4",
+                            "intensidad": "Muy alto",
+                            "orden": "4",
+                            "peso": "40",
+                            "creado_en": "2025-09-05 02:04:15",
+                            "actualizado_en": "2025-09-05 02:04:15",
+                            "eliminado_en": null
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "3",
+            "encuesta": "Sintomatología emocional.",
+            "introduccion": "Para ayudarte a entender mejor cómo te encuentras hoy y brindarte un servicio de calidad, por favor, cuéntanos sobre tu sintomatología emocional.",
+            "estatus": "activo",
+            "creado_en": "2025-09-26 13:07:11",
+            "actualizado_en": "2025-09-26 13:07:11",
+            "eliminado_en": null,
+            "motivos": []
+        }
+    ]
+}
