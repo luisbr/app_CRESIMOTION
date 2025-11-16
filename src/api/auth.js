@@ -5,15 +5,44 @@ import * as SecureStore from 'expo-secure-store';
 import {getOrCreateDeviceUUID} from '../utils/uuid';
 
 const postJson = async (path, body) => {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  return data;
+  const url = `${API_BASE_URL}${path}`;
+  console.log(`[auth] POST ${url}`);
+  console.log('[auth] Payload:', JSON.stringify(body));
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const contentType = res.headers?.get?.('content-type') || '';
+    const rawBody = await res.text();
+    let data = rawBody;
+    if (rawBody && contentType.includes('application/json')) {
+      try {
+        data = JSON.parse(rawBody);
+      } catch (parseErr) {
+        console.warn('[auth] Failed to parse JSON response:', parseErr);
+      }
+    }
+
+    console.log('[auth] Status:', res.status);
+    console.log('[auth] Response:', data);
+
+    if (!res.ok) {
+      const error = new Error(`Request failed with status ${res.status}`);
+      error.status = res.status;
+      error.body = data;
+      throw error;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('[auth] postJson error:', err?.message || err);
+    throw err;
+  }
 };
 
 export const login = async ({correo, contrasena}) => {

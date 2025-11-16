@@ -1,0 +1,32 @@
+Flujo actual del formulario
+
+Inicio (HealingStartScreen.tsx) – El usuario arranca una encuesta concreta (encuesta_id); startOrGetProgress crea/recupera un registro en questionnaire_progress y muestra contexto/mensaje inicial.
+Selección de motivos (ReasonsListScreen.tsx) – Se listan los motivos disponibles; el usuario marca uno o varios. Las selecciones se persisten con saveSelectedReasons y, al continuar, se calculan los que faltan (listUnansweredMotivoIds).
+Intensidades por motivo (IntensityWizardScreen.tsx) – Se recorre cada motivo seleccionado (uno a la vez). Para cada uno se elige una intensidad y un peso; se guarda con saveIntensity, que hace upsert en reason_intensities. Si queda otro motivo sin contestar, se repite; si no, se pasa al siguiente paso.
+Resumen/agradecimiento (SummaryScreen.tsx) – Recupera todos los motivos contestados (getSummary) y muestra el resumen; al cerrar se marca el progreso como completado con completeProgress.
+Cada pantalla usa formsRepo.ts para leer/escribir en SQLite y asegurar que si el usuario sale/regresa se retomen los datos. Con esto puedes armar un instructions.txt que describa cada etapa y la tabla que toca.
+
+
+Flujo “Iniciar sanación”
+
+Pantalla de preparación (HealingStartScreen.tsx): Se piden cuatro confirmaciones (tiempo, conexión, espacio, entendimiento). Solo tras marcar todas se habilita Comenzar sanación. Al tocarlo, se arma un resumen con los flags marcados y se navega a HealingSelectMotivoScreen.
+Selección del motivo a sanar (HealingSelectMotivoScreen.tsx): Se cargan todos los progresos guardados (listAllProgress) y, por cada encuesta, se listan los motivos elegidos junto con su intensidad/peso. El usuario elige uno; al dar “Siguiente” se consulta GET /api/ws/motivo/{motivoId}/sanaciones. Si la respuesta trae sanaciones, se toma una (hoy el primer elemento) y se navega a HealingSanacionScreen, pasando { motivo, sanacion } por params.
+Sesión de sanación (HealingSanacionScreen.tsx):
+Si la sanación es de tipo texto, muestra el título y contenido.
+Si es de tipo audio, arma la lista ordenada de audios (sanacion.audios o sanacion.audio_url), convierte URLs relativas a absolutas y ofrece un botón Escuchar/Pausar. Se reproduce con expo-av, bloqueando interacción mientras suena; al finalizar un audio avanza al siguiente. Cuando termina todos, programa un texto de “próxima evaluación” (+2 días) y reinicia la lista tras 2 s.
+Si no hay contenido válido, muestra mensaje genérico.
+Persistencia: Este flujo no escribe nueva info en SQLite; se apoya en lo recopilado durante las encuestas (motivos con intensidades). El resumen previo (encuestasResumen) es solo para logging/diagnóstico.
+
+
+
+Siempre seran solo 3 Encuestas , 
+Ahora el proceso de iniciar sanacion se queda la pantalla de de preparación, despues de eso se debe resolver solo la encuesta 1 que es la de 
+
+
+
+El primer flujo ya es correcto es decir me da una encuesta, de cada encuesta selecciono sus motivos y me da sus resultados, eso ya es correcto, ahora sigue el flujo de sanacion, el flujo de sanacion ahorita ya muestra la pantalla de preparación, despues selecciona un motivo a sanar 
+
+
+/Users/osx/Documents/LBR/crisimotion/Clinicly_Mobile_App/CrestiMotion/src/screens/forms/ReasonsListScreen.tsx
+
+bien ahora en motivos en el endpoint se agrego el campo descripcion, puedes hacer q si no es null y tiene al menos un caracter se 

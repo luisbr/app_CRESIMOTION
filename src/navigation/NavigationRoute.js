@@ -30,6 +30,8 @@ import ReasonsListScreen from '../screens/forms/ReasonsListScreen';
 import IntensityWizardScreen from '../screens/forms/IntensityWizardScreen';
 import SummaryScreen from '../screens/forms/SummaryScreen';
 import HealingStartScreen from '../screens/forms/HealingStartScreen';
+import HealingSelectMotivoScreen from '../screens/forms/HealingSelectMotivoScreen';
+import HealingSanacionScreen from '../screens/forms/HealingSanacionScreen';
 
 // tab screens
 import HomeTab from '../container/home/HomeTab';
@@ -61,6 +63,8 @@ export const StackRoute = {
   IntensityWizardScreen,
   SummaryScreen,
   HealingStartScreen,
+  HealingSelectMotivoScreen,
+  HealingSanacionScreen,
 };
 
 export const AuthRoute = {

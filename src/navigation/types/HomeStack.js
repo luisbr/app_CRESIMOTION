@@ -6,6 +6,9 @@ import IntensityWizardScreen from '../../screens/forms/IntensityWizardScreen';
 import SummaryScreen from '../../screens/forms/SummaryScreen';
 import HealingStartScreen from '../../screens/forms/HealingStartScreen';
 
+import HealingSelectMotivoScreen from '../../screens/forms/HealingSelectMotivoScreen';
+import HealingSanacionScreen from '../../screens/forms/HealingSanacionScreen';
+
 const Stack = createStackNavigator();
 
 export default function HomeStack() {
@@ -16,6 +19,8 @@ export default function HomeStack() {
       <Stack.Screen name="IntensityWizard" component={IntensityWizardScreen} />
       <Stack.Screen name="Summary" component={SummaryScreen} />
       <Stack.Screen name="HealingStart" component={HealingStartScreen} />
+      <Stack.Screen name="HealingSelectMotivoScreen" component={HealingSelectMotivoScreen} />
+      <Stack.Screen name="HealingSanacionScreen" component={HealingSanacionScreen} />
     </Stack.Navigator>
   );
 }

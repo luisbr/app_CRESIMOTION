@@ -5,7 +5,7 @@ import { styles } from '../../theme';
 import { useSelector } from 'react-redux';
 import CButton from '../../components/common/CButton';
 import {getWidth, moderateScale} from '../../common/constants';
-import { saveIntensity, getSummary, completeProgress } from '../../repositories/formsRepo';
+import { saveIntensity, getSummary, completeProgress, debugLogFlow, listIntensitiesForProgress } from '../../repositories/formsRepo';
 
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
@@ -21,6 +21,7 @@ export default function IntensityWizardScreen({ navigation, route }: any) {
 
   const intensidades = useMemo(() => motivo?.intensidades || [], [motivo]);
   const [selected, setSelected] = useState<string | null>(null);
+  const [answersByMotivo, setAnswersByMotivo] = useState<Record<string, string>>({});
 
   useEffect(() => {
     // cuando entras con motivos filtrados (solo pendientes) ya parte de 0
@@ -32,14 +33,24 @@ export default function IntensityWizardScreen({ navigation, route }: any) {
       progressId,
       motivosCount: motivos?.length || 0,
     });
-  }, [motivos]);
+    const stored = listIntensitiesForProgress(progressId);
+    const map: Record<string, string> = {};
+    stored.forEach((row: any) => {
+      if (row?.motivo_id && row?.intensidad_id) {
+        map[String(row.motivo_id)] = String(row.intensidad_id);
+      }
+    });
+    setAnswersByMotivo(map);
+  }, [motivos, progressId]);
 
   useEffect(() => {
     const m = motivos[index];
     if (m) {
       console.log('[QUIZ] Motivo actual', { index: index + 1, total: motivos.length, motivoId: m.id, motivo: m.motivo });
+      const prev = answersByMotivo[String(m.id)];
+      setSelected(prev || null);
     }
-  }, [index, motivos]);
+  }, [index, motivos, answersByMotivo]);
 
   const onNext = async () => {
     if (!motivo || !selected) return;
@@ -47,6 +58,7 @@ export default function IntensityWizardScreen({ navigation, route }: any) {
     const peso = Number(sel?.peso || 0);
     console.log('[DB] saveIntensity ->', { progressId, motivoId: String(motivo.id), intensidadId: String(selected), peso });
     saveIntensity(progressId, String(motivo.id), String(selected), peso);
+    setAnswersByMotivo(prev => ({ ...prev, [String(motivo.id)]: String(selected) }));
     if (index < motivos.length - 1) {
       setSelected(null);
       console.log('[QUIZ] next motivo', { fromIndex: index + 1, toIndex: index + 2 });
@@ -58,7 +70,9 @@ export default function IntensityWizardScreen({ navigation, route }: any) {
         const { getSession } = require('../../api/auth');
         const { closeOtherInProgressForSameSurvey } = require('../../repositories/formsRepo');
         const s = await getSession();
-        closeOtherInProgressForSameSurvey(String(s?.id || 'anon'), encuestaId, progressId);
+        const uid = String(s?.id || 'anon');
+        closeOtherInProgressForSameSurvey(uid, encuestaId, progressId);
+        debugLogFlow(uid, `IntensityWizard:complete-${encuestaId}`);
       } catch (e) {
         console.log('[DB][WARN] closeOtherInProgressForSameSurvey failed', e);
       }

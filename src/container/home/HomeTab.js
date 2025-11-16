@@ -19,14 +19,8 @@ import DrProfileComponent from "../../components/home/DrProfileComponent";
 import { StackNav } from "../../navigation/NavigationKey";
 import { getSession } from "../../api/auth";
 import { migrate } from "../../db";
-import { getInProgressForUser, listSelectedReasons, listUnansweredMotivoIds } from "../../repositories/formsRepo";
+import { getInProgressForUser, listSelectedReasons, listUnansweredMotivoIds, listAllProgress, listReasonsForProgress, listIntensitiesForProgress, debugLogFlow } from "../../repositories/formsRepo";
 import { getEncuestaById } from "../../api/encuestas";
-
-import {
-listAllProgress,
-listReasonsForProgress,
-listIntensitiesForProgress,
-} from '../../repositories/formsRepo';
 
 export default function HomeTab({ navigation }) {
   const colors = useSelector((state) => state.theme.theme);
@@ -40,15 +34,26 @@ export default function HomeTab({ navigation }) {
     {id: 1, title: ''},
 
   ];
+  const onReset = async () => {
+    try {
+      const { getSession } = require('../../api/auth');
+      const { clearAllProgressForUser } = require('../../repositories/formsRepo');
+      const s = await getSession();
+      clearAllProgressForUser(String(s?.id || 'anon'));
+      navigation.popToTop();
+    } catch (e) {}
+  };
   const loadHomeState = useCallback(async () => {
     try {
     const s = await getSession();
     const name = s?.nombre || s?.alias || '';
+    const userId = String(s?.id || 'anon');
     setDisplayName(name);
     console.log('[HOME] session:', name);
     migrate();
+    debugLogFlow(userId, 'HomeTab:load');
 
-const p = getInProgressForUser(String(s?.id || 'anon'));
+const p = getInProgressForUser(userId);
 if (p) {
   setPending(p);
   try {
@@ -167,6 +172,8 @@ loadHomeState();
         </TouchableOpacity>
 
         <View style={[styles.mt10]}> <CButton title={'Log resultados (debug)'} onPress={async () => { try { const s = await getSession(); const userId = String(s?.id || 'anon'); const progresses = listAllProgress(userId); console.log('[DEBUG] Progresos:', progresses); for (const p of progresses) { const reasons = listReasonsForProgress(p.id); const intensities = listIntensitiesForProgress(p.id); console.log('[DEBUG] Progreso **', pending,p.id, 'encuesta', p.encuesta_id, 'status', p.status); console.log(' [DEBUG] Motivos seleccionados:', reasons.map(r => String(r.motivo_id))); console.log(' [DEBUG] Intensidades:', intensities); } } catch (e) { console.log('[DEBUG][ERROR]', e?.message || e); } }} bgColor={colors.inputBg} color={colors.primary} /> </View>
+
+        <View style={[styles.mt10]}> <CButton title={'Reiniciar'} onPress={onReset} bgColor={colors.inputBg} color={colors.primary} /> </View>
         
       </View>
     );

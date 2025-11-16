@@ -2,9 +2,36 @@ import * as SQLite from 'expo-sqlite';
 
 export const db = SQLite.openDatabaseSync('clinicly.db');
 
+const columnExists = (table: string, column: string) => {
+  try {
+    const info = db.getAllSync(`PRAGMA table_info(${table})`) as any[];
+    return info?.some(col => col?.name === column);
+  } catch (e) {
+    console.log('[DB] columnExists error', table, column, e);
+    return false;
+  }
+};
+
+const ensureColumn = (table: string, column: string, definition: string, onAdd?: () => void) => {
+  if (!columnExists(table, column)) {
+    db.execSync(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`);
+    if (onAdd) onAdd();
+  }
+};
+
 export function migrate() {
   db.execSync(`
     PRAGMA journal_mode = wal;
+    CREATE TABLE IF NOT EXISTS healing_flows (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'collecting',
+      started_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      completed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_hf_user_status ON healing_flows(user_id, status);
+
     CREATE TABLE IF NOT EXISTS questionnaire_progress (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       encuesta_id TEXT NOT NULL,
@@ -35,5 +62,10 @@ export function migrate() {
     );
     CREATE INDEX IF NOT EXISTS idx_ri_progress ON reason_intensities(progress_id);
   `);
-}
 
+  ensureColumn('questionnaire_progress', 'flow_id', 'INTEGER');
+  ensureColumn('questionnaire_progress', 'updated_at', 'TEXT', () => {
+    db.execSync('UPDATE questionnaire_progress SET updated_at=datetime(\'now\') WHERE updated_at IS NULL;');
+  });
+  db.execSync('CREATE INDEX IF NOT EXISTS idx_qp_flow ON questionnaire_progress(flow_id);');
+}

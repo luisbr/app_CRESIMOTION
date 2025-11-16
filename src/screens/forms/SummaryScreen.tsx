@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 import CButton from '../../components/common/CButton';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
+import { getSession } from "../../api/auth";
+import { getInProgressForUser, listSelectedReasons, listUnansweredMotivoIds, listAllProgress, listReasonsForProgress, listIntensitiesForProgress } from "../../repositories/formsRepo";
 // Removed victory-native usage to avoid reanimated/skia deps; use pure SVG instead
 import Svg, { Polygon, Circle, G, Text as SvgText, Rect, Path } from 'react-native-svg';
 import { moderateScale } from '../../common/constants';
@@ -17,6 +19,16 @@ export default function SummaryScreen({ navigation, route }: any) {
   const encuestaId = String(route?.params?.encuestaId || '1');
   useEffect(() => {
     console.log('[QUIZ] Summary mount', { encuestaId, motivos: motivos.length, summaryCount: summary.length });
+    (async () => {
+      try {
+        const { getSession } = require('../../api/auth');
+        const { debugLogFlow } = require('../../repositories/formsRepo');
+        const s = await getSession();
+        debugLogFlow(String(s?.id || 'anon'), `Summary:mount-${encuestaId}`);
+      } catch (e) {
+        console.log('[SUMMARY] debug log failed', e);
+      }
+    })();
   }, [encuestaId, summary, motivos]);
 
   const byMotivo = new Map<string, number>();
@@ -78,6 +90,7 @@ export default function SummaryScreen({ navigation, route }: any) {
             }}
           />
         )}
+        <View style={[styles.mt10]}> <CButton title={'Log resultados (debug)'} onPress={async () => { try { const s = await getSession(); const userId = String(s?.id || 'anon'); const progresses = listAllProgress(userId); console.log('[DEBUG] Progresos:', progresses); for (const p of progresses) { const reasons = listReasonsForProgress(p.id); const intensities = listIntensitiesForProgress(p.id); console.log('[DEBUG] Progreso **',p.id, 'encuesta', p.encuesta_id, 'status', p.status); console.log(' [DEBUG] Motivos seleccionados:', reasons.map(r => String(r.motivo_id))); console.log(' [DEBUG] Intensidades:', intensities); } } catch (e) { console.log('[DEBUG][ERROR]', e?.message || e); } }} bgColor={colors.inputBg} color={colors.primary} /> </View>
       </View>
       <View style={styles.mt10}>
         <ResetDebugButton navigation={navigation} />

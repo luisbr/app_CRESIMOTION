@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { FlatList, Modal, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import CText from '../../components/common/CText';
 import { useSelector } from 'react-redux';
 import { styles } from '../../theme';
 import CButton from '../../components/common/CButton';
 import { getEncuestaById } from '../../api/encuestas';
 import { migrate } from '../../db';
-import { startOrGetProgress, saveSelectedReasons, listSelectedReasons, listUnansweredMotivoIds } from '../../repositories/formsRepo';
+import { startOrGetProgress, saveSelectedReasons, listSelectedReasons, listUnansweredMotivoIds, debugLogFlow } from '../../repositories/formsRepo';
 import { getSession } from '../../api/auth';
 import { moderateScale } from '../../common/constants';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -21,6 +21,8 @@ export default function ReasonsListScreen({ navigation, route }: any) {
   const [encuesta, setEncuesta] = useState<any>(null);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [progress, setProgress] = useState<any>(null);
+  const [userId, setUserId] = useState<string>('anon');
+  const [descModal, setDescModal] = useState<{ text: string; title: string } | null>(null);
   const { width } = useWindowDimensions();
 
   useEffect(() => {
@@ -31,7 +33,9 @@ export default function ReasonsListScreen({ navigation, route }: any) {
         const data = await getEncuestaById(encuestaId);
         setEncuesta(data);
         const s = await getSession();
-        const p = startOrGetProgress(String(s?.id || 'anon'), encuestaId);
+        const uid = String(s?.id || 'anon');
+        setUserId(uid);
+        const p = startOrGetProgress(uid, encuestaId);
         setProgress(p);
         const selected = listSelectedReasons(p.id);
         setChecked(Object.fromEntries(selected.map(id => [id, true])));
@@ -42,6 +46,7 @@ export default function ReasonsListScreen({ navigation, route }: any) {
           progressId: p?.id,
           selectedPrev: selected.length,
         });
+        debugLogFlow(uid, `ReasonsList:loaded-${encuestaId}`);
       } catch (e: any) {
         setError(e?.message || 'Error al cargar encuesta');
       } finally {
@@ -79,6 +84,7 @@ export default function ReasonsListScreen({ navigation, route }: any) {
     if (!progress || selectedIds.length === 0) return;
     console.log('[DB] saveSelectedReasons', { progressId: progress.id, selectedIds });
     saveSelectedReasons(progress.id, selectedIds);
+    debugLogFlow(userId, `ReasonsList:saved-${encuestaId}`);
     const unanswered = listUnansweredMotivoIds(progress.id, selectedIds);
     console.log('[QUIZ] continue to IntensityWizard', {
       encuestaId,
@@ -103,7 +109,7 @@ export default function ReasonsListScreen({ navigation, route }: any) {
       <CHeader title={encuesta?.encuesta || 'Encuesta'} />
       <View style={[styles.ph20, styles.pv20, { flex: 1 }] }>
         {!!encuesta?.introduccion && (
-          <View style={styles.mt10}>
+          <View style={styles.mt10}>sss
             <RenderHTML
               contentWidth={width - 40}
               source={{ html: encuesta.introduccion }}
@@ -117,8 +123,30 @@ export default function ReasonsListScreen({ navigation, route }: any) {
         keyExtractor={(item: any) => String(item.id)}
         renderItem={({ item }: any) => {
           const isOn = !!checked[item.id];
+          const desc = typeof item.descripcion === 'string' ? item.descripcion.trim() : '';
+          const hasDesc = desc.length > 0;
           return (
             <TouchableOpacity onPress={() => toggle(item.id)} style={[styles.rowSpaceBetween, styles.pv15]}>
+              
+              {hasDesc && (
+                <TouchableOpacity
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    setDescModal({ text: desc, title: item.motivo });
+                  }}
+                  style={{
+                    width: moderateScale(22),
+                    height: moderateScale(22),
+                    borderRadius: moderateScale(11),
+                    backgroundColor: colors.primary,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: 8,
+                  }}
+                >
+                  <CText type={'S12'} color={'#fff'}>i</CText>
+                </TouchableOpacity>
+              )}
               <View style={{ flex: 1, marginRight: 12 }}>
                 <CText type={'S16'}>{item.motivo}</CText>
               </View>
@@ -165,6 +193,19 @@ export default function ReasonsListScreen({ navigation, route }: any) {
           disabled={Object.values(checked).filter(Boolean).length === 0}
         />
       </View>
+      <Modal visible={!!descModal} transparent animationType="fade" onRequestClose={() => setDescModal(null)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <View style={{ backgroundColor: colors.backgroundColor, borderRadius: 12, padding: 20, width: '100%' }}>
+            <CText type={'B16'} style={{ marginBottom: 8 }}>{descModal?.title || 'Detalle'}</CText>
+            <CText type={'R14'} color={colors.textColor}>{descModal?.text}</CText>
+            <CButton
+              title={'Cerrar'}
+              style={{ marginTop: 16 }}
+              onPress={() => setDescModal(null)}
+            />
+          </View>
+        </View>
+      </Modal>
     </CSafeAreaView>
   );
 }
