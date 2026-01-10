@@ -65,6 +65,21 @@ export const login = async ({correo, contrasena}) => {
   return resp;
 };
 
+export const requestPasswordReset = async ({correo}) => {
+  const uuid = await getOrCreateDeviceUUID();
+  return postJson(ENDPOINTS.REQUEST_PWD_RESET, {correo: (correo || '').toLowerCase(), uuid});
+};
+
+export const updatePassword = async ({correo, token, contrasena}) => {
+  const uuid = await getOrCreateDeviceUUID();
+  return postJson(ENDPOINTS.UPDATE_PWD, {
+    correo: (correo || '').toLowerCase(),
+    uuid,
+    token,
+    contrasena,
+  });
+};
+
 const splitName = full => {
   const parts = (full || '').trim().split(' ');
   const nombre = parts.shift() || '';

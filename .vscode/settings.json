@@ -1,0 +1,21 @@
+{
+  "terminal.integrated.profiles.osx": {
+        "zsh-proyecto": {
+          "path": "/bin/zsh",
+          "args": ["-l"],
+          "env": {
+            "WORKSPACE_HISTORY_FILE": "${workspaceFolder}/.vscode/.zsh_history",
+            "HISTFILE": "${workspaceFolder}/.vscode/.zsh_history",
+            "HISTSIZE": "5000",
+            "SAVEHIST": "10000"
+          }
+        }
+      },
+  "terminal.integrated.defaultProfile.osx": "zsh-proyecto",
+  "terminal.integrated.env.osx": {
+    "WORKSPACE_HISTORY_FILE": "${workspaceFolder}/.vscode/.zsh_history",
+    "HISTFILE": "${workspaceFolder}/.vscode/.zsh_history",
+    "HISTSIZE": "5000",
+    "SAVEHIST": "10000"
+  }
+}

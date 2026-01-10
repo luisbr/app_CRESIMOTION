@@ -142,6 +142,10 @@ export default function Register({navigation}) {
     }
   };
 
+  const onPressForgotPass = () => {
+    navigation.navigate(AuthNav.ForgotPassword, {correo: email});
+  };
+
   // Social login removed
   return (
     <CSafeAreaView>
@@ -248,6 +252,11 @@ export default function Register({navigation}) {
             toGetTextFieldValue={onChangedPassword}
             isSecure
           />
+          <TouchableOpacity onPress={onPressForgotPass} style={styles.selfEnd}>
+            <CText type={'S14'} color={colors.alertColor}>
+              {strings.forgotPassword}
+            </CText>
+          </TouchableOpacity>
           <DateTimePickerModal
             isVisible={datePickerVisible}
             mode="date"

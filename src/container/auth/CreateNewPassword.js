@@ -14,14 +14,19 @@ import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import PasswordSuccessModel from '../../components/model/PasswordSuccessModel';
 import {AuthNav} from '../../navigation/NavigationKey';
+import {updatePassword} from '../../api/auth';
 
-export default function CreateNewPassword({navigation}) {
+export default function CreateNewPassword({navigation, route}) {
   const colors = useSelector(state => state.theme.theme);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const correo = route?.params?.correo || '';
+  const token = route?.params?.token || '';
 
   const onChangedPassword = val => {
     const {msg} = validPassword(val.trim());
@@ -35,8 +40,35 @@ export default function CreateNewPassword({navigation}) {
     setConfirmPasswordError(msg);
   };
 
-  const onPressNext = () => {
-    setModalVisible(true);
+  const onPressNext = async () => {
+    setSubmitError('');
+    const {msg: passMsg} = validPassword(password.trim());
+    const {msg: confirmMsg} = validateConfirmPassword(confirmPassword.trim(), password);
+    if (passMsg || confirmMsg) {
+      setPasswordError(passMsg);
+      setConfirmPasswordError(confirmMsg);
+      return;
+    }
+    if (!correo || !token) {
+      setSubmitError('Faltan datos para actualizar la contrasena.');
+      return;
+    }
+    if (submitting) {
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const resp = await updatePassword({correo, token, contrasena: password});
+      if (resp && (resp.success === true || resp.status === true)) {
+        setModalVisible(true);
+        return;
+      }
+      setSubmitError(resp?.message || 'No se pudo actualizar la contrasena.');
+    } catch (e) {
+      setSubmitError(e?.body?.message || e?.message || 'No se pudo actualizar la contrasena.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const onPressContinue = () => {
@@ -84,6 +116,11 @@ export default function CreateNewPassword({navigation}) {
             containerStyle={styles.mv20}
             onPress={onPressNext}
           />
+          {!!submitError && (
+            <CText type={'S14'} align={'center'} color={colors.redAlert}>
+              {submitError}
+            </CText>
+          )}
         </View>
       </KeyBoardAvoidWrapper>
       <PasswordSuccessModel

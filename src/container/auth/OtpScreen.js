@@ -1,5 +1,5 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {OtpInput} from 'react-native-otp-entry';
 
 // custom import
@@ -13,29 +13,70 @@ import {useSelector} from 'react-redux';
 import {moderateScale} from '../../common/constants';
 import typography from '../../theme/typography';
 import CButton from '../../components/common/CButton';
-import AgreePopUp from '../../components/model/AgreePopUp';
-import {StackNav} from '../../navigation/NavigationKey';
-import {setAuthToken} from '../../utils/AsyncStorage';
+import {AuthNav} from '../../navigation/NavigationKey';
+import {requestPasswordReset} from '../../api/auth';
 
-export default function OtpScreen({navigation}) {
+export default function OtpScreen({navigation, route}) {
   const colors = useSelector(state => state.theme.theme);
   const [otp, setOtp] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [timer, setTimer] = useState(60);
+  const [resendError, setResendError] = useState('');
+  const [resending, setResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState('');
+  const correo = route?.params?.correo || '';
+
+  useEffect(() => {
+    if (timer <= 0) return;
+    const id = setInterval(() => {
+      setTimer(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [timer]);
+
+  const formattedTimer = useMemo(() => {
+    const mm = String(Math.floor(timer / 60)).padStart(2, '0');
+    const ss = String(timer % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
+  }, [timer]);
 
   const onOtpChange = text => setOtp(text);
   const onPressContinue = () => {
-    setModalVisible(true);
+    const trimmed = (otp || '').trim();
+    if (trimmed.length < 4) {
+      setOtpError('Ingresa el codigo de 4 digitos.');
+      return;
+    }
+    setOtpError('');
+    navigation.navigate(AuthNav.CreateNewPassword, {correo, token: trimmed});
   };
-  const onPressDisgree = () => {
-    setModalVisible(false);
-  };
-  const onPressAgree = async () => {
-    setModalVisible(false);
-    await setAuthToken(true);
-    navigation.reset({
-      index: 0,
-      routes: [{name: StackNav.TabNavigation}],
-    });
+  const onPressResend = async () => {
+    if (resending) return;
+    if (!correo) {
+      setResendError('Falta el correo para reenviar el codigo.');
+      return;
+    }
+    setResendError('');
+    setResendSuccess('');
+    setResending(true);
+    try {
+      const resp = await requestPasswordReset({correo});
+      if (resp?.retry_in_seconds) {
+        setResendError(`Intenta de nuevo en ${resp.retry_in_seconds} s.`);
+        setTimer(Number(resp.retry_in_seconds) || 60);
+        return;
+      }
+      if (resp && (resp.success === true || resp.status === true)) {
+        setTimer(60);
+        setResendSuccess(resp?.success_message || 'Codigo reenviado.');
+        return;
+      }
+      setResendError(resp?.message || 'No se pudo reenviar el codigo.');
+    } catch (e) {
+      setResendError(e?.body?.message || e?.message || 'No se pudo reenviar el codigo.');
+    } finally {
+      setResending(false);
+    }
   };
   return (
     <CSafeAreaView>
@@ -46,7 +87,7 @@ export default function OtpScreen({navigation}) {
         </CText>
         <CText type={'S14'} align={'center'} color={colors.labelColor}>
           {strings.enterOtpDesc}
-          <CText>{' example@gmail.com'}</CText>
+          {!!correo && <CText>{` ${correo}`}</CText>}
         </CText>
         <OtpInput
           numberOfDigits={4}
@@ -80,23 +121,41 @@ export default function OtpScreen({navigation}) {
             ],
           }}
         />
+        <CText type={'S14'} align={'center'} color={colors.labelColor}>
+          {timer > 0
+            ? `El codigo vence en ${formattedTimer}`
+            : 'El codigo vencio, puedes reenviarlo'}
+        </CText>
+        {!!otpError && (
+          <CText type={'S14'} align={'center'} color={colors.redAlert}>
+            {otpError}
+          </CText>
+        )}
         <CButton title={strings.continue} onPress={onPressContinue} />
         <View style={localStyles.bottomContainer}>
           <CText type={'M16'} color={colors.grayScale1}>
             {strings.didReceiveCode}
           </CText>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={onPressResend}
+            disabled={timer > 0 || resending}
+          >
             <CText type={'M16'} color={colors.primary}>
-              {strings.resendCode}
+              {resending ? 'Enviando...' : strings.resendCode}
             </CText>
           </TouchableOpacity>
         </View>
+        {!!resendSuccess && (
+          <CText type={'S14'} align={'center'} color={colors.primary}>
+            {resendSuccess}
+          </CText>
+        )}
+        {!!resendError && (
+          <CText type={'S14'} align={'center'} color={colors.redAlert}>
+            {resendError}
+          </CText>
+        )}
       </KeyBoardAvoidWrapper>
-      <AgreePopUp
-        visible={modalVisible}
-        onPressAgree={onPressAgree}
-        onPressDisgree={onPressDisgree}
-      />
     </CSafeAreaView>
   );
 }

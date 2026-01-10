@@ -51,7 +51,7 @@ export default function Login({navigation}) {
   };
 
   const onPressForgotPass = () => {
-    navigation.navigate(AuthNav.ForgotPassword);
+    navigation.navigate(AuthNav.ForgotPassword, {correo: email});
   };
   const onPressSignIn = async () => {
     if (emailError || passwordError || !email || !password) {
