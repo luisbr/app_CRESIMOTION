@@ -103,7 +103,7 @@ loadHomeState();
 }, [loadHomeState]);
 
   const onPressMore = async () => {
-    navigation.navigate('ReasonsList', { encuestaId: '1' });
+    navigation.navigate('DiagnosticoHome');
     /*
     pending 
     console.log('[NAV] onPressMore', { hasPending: !!pending });
@@ -165,7 +165,7 @@ loadHomeState();
                     drName={pendingTitle || "-"}
                     specialist={""}
                     color={colors.white}
-                    scheduleLabel={pending ? 'Continuar' : 'Iniciar sanación'}
+                    scheduleLabel={'Iniciar diagnostico'}
                     scheduleBgColor={colors.checkMark}
                     
                   />
