@@ -3,6 +3,7 @@ import type {CatalogItem, CatalogOption, ModuleKey} from './types';
 
 export const DIAGNOSTICO_LAST_ROUTE_KEY = 'diagnostico_last_route';
 export const DIAGNOSTICO_CHART_VIEW_KEY = 'diagnostico_chart_view';
+export const DIAGNOSTICO_GROUP_ID_KEY = 'diagnostico_group_id';
 
 export const standardIntensityOptions: CatalogOption[] = [
   {key: 'bajo', label: 'Bajo', value: 1, order: 1},
@@ -61,4 +62,22 @@ export const getChartView = async () => {
   const view = await AsyncStorage.getItem(DIAGNOSTICO_CHART_VIEW_KEY);
   if (view === 'bar' || view === 'pie' || view === 'radar') return view;
   return 'bar';
+};
+
+export const saveGroupId = async (groupId: number) => {
+  await AsyncStorage.setItem(DIAGNOSTICO_GROUP_ID_KEY, JSON.stringify(groupId));
+};
+
+export const getGroupId = async () => {
+  const raw = await AsyncStorage.getItem(DIAGNOSTICO_GROUP_ID_KEY);
+  if (!raw) return null;
+  try {
+    return Number(JSON.parse(raw));
+  } catch (e) {
+    return null;
+  }
+};
+
+export const clearGroupId = async () => {
+  await AsyncStorage.removeItem(DIAGNOSTICO_GROUP_ID_KEY);
 };

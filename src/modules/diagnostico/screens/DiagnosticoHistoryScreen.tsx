@@ -12,7 +12,7 @@ const MODULES: ModuleKey[] = ['motivos', 'sintomas_fisicos', 'sintomas_emocional
 
 export default function DiagnosticoHistoryScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
-  const [moduleKey, setModuleKey] = useState<ModuleKey>('motivos');
+  const [moduleKey] = useState<ModuleKey | null>(null);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [error, setError] = useState('');
@@ -26,7 +26,30 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
         const data = await getHistory(moduleKey, 20, 0);
         if (!mounted) return;
         const list = data?.items || data?.data || data || [];
-        setItems(Array.isArray(list) ? list : []);
+        const rawItems = Array.isArray(list) ? list : [];
+        const grouped = new Map<string, any>();
+        rawItems.forEach((item: any) => {
+          const groupId = String(item?.group_id ?? item?.session_id ?? item?.id ?? '');
+          if (!grouped.has(groupId)) {
+            grouped.set(groupId, {
+              group_id: item?.group_id ?? null,
+              items: [item],
+            });
+          } else {
+            grouped.get(groupId).items.push(item);
+          }
+        });
+        const groupedList = Array.from(grouped.values()).map(group => {
+          const sorted = [...group.items].sort((a: any, b: any) => {
+            return String(b?.completed_at || '').localeCompare(String(a?.completed_at || ''));
+          });
+          return {
+            group_id: group.group_id,
+            items: sorted,
+            latest: sorted[0],
+          };
+        });
+        setItems(groupedList);
       } catch (e: any) {
         if (!mounted) return;
         setError(e?.body?.message || e?.message || 'No se pudo cargar el historial.');
@@ -40,6 +63,14 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
     };
   }, [moduleKey]);
 
+  const formatLocalDate = (value: string) => {
+    if (!value) return '';
+    const iso = value.includes('T') ? value : `${value.replace(' ', 'T')}Z`;
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString();
+  };
+
   return (
     <CSafeAreaView>
       <CHeader />
@@ -47,15 +78,6 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
         <CText type={'S24'} style={styles.mb10}>
           Mis evaluaciones
         </CText>
-        <View style={[styles.rowSpaceBetween, styles.mb15]}>
-          {MODULES.map(m => (
-            <TouchableOpacity key={m} onPress={() => setModuleKey(m)}>
-              <CText type={'S14'} color={m === moduleKey ? colors.primary : colors.labelColor}>
-                {m.replace('_', ' ')}
-              </CText>
-            </TouchableOpacity>
-          ))}
-        </View>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : error ? (
@@ -64,18 +86,27 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
           </CText>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false}>
+            {!items.length && (
+              <CText type={'S14'} align={'center'} color={colors.labelColor}>
+                Aun no tienes evaluaciones.
+              </CText>
+            )}
             {items.map((item: any, idx: number) => {
-              const sessionId = item?.session_id ?? item?.id;
+              const latest = item?.latest || {};
+              const sessionId = latest?.session_id ?? latest?.id;
+              const groupId = item?.group_id ?? latest?.group_id;
               return (
               <TouchableOpacity
-                key={String(sessionId ?? idx)}
+                key={String(groupId ?? sessionId ?? idx)}
                 style={[styles.p15, styles.mb10, {backgroundColor: colors.inputBg, borderRadius: 12}]}
-                onPress={() => navigation.navigate('DiagnosticoHistoryDetail', {sessionId, module_key: moduleKey})}
+                onPress={() => navigation.navigate('DiagnosticoHistoryDetail', {groupItems: item?.items || []})}
               >
-                <CText type={'S16'}>Sesion #{String(sessionId || '')}</CText>
-                {!!item?.completed_at && (
+                <CText type={'S16'}>
+                  {groupId ? `Sesion #${String(groupId)}` : `Sesion #${String(sessionId || '')}`}
+                </CText>
+                {!!latest?.completed_at && (
                   <CText type={'S12'} color={colors.labelColor}>
-                    {item.completed_at}
+                    {formatLocalDate(latest.completed_at)}
                   </CText>
                 )}
               </TouchableOpacity>

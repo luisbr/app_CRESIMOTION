@@ -43,10 +43,14 @@ const parseJson = async (res: Response) => {
   return data;
 };
 
-export const startSession = async (moduleKey: ModuleKey, countryCode: string) => {
+export const startSession = async (moduleKey: ModuleKey, countryCode: string, groupId?: number | null) => {
   const res = await authFetch('/api/v1/evaluations/sessions/start', {
     method: 'POST',
-    body: JSON.stringify({module_key: moduleKey, country_code: countryCode}),
+    body: JSON.stringify({
+      module_key: moduleKey,
+      country_code: countryCode,
+      ...(groupId ? {group_id: groupId} : {}),
+    }),
   });
   return parseJson(res) as Promise<SessionStartResponse>;
 };
@@ -87,12 +91,14 @@ export const getResults = async (sessionId: number) => {
   return parseJson(res) as Promise<SessionResults>;
 };
 
-export const getHistory = async (moduleKey: ModuleKey, limit = 20, offset = 0) => {
+export const getHistory = async (moduleKey?: ModuleKey | null, limit = 20, offset = 0) => {
   const params = new URLSearchParams({
-    module_key: moduleKey,
     limit: String(limit),
     offset: String(offset),
   });
+  if (moduleKey) {
+    params.set('module_key', moduleKey);
+  }
   const session = await getSession();
   const uuid = await getOrCreateDeviceUUID();
   console.log('[Diagnostico] getHistory request meta', {

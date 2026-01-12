@@ -7,7 +7,7 @@ import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import {styles} from '../../../theme';
 import type {ModuleKey, SessionResults} from '../types';
-import {clearLastRoute, getChartView, saveChartView} from '../utils';
+import {clearGroupId, clearLastRoute, getChartView, saveChartView} from '../utils';
 import {getResults} from '../api/sessionsApi';
 import Svg, {G, Text as SvgText, Rect, Path, Polygon, Circle} from 'react-native-svg';
 import {moderateScale} from '../../../common/constants';
@@ -141,6 +141,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
       return;
     }
     await clearLastRoute();
+    await clearGroupId();
     navigation.popToTop();
   };
 

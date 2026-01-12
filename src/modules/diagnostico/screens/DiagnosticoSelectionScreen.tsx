@@ -10,7 +10,7 @@ import type {CatalogItem, ModuleKey} from '../types';
 import {getMotivosCatalog, getSintomasEmocionalesCatalog, getSintomasFisicosCatalog} from '../api/wsCatalogApi';
 import {saveSelection, startSession} from '../api/sessionsApi';
 import ChecklistItem from '../components/ChecklistItem';
-import {saveLastRoute} from '../utils';
+import {getGroupId, saveGroupId, saveLastRoute} from '../utils';
 
 export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -26,9 +26,13 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     setLoading(true);
     setError('');
     try {
-      const sessionResp = await startSession(moduleKey, 'MX');
+      const storedGroupId = moduleKey === 'motivos' ? null : await getGroupId();
+      const sessionResp = await startSession(moduleKey, 'MX', storedGroupId);
       if (mountedRef && !mountedRef.current) return;
       setSessionId(Number(sessionResp?.session?.id));
+      if (moduleKey === 'motivos' && sessionResp?.session?.group_id) {
+        await saveGroupId(Number(sessionResp.session.group_id));
+      }
       const preSelected = sessionResp?.selection?.selected_item_ids || [];
       setSelectedIds(preSelected.map((id: any) => Number(id)));
       setAnswers(Array.isArray(sessionResp?.answers) ? sessionResp.answers : []);

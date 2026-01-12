@@ -6,13 +6,22 @@ import CHeader from '../../../components/common/CHeader';
 import CText from '../../../components/common/CText';
 import {styles} from '../../../theme';
 import {getResults} from '../api/sessionsApi';
-import {getChartView, saveChartView} from '../utils';
+import {getChartView, saveChartView, getModuleLabel} from '../utils';
 import Svg, {G, Text as SvgText, Rect, Path, Polygon, Circle} from 'react-native-svg';
 import {moderateScale} from '../../../common/constants';
 
 export default function DiagnosticoHistoryDetailScreen({route}: any) {
   const colors = useSelector(state => state.theme.theme);
-  const sessionId: number = Number(route?.params?.sessionId);
+  const groupItems: any[] = route?.params?.groupItems || [];
+  const initialIndex = Number(route?.params?.startIndex || 0);
+  const [index, setIndex] = useState(initialIndex);
+  const currentSession = groupItems.length ? groupItems[index] : null;
+  const currentSessionId: number = groupItems.length
+    ? Number(groupItems[index]?.session_id || groupItems[index]?.id)
+    : Number(route?.params?.sessionId);
+  const moduleLabel = currentSession?.module_key
+    ? getModuleLabel(currentSession.module_key)
+    : '';
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState('');
@@ -82,7 +91,7 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
       setLoading(true);
       setError('');
       try {
-        const data = await getResults(sessionId);
+        const data = await getResults(currentSessionId);
         if (!mounted) return;
         setResults(data);
       } catch (e: any) {
@@ -96,7 +105,7 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
     return () => {
       mounted = false;
     };
-  }, [sessionId]);
+  }, [currentSessionId]);
 
   useEffect(() => {
     let mounted = true;
@@ -120,7 +129,7 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
       <CHeader />
       <View style={styles.p20}>
         <CText type={'S24'} style={styles.mb10}>
-          Detalle de evaluacion
+          {moduleLabel ? `Detalle de ${moduleLabel}` : 'Detalle de evaluacion'}
         </CText>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
@@ -187,6 +196,29 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
               </CText>
             )}
           </ScrollView>
+        )}
+        {groupItems.length > 1 && (
+          <View style={[styles.rowSpaceBetween, styles.mt10]}>
+            <TouchableOpacity
+              onPress={() => setIndex(prev => Math.max(0, prev - 1))}
+              disabled={index === 0}
+            >
+              <CText type={'S14'} color={index === 0 ? colors.grayScale3 : colors.primary}>
+                Anterior
+              </CText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setIndex(prev => Math.min(groupItems.length - 1, prev + 1))}
+              disabled={index >= groupItems.length - 1}
+            >
+              <CText
+                type={'S14'}
+                color={index >= groupItems.length - 1 ? colors.grayScale3 : colors.primary}
+              >
+                Siguiente
+              </CText>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
     </CSafeAreaView>
