@@ -22,6 +22,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
+  const [positionMillis, setPositionMillis] = useState(0);
+  const [durationMillis, setDurationMillis] = useState(0);
 
   const allowSkip = useMemo(() => canSkipAudio(data), [data]);
   const skipLabel = useMemo(() => getSkipLabel(data), [data]);
@@ -54,6 +56,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
         await s.loadAsync({ uri: ensureAbsoluteUrl(audioUrl) });
         setSound(s);
         const st = await s.getStatusAsync();
+        setDurationMillis((st as any)?.durationMillis ?? 0);
+        setPositionMillis((st as any)?.positionMillis ?? 0);
         const tailPosition = getDebugTailPosition((st as any)?.durationMillis ?? 0);
         if (tailPosition > 0) {
           await s.setPositionAsync(tailPosition);
@@ -61,6 +65,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
         await s.playAsync();
         setPlaying(true);
         s.setOnPlaybackStatusUpdate((st: any) => {
+          if (st?.durationMillis != null) setDurationMillis(st.durationMillis);
+          if (st?.positionMillis != null) setPositionMillis(st.positionMillis);
           if (st?.didJustFinish) {
             setEnded(true);
             setPlaying(false);
@@ -73,6 +79,13 @@ export default function FocusContentScreen({ navigation, route }: any) {
     } catch (e) {
       console.log('[THERAPY] audio play error', e);
     }
+  };
+
+  const fmt = (ms: number) => {
+    const sec = Math.max(0, Math.floor(ms / 1000));
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const onRestart = async () => {
@@ -122,7 +135,11 @@ export default function FocusContentScreen({ navigation, route }: any) {
       <TherapyHeader />
       <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 140 }]}>
         <View style={styles.mb20}>
-          <CButton title={playing ? 'Pausar' : 'Reproducir'} onPress={onPlay} />
+          <CButton title={playing ? ' xx' : 'Reproducir'} onPress={onPlay} />
+          <View style={[styles.rowSpaceBetween, { marginTop: 8 }]}>
+            <CText type={'S14'}>{fmt(positionMillis)}</CText>
+            <CText type={'S14'}>{fmt(durationMillis)}</CText>
+          </View>
           <View style={styles.mt10}>
             <CButton title={'Más tarde'} bgColor={colors.inputBg} color={colors.primary} onPress={onLater} />
           </View>

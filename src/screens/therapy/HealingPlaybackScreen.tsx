@@ -23,6 +23,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   const [playing, setPlaying] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [tailSeconds, setTailSeconds] = useState<number | null>(null);
 
   const sequence = useMemo(() => {
     const list: Array<{ type: 'local' | 'remote'; source: any }> = [];
@@ -61,7 +62,10 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       await s.loadAsync({ uri: ensureAbsoluteUrl(item.source) });
     }
     const st = await s.getStatusAsync();
-    const tailPosition = getDebugTailPosition((st as any)?.durationMillis ?? 0);
+    const duration = (st as any)?.durationMillis ?? 0;
+    const tailPosition = tailSeconds != null
+      ? Math.max(0, duration - tailSeconds * 1000)
+      : getDebugTailPosition(duration);
     if (tailPosition > 0) {
       await s.setPositionAsync(tailPosition);
     }
@@ -122,6 +126,20 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     }
   };
 
+  const onPlayLastSeconds = async () => {
+    try {
+      setTailSeconds(3);
+      setCurrentIndex(0);
+      if (sound) {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+      }
+      await loadAndPlay(0);
+    } catch (e) {
+      console.log('[THERAPY] healing tail play error', e);
+    }
+  };
+
   const onContinue = async () => {
     try {
       if (!sessionId) throw new Error('No se encontró la sesión.');
@@ -140,6 +158,14 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
         <CText type={'B18'}>{title}</CText>
         <View style={[styles.mt20]}>
           <CButton title={playing ? 'Pausar' : 'Reproducir'} onPress={onPlay} />
+          <View style={styles.mt10}>
+            <CButton
+              title={'Reproducir ultimos 3s'}
+              bgColor={colors.inputBg}
+              color={colors.primary}
+              onPress={onPlayLastSeconds}
+            />
+          </View>
           <View style={styles.mt10}>
             <CButton title={'Reiniciar'} bgColor={colors.inputBg} color={colors.primary} onPress={onRestart} />
           </View>

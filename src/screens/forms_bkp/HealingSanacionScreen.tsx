@@ -87,7 +87,7 @@ export default function HealingSanacionScreen({ navigation, route }: any) {
           <View>
             <CText type={'B18'}>{sanacion?.titulo || 'Audio'}</CText>
             <View style={styles.mt20}>
-              <CButton title={playing ? 'Pausar' : 'Escuchar'} onPress={async () => {
+              <CButton title={playing ? 'Pausar xx' : 'Escuchar'} onPress={async () => {
                 try {
                   if (playing && sound) {
                     await sound.pauseAsync();

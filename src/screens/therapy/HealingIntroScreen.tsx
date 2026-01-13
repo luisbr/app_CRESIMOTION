@@ -103,7 +103,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   return (
     <CSafeAreaView>
       <TherapyHeader />
-      <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 140 }]}>
+      <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 240 }]}>
         <CText type={'B18'}>{title}</CText>
         <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
           {introText}
@@ -114,7 +114,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
               <CText type={'B16'}>{audioTitle}</CText>
             )}
             <CButton
-              title={playing ? 'Pausar' : 'Reproducir'}
+              title={playing ? 'Pausar xx' : 'Reproducir'}
               onPress={onPlayAudio}
               style={styles.mt10}
             />

@@ -1,4 +1,4 @@
-export const DEBUG_AUDIO_TAIL_SECONDS = 10;
+export const DEBUG_AUDIO_TAIL_SECONDS = 0;
 
 export const getDebugTailPosition = (durationMillis?: number | null) => {
   if (!durationMillis || durationMillis <= 0) return 0;
