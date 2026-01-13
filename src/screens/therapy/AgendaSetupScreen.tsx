@@ -8,6 +8,7 @@ import CButton from '../../components/common/CButton';
 import { styles } from '../../theme';
 import { submitAgendaItems } from '../../api/sesionTerapeutica';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Calendar from 'expo-calendar';
 
 const DAYS = [
   { key: 'mon', label: 'Lun' },
@@ -86,7 +87,7 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
       const items = rows.map((r: any) => ({
         ejercicio_id: r.ejercicio_id,
         custom_title: r.custom_title || r.title || '',
-      frequency: (r.days_of_week || []).length >= 7 ? 'diaria' : 'semanal',
+        frequency: (r.days_of_week || []).length >= 7 ? 'diaria' : 'semanal',
         times_per_day: Number(r.times_per_day || 1),
         days_of_week: r.days_of_week,
         time: r.time,
@@ -96,12 +97,77 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
       }));
       const resp = await submitAgendaItems({ sessionId, items });
       console.log('[THERAPY] agenda save response', resp);
+      await createCalendarEvents(items);
       setSuccessMessage('Agenda registrada correctamente.');
       setTimeout(() => {
         navigation.navigate('HomeRoot');
       }, 1200);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo guardar la agenda.');
+    }
+  };
+
+  const createCalendarEvents = async (items: any[]) => {
+    try {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status !== 'granted') return;
+
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const existing = calendars.find(c => c.title === 'CresiMotion');
+      let calendarId = existing?.id;
+
+      if (!calendarId) {
+        const defaultCalendar = await Calendar.getDefaultCalendarAsync();
+        const source = defaultCalendar?.source || calendars.find(c => c.source?.isLocalAccount)?.source || calendars[0]?.source;
+        if (!source) return;
+        calendarId = await Calendar.createCalendarAsync({
+          title: 'CresiMotion',
+          color: '#0aa693',
+          entityType: Calendar.EntityTypes.EVENT,
+          sourceId: source.id,
+          source,
+          name: 'CresiMotion',
+          accessLevel: Calendar.CalendarAccessLevel.OWNER,
+          ownerAccount: source.name,
+        });
+      }
+      console.log('[THERAPY] calendar id', calendarId);
+
+      const dayMap: Record<string, number> = {
+        mon: Calendar.Weekday.MONDAY,
+        tue: Calendar.Weekday.TUESDAY,
+        wed: Calendar.Weekday.WEDNESDAY,
+        thu: Calendar.Weekday.THURSDAY,
+        fri: Calendar.Weekday.FRIDAY,
+        sat: Calendar.Weekday.SATURDAY,
+        sun: Calendar.Weekday.SUNDAY,
+      };
+
+      for (const item of items) {
+        const start = new Date(`${item.start_date}T${item.time}:00`);
+        const end = new Date(start.getTime() + Number(item.duration_minutes || 0) * 60 * 1000);
+        const recurrence = item.frequency === 'diaria'
+          ? { frequency: Calendar.Frequency.DAILY }
+          : {
+              frequency: Calendar.Frequency.WEEKLY,
+              daysOfWeek: (item.days_of_week || [])
+                .map((d: string) => dayMap[d])
+                .filter(Boolean),
+            };
+
+        const eventId = await Calendar.createEventAsync(calendarId, {
+          title: item.custom_title || 'Ejercicio',
+          startDate: start,
+          endDate: end,
+          recurrenceRule: {
+            ...recurrence,
+            endDate: item.end_date ? new Date(`${item.end_date}T23:59:59`) : undefined,
+          },
+        });
+        console.log('[THERAPY] calendar event created', eventId);
+      }
+    } catch (e) {
+      console.log('[THERAPY] calendar create error', e);
     }
   };
 

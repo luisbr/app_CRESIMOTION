@@ -145,13 +145,14 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
           </View>
         }
       />
-      <View style={styles.p20}>
-        <CText type={'S28'} align={'center'} style={styles.mb10}>
-          Diagnostico
-        </CText>
-        <CText type={'S14'} align={'center'} color={colors.labelColor} style={styles.mb20}>
-          Selecciona el modulo para iniciar la evaluacion.
-        </CText>
+      <View>
+        <Image
+          source={require('../../../assets/images/home.png')}
+          style={{ width: '100%', height: moderateScale(180) }}
+          resizeMode="cover"
+        />
+      </View>
+      <View style={[styles.p20, { paddingTop: 16 }]}>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : therapyNext ? (

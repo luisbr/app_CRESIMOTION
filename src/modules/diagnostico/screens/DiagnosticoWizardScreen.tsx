@@ -150,7 +150,15 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
           </ScrollView>
         ) : (
           <CText type={'S16'} color={colors.labelColor}>
-            Has completado todas las respuestas.
+            {`Has completado todas las respuestas de ${
+              moduleKey === 'motivos'
+                ? 'Motivos'
+                : moduleKey === 'sintomas_fisicos'
+                ? 'Síntomas físicos'
+                : moduleKey === 'sintomas_emocionales'
+                ? 'Síntomas emocionales'
+                : 'esta sección'
+            }.`}
           </CText>
         )}
         {!!error && (
