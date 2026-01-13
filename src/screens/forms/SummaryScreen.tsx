@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Alert } from 'react-native';
 import CText from '../../components/common/CText';
 import { styles } from '../../theme';
 import { useSelector } from 'react-redux';
@@ -8,6 +8,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import { getSession } from "../../api/auth";
 import { getInProgressForUser, listSelectedReasons, listUnansweredMotivoIds, listAllProgress, listReasonsForProgress, listIntensitiesForProgress } from "../../repositories/formsRepo";
+import { getTherapyNext } from '../../api/sesionTerapeutica';
 // Removed victory-native usage to avoid reanimated/skia deps; use pure SVG instead
 import Svg, { Polygon, Circle, G, Text as SvgText, Rect, Path } from 'react-native-svg';
 import { moderateScale } from '../../common/constants';
@@ -38,6 +39,7 @@ export default function SummaryScreen({ navigation, route }: any) {
   });
   const data = motivos.map((m: any) => ({ x: String(m.motivo), y: byMotivo.get(String(m.id)) ?? 0 }));
   const [view, setView] = useState<'bar' | 'pie' | 'radar'>('bar');
+  const [startingTherapy, setStartingTherapy] = useState(false);
 
   const maxValue = useMemo(() => (data.length ? Math.max(...data.map(d => d.y)) : 0), [data]);
 
@@ -70,13 +72,21 @@ export default function SummaryScreen({ navigation, route }: any) {
         {encuestaId === '3' ? (
           <CButton
             title={'Iniciar Sanación'}
+            disabled={startingTherapy}
             onPress={async () => {
               try {
-                const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
-                await AsyncStorage.setItem('HEALING_START_FLAG', '1');
-              } catch (e) {}
-              console.log('[NAV] iniciar sanacion');
-              navigation.navigate('HealingStart');
+                setStartingTherapy(true);
+                const s = await getSession();
+                const userId = s?.id ? String(s.id) : null;
+                if (!userId) throw new Error('No se encontró una sesión activa.');
+                const next = await getTherapyNext(userId);
+                console.log('[NAV] iniciar sesion terapeutica');
+                navigation.navigate('TherapyFlowRouter', { initialNext: next, entrypoint: 'results' });
+              } catch (e: any) {
+                Alert.alert('Error', e?.message || 'No se pudo iniciar la sesión terapéutica.');
+              } finally {
+                setStartingTherapy(false);
+              }
             }}
           />
         ) : (
@@ -105,6 +115,18 @@ function RadarChart({ data, maxValue, color, textColor }: any) {
   const center = size / 2;
   const radius = size * 0.38;
   const steps = 4;
+  if (data.length === 1) {
+    const angle = -Math.PI / 2;
+    const r = ((data[0]?.y || 0) / maxValue) * radius;
+    const x = center + r * Math.cos(angle);
+    const y = center + r * Math.sin(angle);
+    return (
+      <Svg width={size} height={size}>
+        <Circle cx={center} cy={center} r={radius} stroke={"#D1D5DB"} strokeWidth={1} fill="none" />
+        <Circle cx={x} cy={y} r={6} fill={color} />
+      </Svg>
+    );
+  }
   const angleStep = (2 * Math.PI) / Math.max(1, data.length);
   const points = (vals: number[]) =>
     vals.map((v, i) => {
@@ -193,6 +215,17 @@ function PieChartSVG({ data, colors, textColor }: any) {
   const cx = size / 2;
   const cy = size / 2;
   const total = data.reduce((a: number, b: any) => a + (b.y || 0), 0) || 1;
+  if (data.length === 1) {
+    const label = total > 0 ? '100%' : '0%';
+    return (
+      <Svg width={size} height={size}>
+        <Circle cx={cx} cy={cy} r={radius} fill={colors[0]} />
+        <SvgText x={cx} y={cy} fontSize={12} fill={textColor} textAnchor="middle">
+          {label}
+        </SvgText>
+      </Svg>
+    );
+  }
   let startAngle = -Math.PI / 2;
   const slices = data.map((d: any, i: number) => {
     const angle = (d.y / total) * Math.PI * 2;

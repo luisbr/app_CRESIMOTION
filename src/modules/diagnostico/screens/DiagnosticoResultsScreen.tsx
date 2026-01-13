@@ -9,6 +9,7 @@ import {styles} from '../../../theme';
 import type {ModuleKey, SessionResults} from '../types';
 import {clearGroupId, clearLastRoute, getChartView, saveChartView} from '../utils';
 import {getResults} from '../api/sessionsApi';
+import {getTherapyNext} from '../../../api/sesionTerapeutica';
 import Svg, {G, Text as SvgText, Rect, Path, Polygon, Circle} from 'react-native-svg';
 import {moderateScale} from '../../../common/constants';
 
@@ -139,6 +140,21 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
     if (moduleKey === 'sintomas_fisicos') {
       navigation.replace('DiagnosticoSelection', {module_key: 'sintomas_emocionales'});
       return;
+    }
+    if (moduleKey === 'sintomas_emocionales') {
+      try {
+        const s = await (await import('../../../api/auth')).getSession();
+        const userId = s?.id ? String(s.id) : null;
+        if (!userId) throw new Error('No se encontró una sesión activa.');
+        const next = await getTherapyNext(userId);
+        navigation.replace('TherapyFlowRouter', {initialNext: next, entrypoint: 'results'});
+        return;
+      } catch (e: any) {
+        Alert.alert(
+          'Error',
+          e?.message || 'No se pudo iniciar la sesión terapéutica.'
+        );
+      }
     }
     await clearLastRoute();
     await clearGroupId();
@@ -313,6 +329,17 @@ function PieChartSVG({data, colors, textColor}: any) {
   const cx = size / 2;
   const cy = size / 2;
   const total = data.reduce((a: number, b: any) => a + (b.y || 0), 0) || 1;
+  if (data.length === 1) {
+    const label = total > 0 ? '100%' : '0%';
+    return (
+      <Svg width={size} height={size}>
+        <Circle cx={cx} cy={cy} r={radius} fill={colors[0]} />
+        <SvgText x={cx} y={cy} fontSize={12} fill={textColor} textAnchor="middle">
+          {label}
+        </SvgText>
+      </Svg>
+    );
+  }
   let startAngle = -Math.PI / 2;
   const slices = data.map((d: any, i: number) => {
     const angle = (d.y / total) * Math.PI * 2;
@@ -349,6 +376,18 @@ function RadarChart({data, maxValue, color, textColor}: any) {
   const cx = size / 2;
   const cy = size / 2;
   const radius = size * 0.32;
+  if (data.length === 1) {
+    const angle = -Math.PI / 2;
+    const r = ((data[0]?.y || 0) / maxValue) * radius;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    return (
+      <Svg width={size} height={size}>
+        <Circle cx={cx} cy={cy} r={radius} stroke={textColor} strokeOpacity={0.2} fill="none" />
+        <Circle cx={x} cy={y} r={6} fill={data[0]?.color || color} />
+      </Svg>
+    );
+  }
   const points = data.map((d: any, i: number) => {
     const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
     const r = ((d.y || 0) / maxValue) * radius;

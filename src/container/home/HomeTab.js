@@ -21,6 +21,8 @@ import { getSession } from "../../api/auth";
 import { migrate } from "../../db";
 import { getInProgressForUser, listSelectedReasons, listUnansweredMotivoIds, listAllProgress, listReasonsForProgress, listIntensitiesForProgress, debugLogFlow } from "../../repositories/formsRepo";
 import { getEncuestaById } from "../../api/encuestas";
+import { getTherapyNext } from "../../api/sesionTerapeutica";
+import { isTherapyRoute, normalizeTherapyNext } from "../../screens/therapy/therapyUtils";
 
 export default function HomeTab({ navigation }) {
   const colors = useSelector((state) => state.theme.theme);
@@ -30,6 +32,7 @@ export default function HomeTab({ navigation }) {
   const [pending, setPending] = useState(null);
   const [pendingTitle, setPendingTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [therapyNext, setTherapyNext] = useState(null);
   const reasons = [
     {id: 1, title: ''},
 
@@ -87,6 +90,17 @@ if (p) {
     console.log('[HOME][ERROR] load encuestas', e);
   }
 }
+    try {
+      const next = await getTherapyNext(userId);
+      const normalized = normalizeTherapyNext(next);
+      if (isTherapyRoute(normalized.route)) {
+        setTherapyNext(next);
+      } else {
+        setTherapyNext(null);
+      }
+    } catch (e) {
+      setTherapyNext(null);
+    }
 } catch (e) {}
 }, []);
 
@@ -103,6 +117,10 @@ loadHomeState();
 }, [loadHomeState]);
 
   const onPressMore = async () => {
+    if (therapyNext) {
+      navigation.navigate('TherapyFlowRouter', { initialNext: therapyNext, entrypoint: 'home' });
+      return;
+    }
     navigation.navigate('DiagnosticoHome');
     /*
     pending 
@@ -165,7 +183,7 @@ loadHomeState();
                     drName={pendingTitle || "-"}
                     specialist={""}
                     color={colors.white}
-                    scheduleLabel={'Iniciar diagnostico'}
+                    scheduleLabel={therapyNext ? 'Continuar sesión terapéutica' : 'Iniciar diagnostico'}
                     scheduleBgColor={colors.checkMark}
                     
                   />
@@ -195,6 +213,15 @@ loadHomeState();
             color={colors.primary}
           />
         </View>
+
+        {!!therapyNext && (
+          <View style={[styles.mt10]}>
+            <CButton
+              title={'Continuar sesión terapéutica'}
+              onPress={() => navigation.navigate('TherapyFlowRouter', { initialNext: therapyNext, entrypoint: 'home' })}
+            />
+          </View>
+        )}
 
         <View style={[styles.mt10]}>
           <CButton

@@ -122,15 +122,7 @@ export default function ProfileTab({navigation}) {
     return (
       <View>
         <View style={localStyles.profileContainer}>
-          <Image
-            source={images.UserImage2}
-            style={[
-              localStyles.profileImage,
-              {
-                borderColor: color.dark ? color.white : color.grayScale2,
-              },
-            ]}
-          />
+          
           <View style={localStyles.textContainer}>
             <View>
               <CText type={'S18'}>{name || 'Usuario'}</CText>

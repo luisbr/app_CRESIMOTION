@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, ScrollView, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Image, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CHeader from '../../../components/common/CHeader';
@@ -7,11 +7,15 @@ import CText from '../../../components/common/CText';
 import {styles} from '../../../theme';
 import type {ModuleKey} from '../types';
 import {getHistory} from '../api/sessionsApi';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {moderateScale} from '../../../common/constants';
+import {useDrawer} from '../../../navigation/DrawerContext';
 
 const MODULES: ModuleKey[] = ['motivos', 'sintomas_fisicos', 'sintomas_emocionales'];
 
 export default function DiagnosticoHistoryScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
+  const drawer = useDrawer();
   const [moduleKey] = useState<ModuleKey | null>(null);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -73,7 +77,31 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
 
   return (
     <CSafeAreaView>
-      <CHeader />
+      <CHeader
+        isHideBack
+        centerAccessory={
+          <Image
+            source={require('../../../../assets/logo.png')}
+            style={{width: moderateScale(110), height: moderateScale(28)}}
+            resizeMode="contain"
+          />
+        }
+        isLeftIcon={
+          <TouchableOpacity onPress={drawer.open} style={{padding: 6, marginLeft: -8}}>
+            <Ionicons name={'menu-outline'} size={moderateScale(24)} color={colors.textColor} />
+          </TouchableOpacity>
+        }
+        rightAccessory={
+          <View style={[styles.rowStart, styles.g10]}>
+            <TouchableOpacity style={{width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(18), alignItems: 'center', justifyContent: 'center'}}>
+              <Ionicons name={'call-outline'} size={moderateScale(22)} color={colors.textColor} />
+            </TouchableOpacity>
+            <TouchableOpacity style={{width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(18), alignItems: 'center', justifyContent: 'center'}}>
+              <Ionicons name={'notifications-outline'} size={moderateScale(22)} color={colors.textColor} />
+            </TouchableOpacity>
+          </View>
+        }
+      />
       <View style={styles.p20}>
         <CText type={'S24'} style={styles.mb10}>
           Mis evaluaciones

@@ -20,6 +20,7 @@ const CHeader = props => {
     arrowColor,
     textColor,
     textStyle,
+    centerAccessory,
     desc,
     type,
     arrowBgColor,
@@ -81,16 +82,20 @@ const CHeader = props => {
             )}
           </View>
           {!!isLeftIcon && isLeftIcon}
-          <View>
-            <CText
-              numberOfLines={1}
-              style={[textStyle ? textStyle : styles.mr40]}
-              align={'center'}
-              color={textColor ? textColor : colors.black}
-              type={type ? type : 'B18'}>
-              {title}
-            </CText>
-          </View>
+          {centerAccessory ? (
+            <View>{centerAccessory}</View>
+          ) : (
+            <View>
+              <CText
+                numberOfLines={1}
+                style={[textStyle ? textStyle : styles.mr40]}
+                align={'center'}
+                color={textColor ? textColor : colors.black}
+                type={type ? type : 'B18'}>
+                {title}
+              </CText>
+            </View>
+          )}
           <View>{!!rightIcon ? <RightIcon /> : rightAccessory}</View>
         </View>
       </View>

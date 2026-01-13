@@ -203,12 +203,7 @@ export const PaymentMethodData = [
     id: 1,
     icon: <VisaIcon />,
     cardNumber: "•••• •••• •••• 87652",
-  },
-  {
-    id: 2,
-    icon: <MasterCardIcon />,
-    cardNumber: "•••• •••• •••• 87652",
-  },
+  }
 ];
 
 export const WaitingRoomData = [

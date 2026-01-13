@@ -7,6 +7,7 @@ import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import { styles } from '../../theme';
 import { Audio } from 'expo-av';
+import { getDebugTailPosition } from '../../utils/audioDebug';
 
 export default function HealingSanacionScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -101,6 +102,10 @@ export default function HealingSanacionScreen({ navigation, route }: any) {
                     setSound(s);
                     const st = await s.getStatusAsync();
                     setDurationMillis((st as any)?.durationMillis ?? 0);
+                    const tailPosition = getDebugTailPosition((st as any)?.durationMillis ?? 0);
+                    if (tailPosition > 0) {
+                      await s.setPositionAsync(tailPosition);
+                    }
                     await s.playAsync();
                     setPlaying(true);
                     s.setOnPlaybackStatusUpdate((st: any) => {
@@ -118,6 +123,10 @@ export default function HealingSanacionScreen({ navigation, route }: any) {
                                 await s.loadAsync({ uri: audioList[next] });
                                 const st2 = await s.getStatusAsync();
                                 setDurationMillis((st2 as any)?.durationMillis ?? 0);
+                                const tailPosition = getDebugTailPosition((st2 as any)?.durationMillis ?? 0);
+                                if (tailPosition > 0) {
+                                  await s.setPositionAsync(tailPosition);
+                                }
                                 await s.playAsync();
                               } catch (e) {
                                 console.log('[HEALING] auto-next audio error', e);
@@ -142,6 +151,10 @@ export default function HealingSanacionScreen({ navigation, route }: any) {
                                 await s.loadAsync({ uri: audioList[0] });
                                 const st0 = await s.getStatusAsync();
                                 setDurationMillis((st0 as any)?.durationMillis ?? 0);
+                                const tailPosition = getDebugTailPosition((st0 as any)?.durationMillis ?? 0);
+                                if (tailPosition > 0) {
+                                  await s.setPositionAsync(tailPosition);
+                                }
                                 await s.playAsync();
                               } catch (e) {
                                 console.log('[HEALING] auto-restart audio error', e);

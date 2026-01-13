@@ -32,6 +32,20 @@ import SummaryScreen from '../screens/forms/SummaryScreen';
 import HealingStartScreen from '../screens/forms/HealingStartScreen';
 import HealingSelectMotivoScreen from '../screens/forms/HealingSelectMotivoScreen';
 import HealingSanacionScreen from '../screens/forms/HealingSanacionScreen';
+import TherapyFlowRouter from '../screens/therapy/TherapyFlowRouter';
+import SessionIntroScreen from '../screens/therapy/SessionIntroScreen';
+import FocusSelectScreen from '../screens/therapy/FocusSelectScreen';
+import FocusContentScreen from '../screens/therapy/FocusContentScreen';
+import HealingSelectEmotionScreen from '../screens/therapy/HealingSelectEmotionScreen';
+import HealingIntroScreen from '../screens/therapy/HealingIntroScreen';
+import HealingPlaybackScreen from '../screens/therapy/HealingPlaybackScreen';
+import HealingDoneScreen from '../screens/therapy/HealingDoneScreen';
+import BehaviorIntroScreen from '../screens/therapy/BehaviorIntroScreen';
+import BehaviorRecoSelectScreen from '../screens/therapy/BehaviorRecoSelectScreen';
+import BehaviorExerciseSelectScreen from '../screens/therapy/BehaviorExerciseSelectScreen';
+import AgendaSetupScreen from '../screens/therapy/AgendaSetupScreen';
+import TasksScreen from '../screens/agenda/TasksScreen';
+import TaskDetailScreen from '../screens/agenda/TaskDetailScreen';
 
 // tab screens
 import HomeTab from '../container/home/HomeTab';
@@ -65,6 +79,20 @@ export const StackRoute = {
   HealingStartScreen,
   HealingSelectMotivoScreen,
   HealingSanacionScreen,
+  TherapyFlowRouter,
+  SessionIntroScreen,
+  FocusSelectScreen,
+  FocusContentScreen,
+  HealingSelectEmotionScreen,
+  HealingIntroScreen,
+  HealingPlaybackScreen,
+  HealingDoneScreen,
+  BehaviorIntroScreen,
+  BehaviorRecoSelectScreen,
+  BehaviorExerciseSelectScreen,
+  AgendaSetupScreen,
+  TasksScreen,
+  TaskDetailScreen,
 };
 
 export const AuthRoute = {

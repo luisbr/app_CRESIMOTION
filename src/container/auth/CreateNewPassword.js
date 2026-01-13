@@ -79,7 +79,7 @@ export default function CreateNewPassword({navigation, route}) {
   return (
     <CSafeAreaView>
       <KeyBoardAvoidWrapper>
-        <CHeader />
+        <CHeader title={strings.createNewPassword} />
         <CText type={'S28'} align={'center'} style={styles.mv5}>
           {strings.createNewPassword}
         </CText>

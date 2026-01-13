@@ -21,7 +21,7 @@ import {
 } from '../../assets/svg';
 // Break require cycle: import screens directly instead of NavigationRoute
 import HomeStack from './HomeStack';
-import CalenderTab from '../../container/Calender/CalenderTab';
+import TasksScreen from '../../screens/agenda/TasksScreen';
 import ChatTab from '../../container/Message/ChatTab';
 import ProfileTab from '../../container/profile/ProfileTab';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -99,6 +99,12 @@ function DrawerMenu() {
             <CText type={'S16'} color={colors.white}>Mis evaluaciones</CText>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('Tasks')}>
+          <Ionicons name={'calendar-outline'} size={20} color={colors.white} />
+          <View style={styles.ml10}>
+            <CText type={'S16'} color={colors.white}>Tareas</CText>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigation.navigate(TabNav.ProfileTab)}>
           <Ionicons name={'person-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
@@ -160,7 +166,7 @@ function TabNavigation() {
           />
           <Tab.Screen
             name={TabNav.CalenderTab}
-            component={CalenderTab}
+            component={TasksScreen}
             options={{
               tabBarIcon: ({focused}) => (
                 <TabText

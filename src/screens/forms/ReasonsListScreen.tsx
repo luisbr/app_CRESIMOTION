@@ -109,7 +109,7 @@ export default function ReasonsListScreen({ navigation, route }: any) {
       <CHeader title={encuesta?.encuesta || 'Encuesta'} />
       <View style={[styles.ph20, styles.pv20, { flex: 1 }] }>
         {!!encuesta?.introduccion && (
-          <View style={styles.mt10}>sss
+          <View style={styles.mt10}>
             <RenderHTML
               contentWidth={width - 40}
               source={{ html: encuesta.introduccion }}

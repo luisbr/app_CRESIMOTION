@@ -1,0 +1,118 @@
+APP — SESSION_INTRO (Pantalla 30 “Sesión terapéutica”)
+
+Fuente: Documento de flujos (Pantalla 30).
+
+Objetivo:
+- Mostrar instrucciones previas obligatorias antes de iniciar Enfoque positivo.
+
+UI:
+- Texto de instrucciones (condiciones):
+  - “media hora para estar a solas…”
+  - “lugar tranquilo…”
+  - “libre de distracciones externas…”
+  - “dedicando toda la atención a mi salud emocional…”
+- Checkbox obligatorio: “Confirmo que reúno las condiciones” (o equivalente).
+- Audio opcional a reproducir: “Aquí da inicio tu sesión terapéutica” (si backend lo incluye en payload).
+- Botones:
+  - “Atrás” (navega atrás / Home según entrypoint)
+  - “Siguiente” (continuar)
+
+Reglas:
+- “Siguiente” debe estar DISABLED hasta que el checkbox obligatorio esté marcado.
+- Si el usuario toca “Atrás”:
+  - Si llegó desde fin de resultados: regresar al último screen de resultados.
+  - Si llegó desde Inicio: regresar a Home.
+- Si el usuario toca “Siguiente”:
+  - Llamar POST /api/app/sesion-terapeutica/step/complete { session_id, action:"START" }
+  - La respuesta es “same as next”: navegar al route que regrese (esperado: FOCUS_SELECT).
+
+Detonación:
+- Al terminar el 3er flujo de resultados (emocionales) → llamar GET next → navegar aquí (SESSION_INTRO).
+- Desde Inicio → llamar GET next → navegar aquí si no hay sesión activa (next crea sesión y devuelve SESSION_INTRO).
+
+
+# Flujo APP — Sesión terapéutica: Fase 1 Enfoque positivo (end-to-end)
+
+## Entry: Fin de Resultados (tras completar Motivos + Físicos + Emocionales)
+1) Guardar última respuesta del último flujo (emocionales).
+2) Llamar:
+   GET /api/app/sesion-terapeutica/next?usuario_id=USER_ID
+3) Navegar a TherapyFlowRouter con `initialNext` = response.
+
+Expect:
+- Si no hay sesión activa: `next` crea sesión con `status=session_intro` y devuelve `route=SESSION_INTRO`.
+
+---
+
+## Pantalla 30 — SESSION_INTRO (Instrucciones)
+UI:
+- Texto de condiciones (tranquilo, sin distracciones, 30 min, etc.)
+- Checkbox obligatorio “Confirmo que reúno las condiciones”
+- (Opcional) audio “Aquí da inicio tu sesión terapéutica” si viene en payload
+- Botones: Atrás / Siguiente
+
+Reglas:
+- Siguiente disabled hasta checkbox checked.
+
+Acciones:
+- Atrás:
+  - Si venías de Resultados: vuelve al último screen de resultados.
+  - Si venías de Home: vuelve a Home.
+- Siguiente:
+  - POST /api/app/sesion-terapeutica/step/complete
+    { "session_id": SESSION_ID, "action": "START" }
+  - Usar la respuesta (same as next) y navegar según `route`.
+
+Expect:
+- `route=FOCUS_SELECT`.
+
+---
+
+## Pantalla 31 — FOCUS_SELECT (Selecciona 1 motivo)
+UI:
+- Lista de motivos (ordenada por intensidad desde backend)
+- Selección single
+- Botón “Siguiente” disabled hasta elegir 1
+
+Acción:
+- POST /api/app/sesion-terapeutica/focus/select
+  { "session_id": SESSION_ID, "motivo_id": X }
+- Usar respuesta (same as next) y navegar según `route`.
+
+Expect:
+- `route=FOCUS_CONTENT`.
+
+---
+
+## Pantalla 32 — FOCUS_CONTENT (Enfoque positivo — SOLO AUDIO)
+UI (audio-only):
+- Player de audio:
+  - play/pause
+  - restart
+  - (seek permitido si lo soportan)
+- Botón “Siguiente”:
+  - disabled hasta que audio termine (onEnd)
+- (Opcional) “Saltar” si el backend lo habilita
+
+Acciones:
+- Cuando termina audio:
+  - habilitar “Siguiente”
+- Tap “Siguiente”:
+  - POST /api/app/sesion-terapeutica/step/complete
+    { "session_id": SESSION_ID, "action": "NEXT" }
+  - Usar respuesta (same as next) y navegar según `route`.
+- Tap “Saltar” (si existe):
+  - POST step/complete { action:"SKIP" }
+  - Navegar según `route`.
+
+Expect al finalizar Enfoque positivo:
+- `route=HEALING_SELECT_EMOTION` (ya empieza Sanación emocional).
+
+---
+
+## Reanudación (si el usuario se sale a mitad)
+En Home:
+- Llamar GET next
+- Si `route` es SESSION_INTRO / FOCUS_SELECT / FOCUS_CONTENT (o cualquier terapia ≠ DONE):
+  - mostrar CTA “Continuar sesión”
+  - abrir TherapyFlowRouter con `initialNext` (sin duplicar llamada)

@@ -54,7 +54,7 @@ export default function BookAppointment({route, navigation}) {
         <View style={localStyles.drProfileContainer}>
           <Image source={item.image} style={localStyles.drImage} />
           <View style={styles.g5}>
-            <CText type={'B14'}>{item.drName}</CText>
+            <CText type={'B14'}>{item.drName}iiiiiii</CText>
             <CText type={'M12'} color={colors.grayScale1}>
               {item.specialist}
             </CText>

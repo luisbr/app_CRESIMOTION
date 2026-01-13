@@ -3,6 +3,7 @@ import {ActivityIndicator, Image, TouchableOpacity, View} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
+import CHeader from '../../../components/common/CHeader';
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import {styles} from '../../../theme';
@@ -12,16 +13,37 @@ import type {ModuleKey} from '../types';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
+import {getTherapyNext} from '../../../api/sesionTerapeutica';
+import {isTherapyRoute, normalizeTherapyNext} from '../../../screens/therapy/therapyUtils';
+import {getSession} from '../../../api/auth';
 
 export default function DiagnosticoHomeScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
   const drawer = useDrawer();
   const [loading, setLoading] = useState(false);
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
+  const [therapyNext, setTherapyNext] = useState<any | null>(null);
 
   const checkResume = useCallback(async () => {
     setLoading(true);
     try {
+      try {
+        const s = await getSession();
+        const userId = s?.id ? String(s.id) : null;
+        if (userId) {
+          const next = await getTherapyNext(userId);
+          const normalized = normalizeTherapyNext(next);
+          if (isTherapyRoute(normalized.route)) {
+            setTherapyNext(next);
+          } else {
+            setTherapyNext(null);
+          }
+        } else {
+          setTherapyNext(null);
+        }
+      } catch (e) {
+        setTherapyNext(null);
+      }
       const local = await getLastRoute();
       let open: any = null;
       try {
@@ -75,6 +97,10 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   );
 
   const onPressStart = () => {
+    if (therapyNext) {
+      navigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
+      return;
+    }
     navigation.navigate('DiagnosticoSelection', {module_key: 'motivos'});
   };
 
@@ -87,31 +113,38 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     navigation.navigate(resumeTarget.screen, resumeTarget.params);
   };
 
+  const onPressTherapy = () => {
+    if (!therapyNext) return;
+    navigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
+  };
+
   return (
     <CSafeAreaView>
-      <View
-        style={[
-          localStyles.headerRow,
-          {borderColor: colors.dividerColor, backgroundColor: colors.backgroundColor},
-        ]}
-      >
-        <TouchableOpacity style={localStyles.iconButton} onPress={drawer.open}>
-          <Ionicons name={'menu-outline'} size={moderateScale(24)} color={colors.textColor} />
-        </TouchableOpacity>
-        <Image
-          source={require('../../../../assets/logo.png')}
-          style={localStyles.logo}
-          resizeMode="contain"
-        />
-        <View style={localStyles.headerRight}>
-          <TouchableOpacity style={localStyles.iconButton}>
-            <Ionicons name={'call-outline'} size={moderateScale(22)} color={colors.textColor} />
+      <CHeader
+        centerAccessory={
+          <Image
+            source={require('../../../../assets/logo.png')}
+            style={localStyles.logo}
+            resizeMode="contain"
+          />
+        }
+        isHideBack
+        isLeftIcon={
+          <TouchableOpacity style={[localStyles.iconButton, { marginLeft: -8 }]} onPress={drawer.open}>
+            <Ionicons name={'menu-outline'} size={moderateScale(24)} color={colors.textColor} />
           </TouchableOpacity>
-          <TouchableOpacity style={localStyles.iconButton}>
-            <Ionicons name={'notifications-outline'} size={moderateScale(22)} color={colors.textColor} />
-          </TouchableOpacity>
-        </View>
-      </View>
+        }
+        rightAccessory={
+          <View style={localStyles.headerRight}>
+            <TouchableOpacity style={localStyles.iconButton}>
+              <Ionicons name={'call-outline'} size={moderateScale(22)} color={colors.textColor} />
+            </TouchableOpacity>
+            <TouchableOpacity style={localStyles.iconButton}>
+              <Ionicons name={'notifications-outline'} size={moderateScale(22)} color={colors.textColor} />
+            </TouchableOpacity>
+          </View>
+        }
+      />
       <View style={styles.p20}>
         <CText type={'S28'} align={'center'} style={styles.mb10}>
           Diagnostico
@@ -121,6 +154,8 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         </CText>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
+        ) : therapyNext ? (
+          <CButton title={'Continuar sesión terapéutica'} onPress={onPressTherapy} />
         ) : resumeTarget ? (
           <CButton title={'Continuar diagnostico'} onPress={onPressContinue} />
         ) : (
@@ -138,13 +173,6 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
 }
 
 const localStyles = {
-  headerRow: {
-    ...styles.rowSpaceBetween,
-    ...styles.ph20,
-    ...styles.pt10,
-    ...styles.pb10,
-    borderBottomWidth: 1,
-  },
   headerRight: {
     ...styles.rowStart,
     ...styles.g10,
