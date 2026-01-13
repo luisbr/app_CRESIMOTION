@@ -9,9 +9,7 @@ const App = () => {
 
   return (
     <View style={styles.flex}>
-      <StatusBar
-        barStyle={colors?.dark === 'dark' ? 'light-content' : 'dark-content'}
-      />
+      <StatusBar backgroundColor={'#0aa693'}  />
       <AppNavigator />
     </View>
   );

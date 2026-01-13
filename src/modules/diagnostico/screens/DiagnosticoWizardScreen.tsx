@@ -11,6 +11,7 @@ import {normalizeOptions, saveLastRoute} from '../utils';
 import OptionCard from '../components/OptionCard';
 import ProgressBar from '../components/ProgressBar';
 import {completeSession, saveAnswer} from '../api/sessionsApi';
+import BehaviorMessageCard from '../components/BehaviorMessageCard';
 
 export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -33,6 +34,28 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const selectedItems = useMemo(() => items.filter(i => selectedIds.includes(Number(i.id))), [items, selectedIds]);
   const currentItem = useMemo(() => selectedItems.find(i => !answeredIds.has(Number(i.id))), [selectedItems, answeredIds]);
   const options = currentItem ? normalizeOptions(currentItem) : [];
+  const selectedBehavior = useMemo(() => {
+    if (!currentItem || !selectedOption) return null;
+    const behaviors = currentItem.behaviors || [];
+    if (selectedOption.id != null) {
+      const byId = behaviors.find(
+        b =>
+          b?.active === true &&
+          b?.show_text_below === true &&
+          Number(b?.option_id) === Number(selectedOption.id)
+      );
+      if (byId) return byId;
+    }
+    return (
+      behaviors.find(
+        b =>
+          b?.active === true &&
+          b?.show_text_below === true &&
+          b?.option_key &&
+          b.option_key === selectedOption.key
+      ) || null
+    );
+  }, [currentItem, selectedOption]);
   const progress = selectedItems.length ? answeredIds.size / selectedItems.length : 0;
 
   const onSelectOption = (opt: CatalogOption) => {
@@ -105,13 +128,16 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   return (
     <CSafeAreaView>
       <CHeader />
-      <View style={styles.p20}>
+      <View style={[styles.p20, {paddingBottom: 120}]}>
         <CText type={'S20'} style={styles.mb10}>
           {currentItem ? currentItem.titulo : 'Completar diagnostico'}
         </CText>
         <ProgressBar progress={progress} />
         {currentItem ? (
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{paddingBottom: 140}}
+          >
             {options.map(opt => (
               <OptionCard
                 key={String(opt.key)}
@@ -120,6 +146,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
                 onPress={() => onSelectOption(opt)}
               />
             ))}
+            <BehaviorMessageCard behavior={selectedBehavior} />
           </ScrollView>
         ) : (
           <CText type={'S16'} color={colors.labelColor}>
@@ -131,6 +158,19 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
             {error}
           </CText>
         )}
+      </View>
+      <View
+        style={[
+          styles.p20,
+          {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: colors.backgroundColor,
+          },
+        ]}
+      >
         {currentItem ? (
           <CButton title={'Siguiente'} onPress={onPressNext} />
         ) : (

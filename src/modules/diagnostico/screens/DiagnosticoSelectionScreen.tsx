@@ -15,6 +15,9 @@ import {getGroupId, saveGroupId, saveLastRoute} from '../utils';
 export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
   const moduleKey: ModuleKey = route?.params?.module_key || 'motivos';
+  const preloadedSessionId = route?.params?.sessionId;
+  const preloadedSelection = route?.params?.selection || [];
+  const preloadedAnswers = route?.params?.answers || [];
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -26,8 +29,17 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     setLoading(true);
     setError('');
     try {
-      const storedGroupId = moduleKey === 'motivos' ? null : await getGroupId();
-      const sessionResp = await startSession(moduleKey, 'MX', storedGroupId);
+      let sessionResp: any = null;
+      if (preloadedSessionId) {
+        sessionResp = {
+          session: {id: Number(preloadedSessionId)},
+          selection: {selected_item_ids: preloadedSelection},
+          answers: preloadedAnswers,
+        };
+      } else {
+        const storedGroupId = moduleKey === 'motivos' ? null : await getGroupId();
+        sessionResp = await startSession(moduleKey, 'MX', storedGroupId);
+      }
       if (mountedRef && !mountedRef.current) return;
       setSessionId(Number(sessionResp?.session?.id));
       if (moduleKey === 'motivos' && sessionResp?.session?.group_id) {

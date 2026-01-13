@@ -1,10 +1,21 @@
 export type ModuleKey = 'motivos' | 'sintomas_fisicos' | 'sintomas_emocionales';
 
 export type CatalogOption = {
+  id?: number;
   key: string;
   label: string;
   value?: any;
   order?: number;
+};
+
+export type CatalogBehavior = {
+  option_id?: number;
+  option_key?: string;
+  text_below?: string;
+  text_style?: string;
+  icon_key?: string;
+  active?: boolean;
+  show_text_below?: boolean;
 };
 
 export type CatalogItem = {
@@ -15,6 +26,7 @@ export type CatalogItem = {
   orden?: number;
   response_type?: string;
   options?: CatalogOption[];
+  behaviors?: CatalogBehavior[];
 };
 
 export type SessionStartResponse = {

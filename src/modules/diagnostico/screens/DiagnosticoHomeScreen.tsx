@@ -1,18 +1,21 @@
 import React, {useCallback, useState} from 'react';
-import {ActivityIndicator, View} from 'react-native';
+import {ActivityIndicator, Image, TouchableOpacity, View} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
-import CHeader from '../../../components/common/CHeader';
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import {styles} from '../../../theme';
-import {getLastRoute, clearLastRoute} from '../utils';
+import {clearLastRoute, getLastRoute, saveGroupId} from '../utils';
 import {getOpenSession} from '../api/sessionsApi';
 import type {ModuleKey} from '../types';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {moderateScale} from '../../../common/constants';
+import {useDrawer} from '../../../navigation/DrawerContext';
 
 export default function DiagnosticoHomeScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
+  const drawer = useDrawer();
   const [loading, setLoading] = useState(false);
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
 
@@ -26,20 +29,34 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
       } catch (e) {
         open = null;
       }
-      const openSession = open?.open_session || null;
-      if (openSession) {
-        if (local && Number(local.session_id) === Number(openSession.id)) {
+      const sessions = open?.sessions || [];
+      const groupId = open?.group_id;
+      if (sessions.length) {
+        if (groupId) {
+          await saveGroupId(Number(groupId));
+        }
+        const inProgress = sessions.find((s: any) => s?.session?.status === 'in_progress') || sessions[0];
+        const moduleKey = inProgress?.session?.module_key as ModuleKey;
+        const sessionId = Number(inProgress?.session?.id);
+        const selection = inProgress?.selection || inProgress?.selection_ids || [];
+        const answers = inProgress?.answers || [];
+        if (local && Number(local.session_id) === sessionId) {
           setResumeTarget({
             screen: `Diagnostico${local.screen}`,
             params: {
-              sessionId: Number(local.session_id),
-              module_key: local.module_key as ModuleKey,
+              sessionId,
+              module_key: moduleKey,
             },
           });
         } else {
           setResumeTarget({
             screen: 'DiagnosticoSelection',
-            params: {module_key: openSession.module_key as ModuleKey},
+            params: {
+              module_key: moduleKey,
+              sessionId,
+              selection,
+              answers,
+            },
           });
         }
         return;
@@ -72,7 +89,29 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
 
   return (
     <CSafeAreaView>
-      <CHeader />
+      <View
+        style={[
+          localStyles.headerRow,
+          {borderColor: colors.dividerColor, backgroundColor: colors.backgroundColor},
+        ]}
+      >
+        <TouchableOpacity style={localStyles.iconButton} onPress={drawer.open}>
+          <Ionicons name={'menu-outline'} size={moderateScale(24)} color={colors.textColor} />
+        </TouchableOpacity>
+        <Image
+          source={require('../../../../assets/logo.png')}
+          style={localStyles.logo}
+          resizeMode="contain"
+        />
+        <View style={localStyles.headerRight}>
+          <TouchableOpacity style={localStyles.iconButton}>
+            <Ionicons name={'call-outline'} size={moderateScale(22)} color={colors.textColor} />
+          </TouchableOpacity>
+          <TouchableOpacity style={localStyles.iconButton}>
+            <Ionicons name={'notifications-outline'} size={moderateScale(22)} color={colors.textColor} />
+          </TouchableOpacity>
+        </View>
+      </View>
       <View style={styles.p20}>
         <CText type={'S28'} align={'center'} style={styles.mb10}>
           Diagnostico
@@ -97,3 +136,27 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     </CSafeAreaView>
   );
 }
+
+const localStyles = {
+  headerRow: {
+    ...styles.rowSpaceBetween,
+    ...styles.ph20,
+    ...styles.pt10,
+    ...styles.pb10,
+    borderBottomWidth: 1,
+  },
+  headerRight: {
+    ...styles.rowStart,
+    ...styles.g10,
+  },
+  iconButton: {
+    width: moderateScale(36),
+    height: moderateScale(36),
+    borderRadius: moderateScale(18),
+    ...styles.center,
+  },
+  logo: {
+    width: moderateScale(110),
+    height: moderateScale(28),
+  },
+};

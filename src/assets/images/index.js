@@ -16,4 +16,6 @@ export default {
   UserImage3: require('./messageImage3.png'),
   UserImage4: require('./messageImage4.png'),
   VideoCallBgImage: require('./videoCallBgImage.png'),
+  SerenityIcon: require('./serenity-1768253110851.png'),
+
 };
