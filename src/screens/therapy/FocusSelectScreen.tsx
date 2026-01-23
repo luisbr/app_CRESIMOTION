@@ -9,6 +9,7 @@ import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { selectTherapyFocus } from '../../api/sesionTerapeutica';
 import { extractMotivos, getMotivoLabel, normalizeTherapyNext } from './therapyUtils';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function FocusSelectScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -31,45 +32,75 @@ export default function FocusSelectScreen({ navigation, route }: any) {
   return (
     <CSafeAreaView>
       <TherapyHeader />
-      <View style={[styles.ph20, styles.pv20, { flex: 1 }]}>
-        <CText type={'B18'}>Enfoque positivo, constructivo e inteligente con la metodología de última generación CresiMotion</CText>
-        <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-          Elige un motivo para continuar con tu enfoque positivo.
-        </CText>
+      <View style={[styles.ph20, styles.pv20, { flex: 1, backgroundColor: colors.backgroundColor }]}>
+        <View
+          style={{
+            backgroundColor: colors.inputBg,
+            borderRadius: 12,
+            padding: 12,
+            marginBottom: 12,
+            shadowColor: '#000',
+            shadowOpacity: 0.1,
+            shadowOffset: { width: 0, height: 3 },
+            shadowRadius: 8,
+            elevation: 5,
+          }}
+        >
+          <CText type={'B18'}>Enfoque positivo, constructivo e inteligente con la metodología de última generación CresiMotion</CText>
+          <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
+            Elige un motivo para continuar con tu enfoque positivo.
+          </CText>
+        </View>
         {motivos.length === 0 ? (
           <CText type={'S14'} color={colors.labelColor} style={styles.mt20}>
             No hay motivos disponibles.
           </CText>
         ) : (
-          <FlatList
-            data={motivos}
-            keyExtractor={(item: any, idx: number) => String(item?.id ?? item?.motivo_id ?? idx)}
-            renderItem={({ item }: any) => {
-              const id = String(item?.id ?? item?.motivo_id ?? '');
-              const label = getMotivoLabel(item);
-              const isOn = selectedId === id;
-              return (
-                <TouchableOpacity onPress={() => setSelectedId(isOn ? null : id)} style={[styles.rowSpaceBetween, styles.pv15]}>
-                  <View style={{ flex: 1, marginRight: 12 }}>
-                    <CText type={'S16'}>{label || 'Motivo'}</CText>
-                  </View>
-                  <View
-                    style={{
-                      width: moderateScale(22),
-                      height: moderateScale(22),
-                      borderRadius: moderateScale(11),
-                      borderWidth: 2,
-                      borderColor: isOn ? colors.primary : colors.grayScale2,
-                      backgroundColor: isOn ? colors.primary : 'transparent',
-                    }}
-                  />
-                </TouchableOpacity>
-              );
+          <View
+            style={{
+              marginTop: 10,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: colors.grayScale2,
+              backgroundColor: colors.white,
+              shadowColor: '#000',
+              shadowOpacity: 0.12,
+              shadowOffset: { width: 0, height: 4 },
+              shadowRadius: 10,
+              elevation: 6,
             }}
-            ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.grayScale2 }} />}
-            style={[styles.mt20]}
-            contentContainerStyle={{ paddingBottom: moderateScale(96) }}
-          />
+          >
+            <FlatList
+              data={motivos}
+              keyExtractor={(item: any, idx: number) => String(item?.id ?? item?.motivo_id ?? idx)}
+              renderItem={({ item, index }: any) => {
+                const id = String(item?.id ?? item?.motivo_id ?? '');
+                const label = getMotivoLabel(item);
+                const isOn = selectedId === id;
+                return (
+                  <View style={{ borderBottomWidth: index === motivos.length - 1 ? 0 : 1, borderColor: colors.grayScale2 }}>
+                    <TouchableOpacity onPress={() => setSelectedId(isOn ? null : id)} style={[styles.rowSpaceBetween, styles.pv15, { paddingHorizontal: 16 }]}>
+                      <View style={[styles.rowStart, { flex: 1 }]}>
+                        <Ionicons
+                          name={isOn ? 'checkbox' : 'square-outline'}
+                          size={moderateScale(22)}
+                          color={isOn ? colors.primary : colors.grayScale2}
+                          style={{ marginRight: 10 }}
+                        />
+                        <CText type={'S16'}>{label || 'Motivo'}</CText>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                );
+              }}
+              ListFooterComponent={() => <View style={{ height: moderateScale(200) }} />}
+              contentContainerStyle={{
+                paddingBottom: moderateScale(20),
+                borderRadius: 16,
+                overflow: 'hidden',
+              }}
+            />
+          </View>
         )}
       </View>
       <View

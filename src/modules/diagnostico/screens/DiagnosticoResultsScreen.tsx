@@ -21,6 +21,18 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
   const [results, setResults] = useState<SessionResults | null>(null);
   const [error, setError] = useState('');
   const [view, setView] = useState<'bar' | 'pie' | 'radar'>('bar');
+  const intensityValueMap: Record<string, number> = {
+    grave: 4,
+    alto: 3,
+    moderado: 2,
+    bajo: 1,
+  };
+  const intensityColorMap: Record<string, string> = {
+    grave: '#EF4444',
+    alto: '#F97316',
+    moderado: '#FACC15',
+    bajo: '#22C55E',
+  };
   const chartData = useMemo(() => {
     const groups = results?.groups || [];
     const items = groups.flatMap((g: any) => g?.items || []);
@@ -34,39 +46,42 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
           it?.intensity_key ||
           it?.key ||
           '';
+        const intensityKey = String(rawIntensityLabel || '').toLowerCase().trim();
         const intensityLabel =
-          typeof rawIntensityLabel === 'string' &&
-          /^[a-z_]+$/i.test(rawIntensityLabel)
-            ? rawIntensityLabel
+          intensityKey && /^[a-z_]+$/i.test(intensityKey)
+            ? intensityKey
                 .split('_')
                 .map(word =>
                   word ? word[0].toUpperCase() + word.slice(1).toLowerCase() : ''
                 )
                 .join(' ')
             : String(rawIntensityLabel || '');
-        const value = Number(
-          it?.value ?? it?.valor ?? it?.intensity_value ?? it?.severity ?? 0
-        );
-        return {label, intensityLabel, value};
+        const rawValue =
+          it?.value ?? it?.valor ?? it?.intensity_value ?? it?.severity ?? null;
+        const numericValue = Number(rawValue);
+        const value = Number.isNaN(numericValue)
+          ? intensityValueMap[intensityKey]
+          : numericValue;
+        if (!label || !value) return null;
+        return {label, intensityLabel, value, intensityKey};
       })
-      .filter(d => d.label);
+      .filter(Boolean)
+      .sort((a: any, b: any) => b.value - a.value);
   }, [results]);
   const legendColors = useMemo(() => {
-    const palette = [
-      colors.primary,
-      colors.checkMark,
-      '#F59E0B',
-      '#60A5FA',
-      '#34D399',
-      '#F472B6',
-      '#94A3B8',
-    ];
     const map: Record<string, string> = {};
-    chartData.forEach((d, idx) => {
-      map[d.label] = palette[idx % palette.length];
+    chartData.forEach((d: any) => {
+      if (d?.intensityKey && intensityColorMap[d.intensityKey]) {
+        map[d.label] = intensityColorMap[d.intensityKey];
+        return;
+      }
+      if (d?.value >= 4) map[d.label] = intensityColorMap.grave;
+      else if (d?.value >= 3) map[d.label] = intensityColorMap.alto;
+      else if (d?.value >= 2) map[d.label] = intensityColorMap.moderado;
+      else map[d.label] = intensityColorMap.bajo;
     });
     return map;
-  }, [chartData, colors]);
+  }, [chartData]);
   const levelRows = useMemo(() => {
     const unique = new Map<number, string>();
     chartData.forEach(d => {
@@ -79,6 +94,8 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
       .sort((a, b) => b.value - a.value);
     return arr.length ? arr : [{value: 0, label: ''}];
   }, [chartData]);
+  const allowRadar = chartData.length >= 3;
+  const availableViews = allowRadar ? (['bar', 'pie', 'radar'] as const) : (['bar', 'pie'] as const);
 
   useEffect(() => {
     let mounted = true;
@@ -119,15 +136,27 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
     let mounted = true;
     const loadView = async () => {
       const stored = await getChartView();
-      if (mounted) setView(stored);
+      if (!mounted) return;
+      if (stored === 'radar' && !allowRadar) {
+        setView('bar');
+        return;
+      }
+      setView(stored);
     };
     loadView();
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [allowRadar]);
+
+  useEffect(() => {
+    if (view === 'radar' && !allowRadar) {
+      setView('bar');
+    }
+  }, [allowRadar, view]);
 
   const onSelectView = async (next: 'bar' | 'pie' | 'radar') => {
+    if (next === 'radar' && !allowRadar) return;
     setView(next);
     await saveChartView(next);
   };
@@ -188,7 +217,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
                 ]}
               >
                 <View style={[styles.rowCenter, styles.mb10]}>
-                  {(['bar', 'pie', 'radar'] as const).map(key => (
+                  {availableViews.map(key => (
                     <TouchableOpacity
                       key={key}
                       onPress={() => onSelectView(key)}
@@ -361,7 +390,7 @@ function PieChartSVG({data, colors, textColor}: any) {
     <Svg width={size} height={size}>
       {slices.map((s, i) => (
         <G key={`slice-${i}`}>
-          <Path d={s.path} fill={s.color} />
+          <Path d={s.path} fill={s.color} stroke={textColor} strokeWidth={0.5} />
           <SvgText x={s.lx} y={s.ly} fontSize={10} fill={textColor} textAnchor="middle">
             {s.label}
           </SvgText>

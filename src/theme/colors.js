@@ -4,7 +4,7 @@ const LightColor = {
   backgroundColor: '#FFFFFF',
   textColor: '#171725',
   indicatorColor: '#E3E9ED',
-  inputBg: '#F6F8FE',
+  inputBg: '#e5fffcff',
   dividerColor: '#EBEBF0',
   transparentModel: '#C7C7CA',
   scheduleBg: '#ECF1F6',
@@ -26,7 +26,7 @@ const DarkColor = {
 
 const commonColor = {
   // Brand primary (Blue) and accent (Green)
-  primary: '#2d486d',
+  primary: '#0aa693',
   grayScale1: '#9CA4AB',
   white: '#FEFEFE',
   secondary: '#F6F8FE',

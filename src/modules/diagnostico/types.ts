@@ -29,6 +29,15 @@ export type CatalogItem = {
   behaviors?: CatalogBehavior[];
 };
 
+export type MotivoCategory = {
+  id: number;
+  key?: string;
+  nombre: string;
+  descripcion?: string | null;
+  orden?: number;
+  motivos: CatalogItem[];
+};
+
 export type SessionStartResponse = {
   session: { id: number; module_key: ModuleKey; status?: string };
   selection?: { selected_item_ids?: number[] };

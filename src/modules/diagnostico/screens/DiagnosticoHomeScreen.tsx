@@ -60,7 +60,13 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         const inProgress = sessions.find((s: any) => s?.session?.status === 'in_progress') || sessions[0];
         const moduleKey = inProgress?.session?.module_key as ModuleKey;
         const sessionId = Number(inProgress?.session?.id);
-        const selection = inProgress?.selection || inProgress?.selection_ids || [];
+        const selectionRaw = inProgress?.selection || inProgress?.selection_ids || [];
+        const selection =
+          Array.isArray(selectionRaw)
+            ? selectionRaw
+            : Array.isArray(selectionRaw?.selected_item_ids)
+            ? selectionRaw.selected_item_ids
+            : [];
         const answers = inProgress?.answers || [];
         if (local && Number(local.session_id) === sessionId) {
           setResumeTarget({
@@ -68,6 +74,8 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             params: {
               sessionId,
               module_key: moduleKey,
+              selection,
+              answers,
             },
           });
         } else {
