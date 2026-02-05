@@ -1,9 +1,29 @@
-import * as SQLite from 'expo-sqlite';
+import { Platform } from 'react-native';
 
-export const db = SQLite.openDatabaseSync('clinicly.db');
+const isWeb = Platform.OS === 'web';
+
+const noopStatement = () => ({
+  executeSync: (..._params: any[]) => ({ changes: 0 }),
+  finalizeSync: () => {},
+});
+
+const createNoopDb = () => ({
+  execSync: (..._sql: string[]) => {},
+  getAllSync: () => [],
+  getFirstSync: () => null,
+  runSync: () => ({ changes: 0 }),
+  prepareSync: () => noopStatement(),
+});
+
+const nativeDb = !isWeb
+  ? (require('expo-sqlite').openDatabaseSync('clinicly.db') as any)
+  : null;
+
+export const db: any = nativeDb || createNoopDb();
 
 const columnExists = (table: string, column: string) => {
   try {
+    if (isWeb) return false;
     const info = db.getAllSync(`PRAGMA table_info(${table})`) as any[];
     return info?.some(col => col?.name === column);
   } catch (e) {
@@ -13,6 +33,7 @@ const columnExists = (table: string, column: string) => {
 };
 
 const ensureColumn = (table: string, column: string, definition: string, onAdd?: () => void) => {
+  if (isWeb) return;
   if (!columnExists(table, column)) {
     db.execSync(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`);
     if (onAdd) onAdd();
@@ -20,6 +41,10 @@ const ensureColumn = (table: string, column: string, definition: string, onAdd?:
 };
 
 export function migrate() {
+  if (isWeb) {
+    console.log('[DB] migrate skipped on web');
+    return;
+  }
   db.execSync(`
     PRAGMA journal_mode = wal;
     CREATE TABLE IF NOT EXISTS healing_flows (

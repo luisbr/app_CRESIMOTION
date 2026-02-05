@@ -145,7 +145,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       if (!sessionId) throw new Error('No se encontró la sesión.');
       const actionKey = data?.actions?.primary?.key || 'CONTINUE';
       const next = await completeTherapyStep({ sessionId, action: actionKey });
-      navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
+      //navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo continuar.');
     }
@@ -157,7 +157,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       <View style={[styles.ph20, styles.pv20, { flex: 1 }]}>
         <CText type={'B18'}>{title}</CText>
         <View style={[styles.mt20]}>
-          <CButton title={playing ? 'Pausar' : 'Reproducir'} onPress={onPlay} />
+          <CButton title={playing ? 'Pausar' : 'Continuar DEBUG 33'} onPress={onPlay} />
           <View style={styles.mt10}>
             <CButton
               title={'Reproducir ultimos 3s'}

@@ -20,6 +20,7 @@ import BehaviorIntroScreen from '../../screens/therapy/BehaviorIntroScreen';
 import BehaviorRecoSelectScreen from '../../screens/therapy/BehaviorRecoSelectScreen';
 import BehaviorExerciseSelectScreen from '../../screens/therapy/BehaviorExerciseSelectScreen';
 import AgendaSetupScreen from '../../screens/therapy/AgendaSetupScreen';
+import TherapyPendingSessionsScreen from '../../screens/therapy/TherapyPendingSessionsScreen';
 import TasksScreen from '../../screens/agenda/TasksScreen';
 import TaskDetailScreen from '../../screens/agenda/TaskDetailScreen';
 import DiagnosticoHomeScreen from '../../modules/diagnostico/screens/DiagnosticoHomeScreen';
@@ -60,6 +61,7 @@ export default function HomeStack() {
       <Stack.Screen name="TherapyBehaviorIntro" component={BehaviorIntroScreen} />
       <Stack.Screen name="TherapyBehaviorRecoSelect" component={BehaviorRecoSelectScreen} />
       <Stack.Screen name="TherapyBehaviorExerciseSelect" component={BehaviorExerciseSelectScreen} />
+      <Stack.Screen name="TherapyPendingSessions" component={TherapyPendingSessionsScreen} />
       <Stack.Screen name="TherapyAgendaSetup" component={AgendaSetupScreen} />
       <Stack.Screen name="Tasks" component={TasksScreen} />
       <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />

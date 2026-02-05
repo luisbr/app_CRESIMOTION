@@ -105,6 +105,12 @@ function DrawerMenu() {
             <CText type={'S16'} color={colors.white}>Tareas</CText>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('TherapyPendingSessions')}>
+          <Ionicons name={'heart-outline'} size={20} color={colors.white} />
+          <View style={styles.ml10}>
+            <CText type={'S16'} color={colors.white}>Sesiones terapeuticas</CText>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigation.navigate(TabNav.ProfileTab)}>
           <Ionicons name={'person-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
@@ -134,7 +140,7 @@ function DrawerMenu() {
 
 function TabNavigation() {
   const colors = useSelector(state => state.theme.theme);
-  console.log('TabNavigation mounted');
+  //console.log('TabNavigation mounted');
 
   const TabText = memo(({IconType}) => (
     <View style={localStyles.tabViewContainer}>{IconType}</View>

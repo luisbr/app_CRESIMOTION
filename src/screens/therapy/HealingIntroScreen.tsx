@@ -114,7 +114,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
               <CText type={'B16'}>{audioTitle}</CText>
             )}
             <CButton
-              title={playing ? 'Pausar xx' : 'Reproducir'}
+              title={playing ? 'Pausar xx' : 'Reproducir 22'}
               onPress={onPlayAudio}
               style={styles.mt10}
             />
@@ -190,7 +190,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
         <View style={styles.mb10}>
           <CButton title={data?.actions?.secondary?.label || 'Más tarde'} bgColor={colors.inputBg} color={colors.primary} onPress={onLater} />
         </View>
-        <CButton title={data?.actions?.primary?.label || 'Comenzar'} disabled={!allRequiredChecked} onPress={onContinue} />
+        <CButton title={data?.actions?.primary?.label || 'Comenzarss'} disabled={!allRequiredChecked} onPress={onContinue} />
       </View>
     </CSafeAreaView>
   );

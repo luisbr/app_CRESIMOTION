@@ -198,6 +198,39 @@ export const submitBehaviorRecommendations = async ({ sessionId, recomendacionId
   return json?.data ?? json;
 };
 
+export const getPendingTherapySessions = async () => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  console.log(
+    '[THERAPY] curl pendientes',
+    `curl -X GET '${API_BASE_URL}/api/app/sesion-terapeutica/pendientes' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}'`
+  );
+  const res = await authFetch('/api/app/sesion-terapeutica/pendientes');
+  const json = await safeJson(res);
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudieron cargar las sesiones pendientes.');
+  }
+  return json?.data ?? json;
+};
+
+export const continuePendingTherapy = async (payload) => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  console.log(
+    '[THERAPY] curl pendientes continuar',
+    `curl -X POST '${API_BASE_URL}/api/app/sesion-terapeutica/pendientes/continuar' -H 'Content-Type: application/json' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}' -d '${JSON.stringify(payload)}'`
+  );
+  const res = await authFetch('/api/app/sesion-terapeutica/pendientes/continuar', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  const json = await safeJson(res);
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudo continuar la sesión pendiente.');
+  }
+  return json?.data ?? json;
+};
+
 export const submitAgendaItems = async ({ sessionId, items }) => {
   const session = await getSession();
   const uuid = await getOrCreateDeviceUUID();

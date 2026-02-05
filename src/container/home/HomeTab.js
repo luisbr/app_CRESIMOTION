@@ -63,13 +63,13 @@ if (p) {
     const data = await getEncuestaById(p.encuesta_id);
     setPendingTitle(data?.encuesta || '');
     setDescription(data?.description || '');
-    console.log('[HOME] pending:', { encuesta_id: p.encuesta_id, progress_id: p.id });
-    console.log('[HOME] pending title:', data?.encuesta || '');
+   // console.log('[HOME] pending:', { encuesta_id: p.encuesta_id, progress_id: p.id });
+   // console.log('[HOME] pending title:', data?.encuesta || '');
   } catch (e) {}
 } else {
   setPending(null);
   setPendingTitle('');
-  console.log('[HOME] pending: null');
+  //console.log('[HOME] pending: null');
 
   // Sugerir primera encuesta válida (cíclico)
   try {
@@ -81,10 +81,10 @@ if (p) {
       return motivos.every(m => Array.isArray(m.intensidades) && m.intensidades.length > 0);
     };
     const valid = all.filter(isValidEncuesta).sort((a, b) => Number(a.id) - Number(b.id));
-    console.log('[HOME] encuestas válidas:', valid.length);
+   // console.log('[HOME] encuestas válidas:', valid.length);
     if (valid.length > 0) {
       setPendingTitle(valid[0].encuesta || '');
-      console.log('[HOME] siguiente sugerida (sin pending):', String(valid[0].id), valid[0].encuesta);
+     // console.log('[HOME] siguiente sugerida (sin pending):', String(valid[0].id), valid[0].encuesta);
     }
   } catch (e) {
     console.log('[HOME][ERROR] load encuestas', e);

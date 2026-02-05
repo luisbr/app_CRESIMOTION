@@ -29,6 +29,13 @@ export default function FocusContentScreen({ navigation, route }: any) {
   const skipLabel = useMemo(() => getSkipLabel(data), [data]);
 
   useEffect(() => {
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+    }).catch(e => console.log('[THERAPY] audio mode error', e));
     return () => {
       if (sound) {
         sound.unloadAsync?.();
@@ -38,8 +45,9 @@ export default function FocusContentScreen({ navigation, route }: any) {
 
   const ensureAbsoluteUrl = (u?: string) => {
     if (!u) return '';
-    if (/^https?:\/\//i.test(u)) return u;
-    return `http://localhost${u.startsWith('/') ? '' : '/'}${u}`;
+    const normalized = u.normalize('NFC');
+    if (/^https?:\/\//i.test(normalized)) return encodeURI(normalized);
+    return encodeURI(`http://localhost${normalized.startsWith('/') ? '' : '/'}${normalized}`);
   };
 
   const onPlay = async () => {
@@ -60,7 +68,7 @@ export default function FocusContentScreen({ navigation, route }: any) {
         setPositionMillis((st as any)?.positionMillis ?? 0);
         const tailPosition = getDebugTailPosition((st as any)?.durationMillis ?? 0);
         if (tailPosition > 0) {
-          await s.setPositionAsync(tailPosition);
+          //await s.setPositionAsync(tailPosition);
         }
         await s.playAsync();
         setPlaying(true);
@@ -135,7 +143,7 @@ export default function FocusContentScreen({ navigation, route }: any) {
       <TherapyHeader />
       <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 140 }]}>
         <View style={styles.mb20}>
-          <CButton title={playing ? ' xx' : 'Reproducir'} onPress={onPlay} />
+          <CButton title={playing ? ' ll ' : 'Reproducir 11'} onPress={onPlay} />
           <View style={[styles.rowSpaceBetween, { marginTop: 8 }]}>
             <CText type={'S14'}>{fmt(positionMillis)}</CText>
             <CText type={'S14'}>{fmt(durationMillis)}</CText>
