@@ -50,8 +50,8 @@ import TaskDetailScreen from '../screens/agenda/TaskDetailScreen';
 // tab screens
 import HomeTab from '../container/home/HomeTab';
 import CalenderTab from '../container/Calender/CalenderTab';
-import ChatTab from '../container/Message/ChatTab';
 import ProfileTab from '../container/profile/ProfileTab';
+import DiagnosticoHistoryScreen from '../modules/diagnostico/screens/DiagnosticoHistoryScreen';
 
 export const StackRoute = {
   Splash,
@@ -107,6 +107,6 @@ export const AuthRoute = {
 export const TabRoute = {
   HomeTab,
   CalenderTab,
-  ChatTab,
+  EvaluationsTab: DiagnosticoHistoryScreen,
   ProfileTab,
 };

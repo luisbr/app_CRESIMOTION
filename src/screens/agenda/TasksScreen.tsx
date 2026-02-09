@@ -12,6 +12,16 @@ import TherapyHeader from '../therapy/TherapyHeader';
 
 const daysHeader = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
+const WEEK_DAY_MAP: Record<string, number> = {
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
+};
+
 const toDateKey = (d: Date) => {
   const pad = (n: number) => n.toString().padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -19,6 +29,69 @@ const toDateKey = (d: Date) => {
 
 const formatMonth = (d: Date) =>
   d.toLocaleString('es-MX', { month: 'long', year: 'numeric' });
+
+type AgendaEvent = {
+  id: string;
+  title: string;
+  dateKey: string;
+  time?: string;
+  durationMinutes?: number;
+  originalItem: any;
+};
+
+const addDays = (date: Date, amount: number) => {
+  const next = new Date(date);
+  next.setDate(next.getDate() + amount);
+  return next;
+};
+
+const expandAgendaEvents = (items: any[]) => {
+  const map = new Map<string, AgendaEvent[]>();
+  items.forEach(item => {
+    const startDate = item?.start_date ? new Date(item.start_date) : null;
+    if (!startDate) return;
+    const endDate = item?.end_date ? new Date(item.end_date) : startDate;
+    const freq = item?.frequency;
+    const daysOfWeek = Array.isArray(item?.days_of_week) ? item.days_of_week.map((d: string) => d.toLowerCase()) : [];
+    const timesPerDay = Number(item?.times_per_day) || 1;
+    const time = item?.time ?? '';
+    const durationMinutes = item?.duration_minutes ?? 0;
+    const title = item?.custom_title || item?.titulo || item?.title || 'Tarea';
+
+    let current = startDate;
+    while (current <= endDate) {
+      let shouldInclude = false;
+      if (!freq || freq === 'diaria') {
+        shouldInclude = true;
+      } else if (freq === 'semanal') {
+        const weekDayKey = Object.entries(WEEK_DAY_MAP).find(([, num]) => num === current.getDay())?.[0];
+        shouldInclude = weekDayKey ? daysOfWeek.includes(weekDayKey) : false;
+      } else {
+        shouldInclude = true;
+      }
+
+      if (shouldInclude) {
+        for (let repeat = 0; repeat < timesPerDay; repeat += 1) {
+          const dateKey = toDateKey(current);
+          const event: AgendaEvent = {
+            id: `${item?.id ?? title}-${dateKey}-${repeat}`,
+            title,
+            dateKey,
+            time,
+            durationMinutes,
+            originalItem: item,
+          };
+          if (!map.has(dateKey)) {
+            map.set(dateKey, []);
+          }
+          map.get(dateKey)?.push(event);
+        }
+      }
+      current = addDays(current, 1);
+    }
+  });
+  return map;
+};
 
 export default function TasksScreen({ navigation }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -48,20 +121,14 @@ export default function TasksScreen({ navigation }: any) {
     }, [load])
   );
 
-  const groupedByDate = useMemo(() => {
-    const map = new Map<string, any[]>();
-    items.forEach(item => {
-      const key = item?.start_date || '';
-      if (!key) return;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)?.push(item);
-    });
-    return map;
-  }, [items]);
+  const eventsByDate = useMemo(() => expandAgendaEvents(items), [items]);
 
-  const dateMarkers = useMemo(() => new Set(items.map(it => it?.start_date).filter(Boolean)), [items]);
+  const dateMarkers = useMemo(() => new Set(eventsByDate.keys()), [eventsByDate]);
 
-  const datesSorted = useMemo(() => Array.from(groupedByDate.keys()).sort(), [groupedByDate]);
+  const datesSorted = useMemo(() => Array.from(eventsByDate.keys()).sort(), [eventsByDate]);
+
+  const sortEventsByTime = (list: AgendaEvent[]) =>
+    [...list].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
   const monthDays = useMemo(() => {
     const year = month.getFullYear();
@@ -99,14 +166,17 @@ export default function TasksScreen({ navigation }: any) {
                 <CText type={'B16'} style={styles.mb5}>{monthLabel}</CText>
               )}
               <CText type={'S14'} color={colors.labelColor} style={styles.mb5}>{dateKey}</CText>
-              {(groupedByDate.get(dateKey) || []).map((item: any) => (
+              {sortEventsByTime(eventsByDate.get(dateKey) || []).map((event: AgendaEvent) => (
                 <TouchableOpacity
-                  key={String(item.id)}
-                  onPress={() => navigation.navigate('TaskDetail', { item })}
+                  key={event.id}
+                  onPress={() => navigation.navigate('TaskDetail', { item: event.originalItem })}
                   style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
                 >
-                  <CText type={'S16'}>{item?.custom_title || item?.titulo || item?.title || 'Tarea'}</CText>
-                  <CText type={'R12'} color={colors.labelColor}>{item?.time || ''}</CText>
+                  <CText type={'S16'}>{event.title}</CText>
+                  <CText type={'R12'} color={colors.labelColor}>
+                    {!!event.time ? `${event.time}` : 'Horario libre'}
+                    {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}
+                  </CText>
                 </TouchableOpacity>
               ))}
             </View>
@@ -117,7 +187,7 @@ export default function TasksScreen({ navigation }: any) {
   );
 
   const renderCalendar = () => {
-    const selectedItems = selectedDate ? groupedByDate.get(selectedDate) || [] : [];
+    const selectedItems = selectedDate ? sortEventsByTime(eventsByDate.get(selectedDate) || []) : [];
     const weeks: Array<typeof monthDays> = [];
     for (let i = 0; i < monthDays.length; i += 7) {
       weeks.push(monthDays.slice(i, i + 7));
@@ -173,14 +243,17 @@ export default function TasksScreen({ navigation }: any) {
           {selectedItems.length === 0 ? (
             <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Selecciona un dia con tareas.</CText>
           ) : (
-            selectedItems.map((item: any) => (
+            selectedItems.map((event: AgendaEvent) => (
               <TouchableOpacity
-                key={String(item.id)}
-                onPress={() => navigation.navigate('TaskDetail', { item })}
+                key={event.id}
+                onPress={() => navigation.navigate('TaskDetail', { item: event.originalItem })}
                 style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
               >
-                <CText type={'S16'}>{item?.custom_title || item?.titulo || item?.title || 'Tarea'}</CText>
-                <CText type={'R12'} color={colors.labelColor}>{item?.time || ''}</CText>
+                <CText type={'S16'}>{event.title}</CText>
+                <CText type={'R12'} color={colors.labelColor}>
+                  {!!event.time ? `${event.time}` : 'Horario libre'}
+                  {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}
+                </CText>
               </TouchableOpacity>
             ))
           )}

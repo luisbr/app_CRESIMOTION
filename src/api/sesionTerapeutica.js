@@ -73,11 +73,12 @@ export const completeTherapyStep = async ({ sessionId, action, extra }) => {
     body: JSON.stringify(payload),
   });
   const json = await safeJson(res);
+  const bodyToLog = json?.data ?? json;
   console.log('[THERAPY] step complete response', {
     status: res.status,
     ok: res.ok,
-    body: json,
   });
+  console.log('[THERAPY] step complete response body', JSON.stringify(bodyToLog, null, 2));
   if (!res.ok || (json && json.ok === false)) {
     throw new Error(json?.message || 'No se pudo completar el paso.');
   }

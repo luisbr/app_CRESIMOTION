@@ -160,6 +160,10 @@ loadHomeState();
     }*/
   };
 
+  useEffect(() => {
+    navigation.navigate('DiagnosticoHome');
+  }, [navigation]);
+
   const onPressNotification = () => {};
 
   const onPressDrProfile = (item) => {

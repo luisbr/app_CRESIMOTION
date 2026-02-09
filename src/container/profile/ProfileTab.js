@@ -131,7 +131,7 @@ export default function ProfileTab({navigation}) {
               </CText>
             </View>
             <TouchableOpacity
-              onPress={onPressEditIcon}
+              
               style={[
                 localStyles.editContainer,
                 {

@@ -15,29 +15,49 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Usamos tu ubicación para mostrarte teléfonos de emergencia cercanos en caso de riesgo."
-      }
+        "NSLocationWhenInUseUsageDescription": "Usamos tu ubicación para mostrarte teléfonos de emergencia cercanos en caso de riesgo.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.luis.buendiagmail.com.crestimotion"
     },
     "android": {
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.luis.buendiagmail.com.crestimotion"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "API_BASE_URL": "http://localhost"
+      "API_BASE_URL": "https://cresimotion.staging.mx",
+      "eas": {
+        "projectId": "3addbbcb-6772-4100-aeda-cc592300a1a4"
+      }
     },
     "plugins": [
       "expo-secure-store",
       "expo-sqlite",
-      "expo-location"
-    ]
+      "expo-location",
+      "@react-native-community/datetimepicker",
+      "expo-localization"
+    ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/3addbbcb-6772-4100-aeda-cc592300a1a4"
+    }
   }
 }

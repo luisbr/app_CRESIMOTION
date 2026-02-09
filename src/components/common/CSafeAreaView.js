@@ -5,7 +5,7 @@ import {styles} from '../../theme';
 
 // custom import
 
-export default CSafeAreaView = ({color, children, ...props}) => {
+const CSafeAreaView = ({color, children, ...props}) => {
   const colors = useSelector(state => state.theme.theme);
   return (
     <SafeAreaView
@@ -32,3 +32,4 @@ const localStyle = (colors, style) =>
       ...style,
     },
   });
+export default CSafeAreaView;

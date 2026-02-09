@@ -273,7 +273,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       <CHeader />
       <View style={[styles.p20, {paddingBottom: 120}]}>
         <CText type={'S20'} style={styles.mb10}>
-          {currentItem ? currentItem.titulo : 'Completar diagnostico'}
+          {currentItem ? currentItem.titulo : 'Completar autoevaluación'}
         </CText>
         {!!currentItem && totalItems > 0 && (
           <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>

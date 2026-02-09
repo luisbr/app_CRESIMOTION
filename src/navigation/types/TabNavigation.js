@@ -14,11 +14,10 @@ import {
   CalenderUnFocusedIcon,
   HomeFocusedIcon,
   HomeUnFocusedIcon,
-  MessageFocusedIcon,
-  MessageUnFocusedIcon,
   ProfileFocusedIcon,
   ProfileUnFocusedIcon,
 } from '../../assets/svg';
+import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryScreen';
 // Break require cycle: import screens directly instead of NavigationRoute
 import HomeStack from './HomeStack';
 import TasksScreen from '../../screens/agenda/TasksScreen';
@@ -184,13 +183,17 @@ function TabNavigation() {
             }}
           />
           <Tab.Screen
-            name={TabNav.ChatTab}
-            component={ChatTab}
+            name={TabNav.EvaluationsTab}
+            component={DiagnosticoHistoryScreen}
             options={{
               tabBarIcon: ({focused}) => (
                 <TabText
                   IconType={
-                    focused ? <MessageFocusedIcon /> : <MessageUnFocusedIcon />
+                    <Ionicons
+                      name={focused ? 'stats-chart' : 'stats-chart-outline'}
+                      size={28}
+                      color={focused ? colors.primary : colors.textColor}
+                    />
                   }
                 />
               ),

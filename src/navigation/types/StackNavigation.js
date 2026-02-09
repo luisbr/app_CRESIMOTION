@@ -73,10 +73,7 @@ export default function StackNavigation() {
         name={StackNav.HelpAndSupport}
         component={StackRoute.HelpAndSupport}
       />
-      <Stack.Screen
-        name={StackNav.Languages}
-        component={StackRoute.Languages}
-      />
+      
       <Stack.Screen name={"ReasonsList"} component={ReasonsListScreen} />
       <Stack.Screen name={"IntensityWizard"} component={IntensityWizardScreen} />
       <Stack.Screen name={"Summary"} component={SummaryScreen} />

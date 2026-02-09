@@ -7,7 +7,7 @@ import {checkPlatform, isIOS, moderateScale} from '../../common/constants';
 import {styles} from '../../theme';
 
 // KeyboardAvoidWrapper Component
-export default KeyBoardAvoidWrapper = ({
+const KeyBoardAvoidWrapper = ({
   children,
   containerStyle,
   contentContainerStyle,
@@ -29,3 +29,5 @@ export default KeyBoardAvoidWrapper = ({
     </KeyboardAvoidingView>
   );
 };
+
+export default KeyBoardAvoidWrapper;

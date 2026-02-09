@@ -32,6 +32,6 @@ export const AuthNav = {
 export const TabNav = {
   HomeTab: 'HomeTab',
   CalenderTab: 'CalenderTab',
-  ChatTab: 'ChatTab',
+  EvaluationsTab: 'EvaluationsTab',
   ProfileTab: 'ProfileTab',
 };

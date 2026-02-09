@@ -123,10 +123,11 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   };
 
   const toggleCategory = (id: number) => {
-    setExpandedCategoryIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
+    setExpandedCategoryIds(prev => (prev.includes(id) ? [] : [id]));
   };
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
+  const isSearching = !!normalizedQuery;
   const filteredCategories = moduleKey === 'motivos'
     ? motivoCategories
         .map(category => {
@@ -139,6 +140,15 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           return {...category, motivos: filteredMotivos};
         })
         .filter(category => (category.motivos || []).length > 0)
+    : [];
+  const searchResults = moduleKey === 'motivos' && isSearching
+    ? filteredCategories
+        .flatMap(category => category.motivos || [])
+        .filter(item => {
+          const title = String(item.titulo || '').toLowerCase();
+          const description = String(item.descripcion || '').toLowerCase();
+          return title.includes(normalizedQuery) || description.includes(normalizedQuery);
+        })
     : [];
 
   const introTitle =
@@ -244,54 +254,76 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
               </View>
             )}
             {moduleKey === 'motivos' ? (
-              filteredCategories.length ? (
-                filteredCategories.map(category => {
-                  const isExpanded = normalizedQuery
-                    ? true
-                    : expandedCategoryIds.includes(Number(category.id));
-                  return (
-                    <View key={`category-${category.id}`} style={{marginBottom: moderateScale(14)}}>
-                      <TouchableOpacity
-                        onPress={() => toggleCategory(Number(category.id))}
-                        style={[
-                          styles.rowSpaceBetween,
-                          {
-                            paddingVertical: moderateScale(10),
-                            paddingHorizontal: moderateScale(12),
-                            backgroundColor: colors.inputBg,
-                            borderRadius: moderateScale(12),
-                          },
-                        ]}
-                      >
-                        <View style={{flex: 1, paddingRight: moderateScale(8)}}>
-                          <CText type={'M16'} style={{marginBottom: category.descripcion ? moderateScale(2) : 0}}>
-                            {category.nombre}
-                          </CText>
-                          {!!category.descripcion && (
-                            <CText type={'S12'} color={colors.labelColor}>
-                              {category.descripcion}
+              isSearching ? (
+                searchResults.length ? (
+                  searchResults.map(item => (
+                    <ChecklistItem
+                      key={`search-${item.id}`}
+                      title={item.titulo}
+                      description={item.descripcion}
+                      selected={selectedIds.includes(Number(item.id))}
+                      onPress={() => toggleId(Number(item.id))}
+                    />
+                  ))
+                ) : (
+                  <CText type={'S14'} align={'center'} color={colors.labelColor}>
+                    No encontramos motivos con esa búsqueda.
+                  </CText>
+                )
+              ) : filteredCategories.length ? (
+                (() => {
+                  const visibleCategories =
+                    expandedCategoryIds.length > 0
+                      ? filteredCategories.filter(category =>
+                          expandedCategoryIds.includes(Number(category.id))
+                        )
+                      : filteredCategories;
+                  return visibleCategories.map(category => {
+                    const isExpanded = expandedCategoryIds.includes(Number(category.id));
+                    return (
+                      <View key={`category-${category.id}`} style={{marginBottom: moderateScale(14)}}>
+                        <TouchableOpacity
+                          onPress={() => toggleCategory(Number(category.id))}
+                          style={[
+                            styles.rowSpaceBetween,
+                            {
+                              paddingVertical: moderateScale(10),
+                              paddingHorizontal: moderateScale(12),
+                              backgroundColor: colors.inputBg,
+                              borderRadius: moderateScale(12),
+                            },
+                          ]}
+                        >
+                          <View style={{flex: 1, paddingRight: moderateScale(8)}}>
+                            <CText type={'M16'} style={{marginBottom: category.descripcion ? moderateScale(2) : 0}}>
+                              {category.nombre}
                             </CText>
-                          )}
-                        </View>
-                        <Ionicons
-                          name={isExpanded ? 'chevron-up-outline' : 'chevron-down-outline'}
-                          size={moderateScale(20)}
-                          color={colors.textColor}
-                        />
-                      </TouchableOpacity>
-                      {isExpanded &&
-                        (category.motivos || []).map(item => (
-                          <ChecklistItem
-                            key={String(item.id)}
-                            title={item.titulo}
-                            description={item.descripcion}
-                            selected={selectedIds.includes(Number(item.id))}
-                            onPress={() => toggleId(Number(item.id))}
+                            {!!category.descripcion && (
+                              <CText type={'S12'} color={colors.labelColor}>
+                                {category.descripcion}
+                              </CText>
+                            )}
+                          </View>
+                          <Ionicons
+                            name={isExpanded ? 'chevron-up-outline' : 'chevron-down-outline'}
+                            size={moderateScale(20)}
+                            color={colors.textColor}
                           />
-                        ))}
-                    </View>
-                  );
-                })
+                        </TouchableOpacity>
+                        {isExpanded &&
+                          (category.motivos || []).map(item => (
+                            <ChecklistItem
+                              key={String(item.id)}
+                              title={item.titulo}
+                              description={item.descripcion}
+                              selected={selectedIds.includes(Number(item.id))}
+                              onPress={() => toggleId(Number(item.id))}
+                            />
+                          ))}
+                      </View>
+                    );
+                  });
+                })()
               ) : (
                 <CText type={'S14'} align={'center'} color={colors.labelColor}>
                   No encontramos motivos con esa busqueda.
@@ -344,7 +376,9 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           },
         ]}
       >
-        <CButton title={'Siguiente'} onPress={onPressNext} disabled={!selectedIds.length} />
+        {!!selectedIds.length && (
+          <CButton title={'Siguiente'} onPress={onPressNext} />
+        )}
       </View>
     </CSafeAreaView>
   );

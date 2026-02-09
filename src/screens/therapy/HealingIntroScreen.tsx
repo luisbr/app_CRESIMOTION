@@ -29,6 +29,8 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [nextResponse, setNextResponse] = useState<any>(null);
+  const [loadingNext, setLoadingNext] = useState(false);
 
   const allRequiredChecked = useMemo(() => {
     if (!required.length) return true;
@@ -92,11 +94,18 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const onContinue = async () => {
     try {
       if (!sessionId) throw new Error('No se encontró la sesión.');
+      if (nextResponse) {
+        navigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint });
+        return;
+      }
       const actionKey = data?.actions?.primary?.key || 'START_HEALING';
+      setLoadingNext(true);
       const next = await completeTherapyStep({ sessionId, action: actionKey });
-      navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
+      setNextResponse(next);
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo continuar.');
+    } finally {
+      setLoadingNext(false);
     }
   };
 
@@ -167,6 +176,16 @@ export default function HealingIntroScreen({ navigation, route }: any) {
             </TouchableOpacity>
           )}
         </View>
+        {nextResponse && (
+          <View style={{ marginTop: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.grayScale2, padding: 12 }}>
+            <CText type={'B16'}>Payload de completeTherapyStep</CText>
+            <ScrollView style={{ maxHeight: 200, marginTop: 8 }}>
+              <CText type={'R12'} style={{ fontFamily: 'monospace' }}>
+                {JSON.stringify(nextResponse, null, 2)}
+              </CText>
+            </ScrollView>
+          </View>
+        )}
       </ScrollView>
       <View
         style={{

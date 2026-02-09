@@ -9,7 +9,7 @@ import {styles} from '../../theme';
 import typography from '../../theme/typography';
 import {useSelector} from 'react-redux';
 
-export default CInput = props => {
+const CInput = props => {
   let {
     _value,
     label,
@@ -183,3 +183,4 @@ const localStyle = StyleSheet.create({
     ...styles.ml5,
   },
 });
+export default CInput;
