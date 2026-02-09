@@ -18,7 +18,7 @@ const resolveBaseUrl = () => {
   return configured;
 };
 
-export const API_BASE_URL = resolveBaseUrl();
+export const API_BASE_URL = "https://cresimotion.staging.mx";
 export const ENDPOINTS = {
   REGISTER: '/api/ws/registro',
   LOGIN: '/api/ws/login',
