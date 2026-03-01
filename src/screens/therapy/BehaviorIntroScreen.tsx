@@ -170,9 +170,3 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
     </CSafeAreaView>
   );
 }
-
-
-
-motivo Adicciones en general
-
-Ansiedad (emocion)
