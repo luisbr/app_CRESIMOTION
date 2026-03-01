@@ -5,6 +5,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { Audio } from 'expo-av';
@@ -18,11 +19,11 @@ type SelectedMotivo = { motivo: MotivoItem; encuestaId: string };
 
 const pesoToLabel = (peso?: number | null) => {
   switch (Number(peso)) {
-    case 5: return 'Muy Alto';
+    case 5: return 'Muy alto';
     case 4: return 'Alto';
     case 3: return 'Medio';
     case 2: return 'Bajo';
-    case 1: return 'Muy Bajo';
+    case 1: return 'Muy bajo';
     default: return 'Sin dato';
   }
 };
@@ -193,6 +194,7 @@ Ahora, a fin de proporcionarte una Sesión de sanación emocional para reducir c
           }} />
         )}
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

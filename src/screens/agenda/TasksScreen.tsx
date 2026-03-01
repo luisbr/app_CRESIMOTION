@@ -6,6 +6,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { getAgendaItems } from '../../api/sesionTerapeutica';
 import TherapyHeader from '../therapy/TherapyHeader';
@@ -308,6 +309,7 @@ export default function TasksScreen({ navigation }: any) {
       ) : (
         renderCalendar()
       )}
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

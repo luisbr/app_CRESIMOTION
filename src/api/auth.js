@@ -102,6 +102,16 @@ export const register = async ({
   fecha_nacimiento,
   menor_edad,
   alias,
+  genero,
+  idioma,
+  como_se_entero,
+  tutor_consent,
+  tutor_nombre,
+  tutor_apellido,
+  tutor_fecha_nacimiento,
+  tutor_telefono,
+  tutor_correo,
+  tutor_verificado,
 }) => {
   const uuid = await getOrCreateDeviceUUID();
   const nameParts = splitName(fullName);
@@ -116,6 +126,16 @@ export const register = async ({
     telefono: telefono || '',
     correo: (correo || '').toLowerCase(),
     contrasena,
+    genero: genero || '',
+    idioma: idioma || '',
+    como_se_entero: como_se_entero || '',
+    tutor_consent: tutor_consent ?? 0,
+    tutor_nombre: tutor_nombre || '',
+    tutor_apellido: tutor_apellido || '',
+    tutor_fecha_nacimiento: tutor_fecha_nacimiento || '',
+    tutor_telefono: tutor_telefono || '',
+    tutor_correo: tutor_correo || '',
+    tutor_verificado: tutor_verificado ?? 0,
     estatus: 'activo',
     uuid,
   };
@@ -137,6 +157,36 @@ export const register = async ({
     await SecureStore.setItemAsync(AUTH_HASH, JSON.stringify(hash));
   }
   return resp;
+};
+
+export const requestEmailVerificationCode = async ({correo}) => {
+  return postJson(ENDPOINTS.REGISTER_REQUEST_CODE, {correo});
+};
+
+export const verifyEmailCode = async ({correo, codigo}) => {
+  return postJson(ENDPOINTS.REGISTER_VERIFY_CODE, {correo, codigo});
+};
+
+export const requestTutorVerificationCode = async ({
+  correo_tutor,
+  telefono_tutor,
+  nombre_tutor,
+  apellido_tutor,
+  fecha_nacimiento_tutor,
+  correo_usuario,
+}) => {
+  return postJson(ENDPOINTS.TUTOR_REQUEST_CODE, {
+    correo_tutor,
+    telefono_tutor,
+    nombre_tutor,
+    apellido_tutor,
+    fecha_nacimiento_tutor,
+    correo_usuario,
+  });
+};
+
+export const verifyTutorCode = async ({correo_tutor, codigo}) => {
+  return postJson(ENDPOINTS.TUTOR_VERIFY_CODE, {correo_tutor, codigo});
 };
 
 export const getSession = async () => {

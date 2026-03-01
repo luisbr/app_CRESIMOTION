@@ -23,6 +23,7 @@ export const isTherapyRoute = (route?: string | null) => {
     route === 'SESSION_INTRO' ||
     route === 'FOCUS_SELECT' ||
     route === 'FOCUS_CONTENT' ||
+    route === 'FOCUS_INTRO' ||
     route === 'HEALING_SELECT_EMOTION' ||
     route === 'HEALING_INTRO' ||
     route === 'HEALING_PLAYBACK' ||

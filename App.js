@@ -5,6 +5,7 @@ import 'react-native-gesture-handler';
 import { Provider } from "react-redux";
 import store from "./src/redux/store";
 import { LogBox } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export default function App() {
   LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
@@ -22,7 +23,11 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <MainApp />
+      <SafeAreaProvider>
+        <SafeAreaView style={{ flex: 1, paddingBottom: 12 }} edges={["top", "bottom"]}>
+          <MainApp />
+        </SafeAreaView>
+      </SafeAreaProvider>
     </Provider>
   );
 }

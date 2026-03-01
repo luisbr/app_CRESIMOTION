@@ -49,7 +49,7 @@ export default function SummaryScreen({ navigation, route }: any) {
       <View style={[styles.rowSpaceBetween, styles.mt15]}>
         {['bar','pie','radar'].map(key => (
           <TouchableOpacity key={key} onPress={() => setView(key as any)} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 16, backgroundColor: view===key ? colors.primary : colors.inputBg }}>
-            <CText color={view===key ? colors.white : colors.textColor}>{key === 'bar' ? 'Barras' : key === 'pie' ? 'Pie' : 'Radar'}</CText>
+            <CText color={view===key ? colors.white : colors.textColor}>{key === 'bar' ? 'Barras' : key === 'pie' ? 'Pastel' : 'Radar'}</CText>
           </TouchableOpacity>
         ))}
       </View>

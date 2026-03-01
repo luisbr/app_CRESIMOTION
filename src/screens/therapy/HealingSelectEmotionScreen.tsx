@@ -5,6 +5,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { selectHealingEmotion } from '../../api/sesionTerapeutica';
@@ -91,7 +92,11 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   return (
     <CSafeAreaView>
       <TherapyHeader />
-      <View style={[styles.ph20, styles.pv20, { flex: 1, backgroundColor: colors.backgroundColor }]}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: moderateScale(240) }]}
+        style={{ flex: 1, backgroundColor: colors.backgroundColor }}
+      >
         <View
           style={{
             backgroundColor: colors.inputBg,
@@ -110,10 +115,6 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
             {INTRO_TEXT}
           </CText>
         </View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: moderateScale(240) }}
-        >
           {items.length === 0 && otherOptions.length === 0 ? (
             <CText type={'S14'} color={colors.labelColor} style={styles.mt20}>
               No hay emociones para mostrar.
@@ -160,7 +161,6 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
             </View>
           )}
         </ScrollView>
-      </View>
       <View
         style={{
           position: 'absolute',
@@ -182,6 +182,7 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
       >
         <CButton title={'Siguiente'} disabled={selectedId == null} onPress={onContinue} />
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

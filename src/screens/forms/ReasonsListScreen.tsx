@@ -4,6 +4,7 @@ import CText from '../../components/common/CText';
 import { useSelector } from 'react-redux';
 import { styles } from '../../theme';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { getEncuestaById } from '../../api/encuestas';
 import { migrate } from '../../db';
 import { startOrGetProgress, saveSelectedReasons, listSelectedReasons, listUnansweredMotivoIds, debugLogFlow } from '../../repositories/formsRepo';
@@ -206,6 +207,7 @@ export default function ReasonsListScreen({ navigation, route }: any) {
           </View>
         </View>
       </Modal>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

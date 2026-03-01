@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Alert, ActivityIndicator, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Audio } from 'expo-av';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { completeTherapyStep, sendPlaybackEvent } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
+import { API_BASE_URL } from '../../api/config';
 
 type PlaybackItem =
   | { type: 'local'; source: number; label: string }
@@ -39,6 +41,7 @@ const waitForDuration = async (sound: Audio.Sound) => {
 
 export default function HealingPlaybackScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const dispatch = useDispatch();
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
   const { sessionId, data } = normalizeTherapyNext(nextPayload);
@@ -60,10 +63,26 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   const [preloadError, setPreloadError] = useState<string | null>(null);
   const [trackDurations, setTrackDurations] = useState<number[]>([]);
 
+  const ensureAudioMode = async () => {
+    try {
+      await Audio.setIsEnabledAsync(true);
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+    } catch (e) {
+      console.log('[THERAPY] playback audio mode error', e);
+    }
+  };
+
   const ensureAbsoluteUrl = (u?: string) => {
     if (!u) return '';
     if (/^https?:\/\//i.test(u)) return u;
-    return `http://localhost${u.startsWith('/') ? '' : '/'}${u}`;
+    const base = API_BASE_URL || '';
+    return `${base}${u.startsWith('/') ? '' : '/'}${u}`;
   };
   const sequence = useMemo(() => {
     const list: PlaybackItem[] = [];
@@ -204,6 +223,13 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     };
   }, [sound]);
 
+  useEffect(() => {
+    dispatch({ type: 'SET_AUDIO_LOCKED', payload: playing });
+    return () => {
+      dispatch({ type: 'SET_AUDIO_LOCKED', payload: false });
+    };
+  }, [dispatch, playing]);
+
   const queuePlayback = async (
     idx: number,
     options: { tailSeconds?: number; allowContinue: boolean; tailForAll?: boolean }
@@ -220,6 +246,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     setFinished(false);
     setPlaybackStatus({ positionMillis: 0, durationMillis: 0, isLoaded: false });
     try {
+      await ensureAudioMode();
       if (item.type === 'local') {
         await s.loadAsync(item.source);
       } else {
@@ -233,6 +260,8 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
         console.log(`[THERAPY] setting start position to ${tailPosition}ms (tailSeconds: ${options.tailSeconds})`);
         await s.setPositionAsync(tailPosition);
       }
+      await s.setIsMutedAsync(false);
+      await s.setVolumeAsync(1.0);
       await s.playAsync();
       setPlaying(true);
       s.setOnPlaybackStatusUpdate((status: any) => {
@@ -353,13 +382,36 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     }
   };
 
+  const onForward = async () => {
+    if (!sound) return;
+    try {
+      const st = await sound.getStatusAsync();
+      if (!(st as any)?.isLoaded) return;
+      const duration = (st as any)?.durationMillis ?? 0;
+      const position = (st as any)?.positionMillis ?? 0;
+      const nextPos = Math.min(duration, position + 10000);
+      await sound.setPositionAsync(nextPos);
+      setPlaybackStatus(prev => ({ ...prev, positionMillis: nextPos }));
+    } catch (e) {
+      console.log('[THERAPY] forward error', e);
+    }
+  };
+
   return (
     <CSafeAreaView>
-      <TherapyHeader />
+      <TherapyHeader disabled={playing} />
       <View style={[styles.ph20, styles.pv20, { flex: 1 }]}>
         <CText type={'B18'}>{title}</CText>
         <View style={[styles.mt20]}>
-          <CButton title={playing ? 'Pausar' : 'Continuar'} onPress={onPlay} />
+          <View style={[styles.rowSpaceBetween, styles.g10]}>
+            <View style={{ flex: 1 }}>
+              <CButton
+                title={playing ? 'Pausar' : playbackStatus.positionMillis === 0 ? 'Iniciar' : 'Continuar'}
+                onPress={onPlay}
+              />
+            </View>
+            <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />
+          </View>
           <View style={styles.mt10}>
             {/* 
             <CButton
@@ -376,11 +428,16 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
           {sequence.length > 0 && (
             <View style={[styles.mt10]}>
               <CText type={'S14'} color={colors.labelColor}>
-                Archivo {Math.min(currentIndex + 1, sequence.length)}/{sequence.length} · {sequence[currentIndex]?.label || '—'}
-              </CText>
-              <CText type={'S14'} color={colors.labelColor}>
                 {formatTime(totalElapsed)} / {formatTime(computedTotalDuration)}
               </CText>
+              <View style={localStyles.inlineProgressTrack}>
+                <View
+                  style={[
+                    localStyles.inlineProgressFill,
+                    { width: `${progressPercent * 100}%`, backgroundColor: colors.primary },
+                  ]}
+                />
+              </View>
             </View>
           )}
         </View>
@@ -404,26 +461,11 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
           elevation: 6,
         }}
       >
-        <View style={[localStyles.progressButtonWrapper, { borderColor: colors.grayScale2, borderWidth: 1 }]}>
-          <View
-            style={[
-              localStyles.progressButtonFill,
-              {
-                width: `${progressPercent * 100}%`,
-                backgroundColor: colors.primary,
-              },
-            ]}
-          />
-          <CButton
-            title={data?.actions?.primary?.label || 'Continuar'}
-            disabled={!finished}
-            onPress={onContinue}
-            bgColor={'transparent'}
-            borderColor={'transparent'}
-            color={colors.white}
-            containerStyle={{ backgroundColor: 'transparent' }}
-          />
-        </View>
+        <CButton
+          title={data?.actions?.primary?.label || 'Continuar'}
+          disabled={!finished || playing}
+          onPress={onContinue}
+        />
         <CText type={'S12'} color={colors.labelColor} style={styles.mt8}>
           {Math.round(progressPercent * 100)}% completado
         </CText>
@@ -452,22 +494,20 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
           )}
         </View>
       )}
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }
 
 const localStyles = StyleSheet.create({
-  progressButtonWrapper: {
-    position: 'relative',
-    width: '100%',
+  inlineProgressTrack: {
+    height: 6,
+    borderRadius: 999,
+    backgroundColor: '#E6E6E6',
     overflow: 'hidden',
-    borderRadius: 24,
-    minHeight: 52,
+    marginTop: 8,
   },
-  progressButtonFill: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
+  inlineProgressFill: {
+    height: '100%',
   },
 });

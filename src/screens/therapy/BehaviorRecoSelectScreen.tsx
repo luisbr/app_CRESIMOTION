@@ -5,6 +5,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { submitBehaviorRecommendations } from '../../api/sesionTerapeutica';
@@ -90,6 +91,13 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
     }
   };
 
+  const motivoLabel =
+    items?.[0]?.motivo ||
+    items?.[0]?.motivo_label ||
+    items?.[0]?.motivo_nombre ||
+    items?.[0]?.motivo_title ||
+    '';
+
   return (
     <CSafeAreaView>
       <TherapyHeader />
@@ -107,9 +115,7 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
             elevation: 5,
           }}
         >
-          <CText type={'S12'} color={'#EF4444'} style={styles.mb5}>
-            {`DEBUG · route=${String(nextRoute || 'N/A')} · entry=${String(entrypoint || 'N/A')} · session=${String(sessionId || 'N/A')}`}
-          </CText>
+          
           <CText type={'B18'}>{title}</CText>
           <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
             {message}
@@ -134,6 +140,11 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
               elevation: 6,
             }}
           >
+            {!!motivoLabel && (
+              <CText type={'S16'} style={[styles.mt10, styles.ml10]}>
+                Selecciona tus recomendaciones para {motivoLabel}
+              </CText>
+            )}
             <FlatList
             data={items}
             keyExtractor={(item: any, index: number) => getItemKey(item, index)}
@@ -146,6 +157,8 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
               return (
                   <View style={{ borderBottomWidth: index === items.length - 1 ? 0 : 1, borderColor: colors.grayScale2 }}>
                     <View style={[styles.rowSpaceBetween, styles.pv15, { paddingHorizontal: 16 }]}>
+                      
+                      
                       <TouchableOpacity onPress={() => toggle(key)} style={{ marginRight: 10 }}>
                         <Ionicons
                           name={isOn ? 'checkbox' : 'square-outline'}
@@ -159,30 +172,14 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
                         style={{ flex: 1, paddingRight: 10 }}
                       >
                         <CText type={'S16'}>{item?.label || item?.title || item?.nombre || 'Recomendación'}</CText>
-                        {!!item?.motivo && (
-                          <View
-                            style={{
-                              backgroundColor: colors.inputBg,
-                              paddingHorizontal: 10,
-                              paddingVertical: 4,
-                              borderRadius: 12,
-                              marginTop: 6,
-                              alignSelf: 'flex-start',
-                            }}
-                          >
-                            <CText type={'S12'} color={colors.primary}>
-                              {item.motivo}
-                            </CText>
-                          </View>
-                        )}
+                        
                       </TouchableOpacity>
                       {hasInfo ? (
                         <TouchableOpacity onPress={() => toggleExpanded(key)}>
                           <Ionicons
-                            name={'chevron-down'}
+                            name={'information-circle-outline'}
                             size={moderateScale(18)}
                             color={'#999999'}
-                            style={{ transform: [{ rotate: isExpanded ? '180deg' : '0deg' }] }}
                           />
                         </TouchableOpacity>
                       ) : null}
@@ -228,6 +225,7 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
       >
         <CButton title={'Siguiente'} disabled={selectedCount < min} onPress={onContinue} />
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

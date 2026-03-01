@@ -5,6 +5,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { selectTherapyFocus } from '../../api/sesionTerapeutica';
@@ -48,7 +49,7 @@ export default function FocusSelectScreen({ navigation, route }: any) {
         >
           <CText type={'B18'}>Enfoque positivo, constructivo e inteligente con la metodología de última generación CresiMotion</CText>
           <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-            Elige un motivo para continuar con tu enfoque positivo.
+            Elige el motivo de tu estado emocional que más te está afectando en este momento. 
           </CText>
         </View>
         {motivos.length === 0 ? (
@@ -124,6 +125,7 @@ export default function FocusSelectScreen({ navigation, route }: any) {
       >
         <CButton title={'Siguiente'} disabled={!selectedId} onPress={onContinue} />
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

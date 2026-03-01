@@ -95,7 +95,7 @@ function DrawerMenu() {
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('DiagnosticoHistory')}>
           <Ionicons name={'list-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Mis evaluaciones</CText>
+            <CText type={'S16'} color={colors.white}>Mis autoevaluaciones</CText>
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('Tasks')}>
@@ -111,7 +111,7 @@ function DrawerMenu() {
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigation.navigate(TabNav.ProfileTab)}>
-          <Ionicons name={'person-outline'} size={20} color={colors.white} />
+          <Ionicons name={'person-outline'} size={20} color={colors.white} /><CText>Perfil</CText>
           <View style={styles.ml10}>
             <CText type={'S16'} color={colors.white}>Perfil</CText>
           </View>
@@ -139,6 +139,7 @@ function DrawerMenu() {
 
 function TabNavigation() {
   const colors = useSelector(state => state.theme.theme);
+  const audioLocked = useSelector(state => state.ui?.audioLocked);
   //console.log('TabNavigation mounted');
 
   const TabText = memo(({IconType}) => (
@@ -154,8 +155,12 @@ function TabNavigation() {
             tabBarStyle: [
               localStyles.tabBarStyle,
               {backgroundColor: colors.backgroundColor},
+              audioLocked ? {opacity: 0.5} : null,
             ],
             tabBarShowLabel: false,
+            tabBarButton: props => (
+              <TouchableOpacity {...props} disabled={audioLocked} />
+            ),
           }}
           initialRouteName={TabNav.HomeTab}>
           <Tab.Screen

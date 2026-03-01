@@ -27,7 +27,7 @@ const DarkColor = {
 const commonColor = {
   // Brand primary (Blue) and accent (Green)
   primary: '#0aa693',
-  grayScale1: '#9CA4AB',
+  grayScale1: '#252525',
   white: '#FEFEFE',
   secondary: '#F6F8FE',
   secondary2: '#FDFDFD',

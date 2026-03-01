@@ -2,6 +2,7 @@ import React, {useCallback, useState} from 'react';
 import {ActivityIndicator, Image, TouchableOpacity, View} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CHeader from '../../../components/common/CHeader';
 import CText from '../../../components/common/CText';
@@ -16,6 +17,7 @@ import {useDrawer} from '../../../navigation/DrawerContext';
 import {getTherapyNext} from '../../../api/sesionTerapeutica';
 import {isTherapyRoute, normalizeTherapyNext} from '../../../screens/therapy/therapyUtils';
 import {getSession} from '../../../api/auth';
+import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 
 export default function DiagnosticoHomeScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -23,6 +25,39 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   const [loading, setLoading] = useState(false);
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
   const [therapyNext, setTherapyNext] = useState<any | null>(null);
+  const nextModuleKey: ModuleKey =
+    (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
+  const moduleTitleMap: Record<ModuleKey, string> = {
+    motivos: 'Motivos de tu estado emocional',
+    sintomas_fisicos: 'Sintomatología física.',
+    sintomas_emocionales: 'Sintomatología emocional',
+  };
+  const moduleTitle = therapyNext ? 'Sesión terapéutica' : (moduleTitleMap[nextModuleKey] || moduleTitleMap.motivos);
+  const moduleTitleInlineMap: Record<ModuleKey, string> = {
+    motivos: 'Motivos de tu estado emocional',
+    sintomas_fisicos: 'Sintomatología física',
+    sintomas_emocionales: 'Sintomatología emocional',
+  };
+  const moduleTitleInline = therapyNext ? '' : (moduleTitleInlineMap[nextModuleKey] || moduleTitleInlineMap.motivos);
+  const moduleBodyPrefixMap: Record<ModuleKey, string> = {
+    motivos:
+      'Para ayudarte a entender cómo te sientes hoy y brindarte un servicio de calidad, por favor, cuéntanos cuáles son los motivos de tu estado emocional. Al final, recibirás tu resumen gráfico ',
+    sintomas_fisicos:
+      'Para ayudarte a entender cómo te sientes hoy y brindarte un servicio de calidad, por favor, cuéntanos tu sintomatología física. Al final, recibirás tu resumen gráfico ',
+    sintomas_emocionales:
+      'Para ayudarte a entender cómo te sientes hoy y brindarte un servicio de calidad, por favor, cuéntanos tu sintomatología emocional. Al final, recibirás tu resumen gráfico ',
+  };
+  const moduleBodySuffixMap: Record<ModuleKey, string> = {
+    motivos: ' actual.',
+    sintomas_fisicos: ' actual.',
+    sintomas_emocionales: ' actual.',
+  };
+  const moduleBodyPrefix = therapyNext
+    ? 'A partir de este momento, inicias tu Sesión terapéutica.'
+    : (moduleBodyPrefixMap[nextModuleKey] || moduleBodyPrefixMap.motivos);
+  const moduleBodySuffix = therapyNext ? '' : (moduleBodySuffixMap[nextModuleKey] || moduleBodySuffixMap.motivos);
+
+  console.log('DiagnosticoHomeScreen render', {nextModuleKey, therapyNext});
 
   const checkResume = useCallback(async () => {
     setLoading(true);
@@ -31,7 +66,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         const s = await getSession();
         const userId = s?.id ? String(s.id) : null;
         if (userId) {
-          const next = await getTherapyNext(userId);
+          const next = await getTherapyNext(userId, { from_menu: 1 });
           const normalized = normalizeTherapyNext(next);
           if (isTherapyRoute(normalized.route)) {
             setTherapyNext(next);
@@ -54,10 +89,15 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
       const sessions = open?.sessions || [];
       const groupId = open?.group_id;
       if (sessions.length) {
+        const inProgress = sessions.find((s: any) => s?.session?.status === 'in_progress');
+        if (!inProgress) {
+          await clearLastRoute();
+          setResumeTarget(null);
+          return;
+        }
         if (groupId) {
           await saveGroupId(Number(groupId));
         }
-        const inProgress = sessions.find((s: any) => s?.session?.status === 'in_progress') || sessions[0];
         const moduleKey = inProgress?.session?.module_key as ModuleKey;
         const sessionId = Number(inProgress?.session?.id);
         const selectionRaw = inProgress?.selection || inProgress?.selection_ids || [];
@@ -126,6 +166,21 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     navigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
   };
 
+  const onPressResetHealingIntro = async () => {
+    try {
+      const session = await getSession();
+      const uid = session?.id ? String(session.id) : null;
+      if (!uid) return;
+      const keys = await AsyncStorage.getAllKeys();
+      const toRemove = keys.filter(key => key.startsWith(`healing_intro_hide_${uid}_`));
+      if (toRemove.length) {
+        await AsyncStorage.multiRemove(toRemove);
+      }
+    } catch (e) {
+      console.log('[THERAPY] reset intro error', e);
+    }
+  };
+
   return (
     <CSafeAreaView>
       <CHeader
@@ -161,22 +216,71 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         />
       </View>
       <View style={[styles.p20, { paddingTop: 16 }]}>
+        <CText type={'S20'} align={'center'} style={styles.mb10}>
+          {moduleTitle}
+        </CText>
+        <CText type={'S12'} align={'center'} color={colors.labelColor} style={styles.mb15}>
+          {moduleBodyPrefix}
+          <CText type={'S12'} color={colors.textColor}>
+            {moduleTitleInline}
+          </CText>
+          {moduleBodySuffix}
+        </CText>
+        {__DEV__ && (
+          <View style={styles.mb10}>
+            <CButton
+              title={'Reset intro (debug)'}
+              onPress={onPressResetHealingIntro}
+              bgColor={colors.inputBg}
+              color={colors.primary}
+            />
+          </View>
+        )}
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : therapyNext ? (
           <CButton title={'Continuar sesión terapéutica'} onPress={onPressTherapy} />
         ) : resumeTarget ? (
-          <CButton title={'Continuar diagnostico'} onPress={onPressContinue} />
+          <CButton
+            title={''}
+            onPress={onPressContinue}
+            containerStyle={localStyles.evalButton}
+          >
+            <CText type={'M12'} color={colors.white} align={'center'}>
+              Autoevaluación:
+            </CText>
+            <CText type={'B14'} color={colors.white} align={'center'}>
+              {moduleTitle}
+            </CText>
+          </CButton>
         ) : (
-          <CButton title={'Iniciar diagnostico'} onPress={onPressStart} />
+          <CButton
+            title={''}
+            onPress={onPressStart}
+            containerStyle={localStyles.evalButton}
+          >
+            <CText type={'M12'} color={colors.white} align={'center'}>
+              Autoevaluación:
+            </CText>
+            <CText type={'B14'} color={colors.white} align={'center'}>
+              {moduleTitle}
+            </CText>
+          </CButton>
         )}
         <CButton
-          title={'Mis evaluaciones'}
+          title={'Mis autoevaluaciones'}
           onPress={onPressHistory}
           bgColor={colors.inputBg}
           color={colors.primary}
         />
       </View>
+      {SHOW_SCREEN_TOOLTIP && (
+        <View style={localStyles.screenTooltip} pointerEvents="none">
+          <CText type={'S12'} color={'#fff'}>
+            DiagnosticoHomeScreen
+          </CText>
+        </View>
+      )}
     </CSafeAreaView>
   );
 }
@@ -194,6 +298,23 @@ const localStyles = {
   },
   logo: {
     width: moderateScale(110),
-    height: moderateScale(28),
+    height: moderateScale(50),
+  },
+  evalButton: {
+    flexDirection: 'column',
+    height: moderateScale(62),
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 6,
+    paddingBottom: 6,
+  },
+  screenTooltip: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
 };

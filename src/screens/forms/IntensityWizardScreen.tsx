@@ -4,6 +4,7 @@ import CText from '../../components/common/CText';
 import { styles } from '../../theme';
 import { useSelector } from 'react-redux';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import {getWidth, moderateScale} from '../../common/constants';
 import { saveIntensity, getSummary, completeProgress, debugLogFlow, listIntensitiesForProgress } from '../../repositories/formsRepo';
 
@@ -121,6 +122,7 @@ export default function IntensityWizardScreen({ navigation, route }: any) {
         />
       </View>
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

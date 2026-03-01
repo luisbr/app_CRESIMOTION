@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSelector} from 'react-redux';
@@ -11,10 +11,12 @@ type Props = {
   description?: string | null;
   selected?: boolean;
   onPress?: () => void;
+  showInfoIcon?: boolean;
 };
 
-export default function ChecklistItem({title, description, selected, onPress}: Props) {
+export default function ChecklistItem({title, description, selected, onPress, showInfoIcon}: Props) {
   const colors = useSelector(state => state.theme.theme);
+  const [showInfo, setShowInfo] = useState(false);
   return (
     <TouchableOpacity
       style={[localStyles.container, {borderColor: colors.inputBg}]}
@@ -28,13 +30,32 @@ export default function ChecklistItem({title, description, selected, onPress}: P
         />
         <View style={localStyles.textBlock}>
           <CText type={'S16'}>{title}</CText>
-          {!!description && (
+          {!!description && !showInfoIcon && (
             <CText type={'S12'} color={colors.labelColor}>
               {description}
             </CText>
           )}
         </View>
+        {!!description && showInfoIcon && (
+          <TouchableOpacity
+            onPress={() => setShowInfo(prev => !prev)}
+            style={localStyles.infoButton}
+          >
+            <Ionicons
+              name={'information-circle-outline'}
+              size={moderateScale(18)}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
+        )}
       </View>
+      {!!description && showInfoIcon && showInfo && (
+        <View style={[localStyles.tooltip, {backgroundColor: colors.inputBg}]}>
+          <CText type={'S12'} color={colors.labelColor}>
+            {description}
+          </CText>
+        </View>
+      )}
     </TouchableOpacity>
   );
 }
@@ -49,8 +70,18 @@ const localStyles = StyleSheet.create({
   row: {
     ...styles.rowStart,
     ...styles.g10,
+    ...styles.itemsCenter,
   },
   textBlock: {
     ...styles.flex,
+  },
+  infoButton: {
+    paddingLeft: moderateScale(6),
+    paddingVertical: moderateScale(4),
+  },
+  tooltip: {
+    marginTop: moderateScale(8),
+    padding: moderateScale(8),
+    borderRadius: moderateScale(8),
   },
 });

@@ -4,6 +4,7 @@ import CText from '../../components/common/CText';
 import { styles } from '../../theme';
 import { useSelector } from 'react-redux';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import { getSession } from "../../api/auth";
@@ -51,7 +52,7 @@ export default function SummaryScreen({ navigation, route }: any) {
       <View style={[styles.rowSpaceBetween, styles.mt15]}>
         {['bar','pie','radar'].map(key => (
           <TouchableOpacity key={key} onPress={() => setView(key as any)} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 16, backgroundColor: view===key ? colors.primary : colors.inputBg }}>
-            <CText color={view===key ? colors.white : colors.textColor}>{key === 'bar' ? 'Barras' : key === 'pie' ? 'Pie' : 'Radar'}</CText>
+            <CText color={view===key ? colors.white : colors.textColor}>{key === 'bar' ? 'Barras' : key === 'pie' ? 'Pastel' : 'Radar'}</CText>
           </TouchableOpacity>
         ))}
       </View>
@@ -106,6 +107,7 @@ export default function SummaryScreen({ navigation, route }: any) {
         <ResetDebugButton navigation={navigation} />
       </View>
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

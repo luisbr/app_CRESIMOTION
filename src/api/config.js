@@ -18,10 +18,14 @@ const resolveBaseUrl = () => {
   return configured;
 };
 
-export const API_BASE_URL = "https://cresimotion.staging.mx";
+export const API_BASE_URL = resolveBaseUrl();
 export const ENDPOINTS = {
   REGISTER: '/api/ws/registro',
   LOGIN: '/api/ws/login',
   REQUEST_PWD_RESET: '/api/ws/solicitudCambioPwd',
   UPDATE_PWD: '/api/ws/actualizaPwd',
+  TUTOR_REQUEST_CODE: '/api/ws/tutor/solicitudCodigo',
+  TUTOR_VERIFY_CODE: '/api/ws/tutor/validarCodigo',
+  REGISTER_REQUEST_CODE: '/api/ws/registro/solicitudCodigo',
+  REGISTER_VERIFY_CODE: '/api/ws/registro/validarCodigo',
 };

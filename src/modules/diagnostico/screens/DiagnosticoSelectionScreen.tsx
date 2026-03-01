@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, ScrollView, View} from 'react-native';
+import {ActivityIndicator, ScrollView, View, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CHeader from '../../../components/common/CHeader';
@@ -16,6 +16,13 @@ import {getMotivosCatalog, getMotivosCategories, getSintomasEmocionalesCatalog, 
 import {saveSelection, startSession} from '../api/sessionsApi';
 import ChecklistItem from '../components/ChecklistItem';
 import {getGroupId, saveGroupId, saveLastRoute} from '../utils';
+import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
+
+const capitalizeSentence = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return trimmed;
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+};
 
 export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -153,17 +160,17 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
 
   const introTitle =
     moduleKey === 'motivos'
-      ? 'Motivos de tu estado emocional'
+      ? 'Selecciona los motivos de tu estado emocional'
       : moduleKey === 'sintomas_fisicos'
-      ? 'Sintomatología física'
-      : 'Sintomatología emocional';
+      ? 'Selecciona tus síntomas físicos'
+      : 'Selecciona tus síntomas emocionales';
 
   const introBody =
     moduleKey === 'motivos'
-      ? 'Cuéntanos cuáles son los motivos de tu estado emocional. Al final, recibirás un resumen gráfico de los motivos de tu estado emocional, y podremos ofrecerte un enfoque positivo, constructivo e inteligente.'
+      ? 'Cuéntanos cuáles son los motivos de tu estado emocional.'
       : moduleKey === 'sintomas_fisicos'
-      ? 'Para ayudarte a entender mejor cómo te encuentras hoy y brindarte un servicio de calidad, por favor, cuéntanos sobre tu sintomatología física. Al terminar, recibirás un resumen gráfico de tu sintomatología física actual.'
-      : 'Para ayudarte a entender mejor cómo te encuentras hoy y brindarte un servicio de calidad, por favor, cuéntanos sobre tu sintomatología emocional. Al terminar, recibirás un resumen gráfico de tu sintomatología emocional actual.';
+      ? 'Cuéntanos cuáles son tus síntomas físicos.'
+      : 'Cuéntanos cuáles son tus síntomas emocionales.';
 
   return (
     <CSafeAreaView>
@@ -172,7 +179,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         centerAccessory={
           <Image
             source={require('../../../../assets/logo.png')}
-            style={{width: moderateScale(110), height: moderateScale(28)}}
+            style={{width: moderateScale(110), height: moderateScale(50)}}
             resizeMode="contain"
           />
         }
@@ -194,7 +201,13 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       />
       <View style={[styles.flex, styles.p20, {position: 'relative'}]}>
         <CText type={'S24'} align={'center'} style={styles.mb10}>
-          Selecciona tus {moduleKey.replace('_', ' ')}
+          {moduleKey === 'motivos'
+            ? 'Motivos de tu estado emocional'
+            : moduleKey === 'sintomas_fisicos'
+            ? 'Sintomatología física'
+            : moduleKey === 'sintomas_emocionales'
+            ? 'Sintomatología emocional'
+            : capitalizeSentence(moduleKey.replace('_', ' '))}
         </CText>
         <View
           style={{
@@ -205,7 +218,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           }}
         >
           <CText type={'M16'} align={'center'} style={{marginBottom: moderateScale(4)}}>
-            {`--${introTitle}--`}
+            {`${introTitle}`}
           </CText>
           <CText type={'S13'} align={'center'} color={colors.labelColor}>
             {introBody}
@@ -259,8 +272,8 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
                   searchResults.map(item => (
                     <ChecklistItem
                       key={`search-${item.id}`}
-                      title={item.titulo}
-                      description={item.descripcion}
+                      title={capitalizeSentence(String(item.titulo || ''))}
+                      description={capitalizeSentence(String(item.descripcion || ''))}
                       selected={selectedIds.includes(Number(item.id))}
                       onPress={() => toggleId(Number(item.id))}
                     />
@@ -296,11 +309,11 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
                         >
                           <View style={{flex: 1, paddingRight: moderateScale(8)}}>
                             <CText type={'M16'} style={{marginBottom: category.descripcion ? moderateScale(2) : 0}}>
-                              {category.nombre}
+                              {capitalizeSentence(String(category.nombre || ''))}
                             </CText>
                             {!!category.descripcion && (
                               <CText type={'S12'} color={colors.labelColor}>
-                                {category.descripcion}
+                                {capitalizeSentence(String(category.descripcion || ''))}
                               </CText>
                             )}
                           </View>
@@ -314,8 +327,8 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
                           (category.motivos || []).map(item => (
                             <ChecklistItem
                               key={String(item.id)}
-                              title={item.titulo}
-                              description={item.descripcion}
+                              title={capitalizeSentence(String(item.titulo || ''))}
+                              description={capitalizeSentence(String(item.descripcion || ''))}
                               selected={selectedIds.includes(Number(item.id))}
                               onPress={() => toggleId(Number(item.id))}
                             />
@@ -340,10 +353,11 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
                 .map(item => (
                   <ChecklistItem
                     key={String(item.id)}
-                    title={item.titulo}
-                    description={item.descripcion}
+                    title={capitalizeSentence(String(item.titulo || ''))}
+                    description={capitalizeSentence(String(item.descripcion || ''))}
                     selected={selectedIds.includes(Number(item.id))}
                     onPress={() => toggleId(Number(item.id))}
+                    showInfoIcon
                   />
                 ))
             )}
@@ -380,6 +394,25 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           <CButton title={'Siguiente'} onPress={onPressNext} />
         )}
       </View>
+      {SHOW_SCREEN_TOOLTIP && (
+        <View style={localStyles.screenTooltip} pointerEvents="none">
+          <CText type={'S12'} color={'#fff'}>
+            DiagnosticoSelectionScreen
+          </CText>
+        </View>
+      )}
     </CSafeAreaView>
   );
 }
+
+const localStyles = StyleSheet.create({
+  screenTooltip: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+});

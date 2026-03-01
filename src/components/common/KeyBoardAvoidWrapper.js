@@ -14,15 +14,17 @@ const KeyBoardAvoidWrapper = ({
 }) => {
   return (
     <KeyboardAvoidingView
-      keyboardVerticalOffset={
-        checkPlatform() === 'ios' ? moderateScale(10) : null
-      }
+      keyboardVerticalOffset={checkPlatform() === 'ios' ? moderateScale(80) : 0}
       style={[styles.flex, containerStyle]}
-      behavior={isIOS ? 'padding' : null}>
+      behavior={isIOS ? 'padding' : 'height'}>
       <ScrollView
         nestedScrollEnabled={true}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={contentContainerStyle}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={[
+          {flexGrow: 1, paddingBottom: moderateScale(24)},
+          contentContainerStyle,
+        ]}
         bounces={false}>
         {children}
       </ScrollView>

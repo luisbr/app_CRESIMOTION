@@ -5,6 +5,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { updateAgendaItem } from '../../api/sesionTerapeutica';
@@ -192,6 +193,7 @@ export default function TaskDetailScreen({ navigation, route }: any) {
           <CButton title={'Guardar cambios'} disabled={!canSave} onPress={onSave} />
         </View>
       )}
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

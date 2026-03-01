@@ -27,6 +27,7 @@ export default function CButton({
   ...props
 }) {
   const colors = useSelector(state => state.theme.theme);
+  const resolvedTextColor = disabled ? colors.grayScale3 : (color ? color : colors.white);
   return (
     <TouchableOpacity
       style={[
@@ -37,19 +38,22 @@ export default function CButton({
           borderColor: !!borderColor ? borderColor : colors.primary,
         },
         disabled && {
-          backgroundColor: colors.searchBg,
-          borderColor: colors.searchBg,
+          backgroundColor: colors.grayScale2,
+          borderColor: colors.grayScale2,
         },
       ]}
+      disabled={disabled}
       {...props}>
       {!!frontIcon && <View style={leftIconStyle}>{frontIcon}</View>}
-      <CText
-        type={!!type ? type : 'B16'}
-        style={textStyle}
-        align={'center'}
-        color={color ? color : colors.white}>
-        {title}
-      </CText>
+      {title !== null && title !== undefined && title !== '' && (
+        <CText
+          type={!!type ? type : 'B16'}
+          style={textStyle}
+          align={'center'}
+          color={resolvedTextColor}>
+          {title}
+        </CText>
+      )}
       {arrowIcon && (
         <Ionincons
           name={'arrow-forward-outline'}

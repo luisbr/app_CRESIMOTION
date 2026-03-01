@@ -5,6 +5,7 @@ import React, {useCallback, useRef, useState} from 'react';
 import CSafeAreaView from '../components/common/CSafeAreaView';
 import {useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {setOnBoarding} from '../utils/AsyncStorage';
 import {StackNav} from '../navigation/NavigationKey';
 import {OnBoardingData} from '../api/constant';
@@ -16,6 +17,7 @@ import CButton from '../components/common/CButton';
 
 export default function OnBoarding() {
   const colors = useSelector(state => state.theme.theme);
+  const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
   const slideRef = useRef(null);
 
@@ -95,7 +97,7 @@ export default function OnBoarding() {
         _onViewabilityConfig={_onViewabilityConfig}
         pagingEnabled
       />
-      <View>
+      <View style={[localStyles.bottomContainer, {paddingBottom: Math.max(16, insets.bottom + 8)}]}>
         <CText type={'B24'} align={'center'} style={styles.mb10}>
           {TitleText()}
         </CText>
@@ -138,6 +140,11 @@ const localStyles = StyleSheet.create({
     resizeMode: 'stretch',
     width: deviceWidth,
     height: deviceHeight / 1.79,
+  },
+  bottomContainer: {
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: moderateScale(20),
   },
   bottomIndicatorContainer: {
     ...styles.flexRow,

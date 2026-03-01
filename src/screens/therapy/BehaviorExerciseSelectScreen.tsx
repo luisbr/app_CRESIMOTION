@@ -5,6 +5,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { submitBehaviorExercises } from '../../api/sesionTerapeutica';
@@ -26,6 +27,7 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
   const maxTotal = Number(rules?.max_total || 3);
   const requiredMin = Number(rules?.required_min_per_group || 1);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const selectedIds = useMemo(() => Object.entries(selected).filter(([, v]) => v).map(([k]) => Number(k)), [selected]);
 
@@ -37,6 +39,10 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
       next[id] = !isOn;
       return next;
     });
+  };
+
+  const toggleExpanded = (key: string) => {
+    setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
 
@@ -52,6 +58,14 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
   const onContinue = async () => {
     if (!sessionId) {
       Alert.alert('Error', 'No se encontró la sesión.');
+      return;
+    }
+    if (selectedIds.length === 0) {
+      Alert.alert(
+        'Mensaje',
+        'Escoge los ejercicios que se adapten a tu estilo de vida. Cada cambio positivo, por pequeño que sea, tiene un impacto significativo en tu calidad de vida.',
+        [{ text: 'Cerrar', style: 'cancel' }]
+      );
       return;
     }
     const items: any[] = [];
@@ -101,16 +115,43 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
             elevation: 5,
           }}
         >
-          <CText type={'B18'}>{title}</CText>
+
+
+          {!!groups?.[0]?.motivo && (
+          <CText type={'B18'}>
+            Selecciona tus ejercicios para {groups[0].motivo}
+          </CText>
+         
+        )}
+
+
           {!!message && (
             <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
               {message}
             </CText>
           )}
         </View>
+
         {groups.map((group: any, idx: number) => (
           <View key={String(group?.recomendacion_id ?? idx)} style={styles.mt20}>
-            <CText type={'B16'}>{group?.recomendacion_title || 'Recomendación'}</CText>
+            <View
+              style={{
+                backgroundColor: colors.inputBg,
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                borderRadius: 10,
+                shadowColor: '#000',
+                shadowOpacity: 0.08,
+                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 6,
+                elevation: 3,
+                marginBottom: 8,
+              }}
+            >
+              <CText type={'R18'} style={{ color: colors.textColor }}>
+                {group?.recomendacion_title || 'Recomendación'}
+              </CText>
+            </View>
             <View
               style={{
                 marginTop: 10,
@@ -133,6 +174,9 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
                 renderItem={({ item, index }: any) => {
                   const id = Number(item?.ejercicio_id ?? item?.id);
                   const isOn = !!selected[id];
+                  const key = String(id);
+                  const hasInfo = Boolean(item?.info);
+                  const isExpanded = !!expanded[key];
                   return (
                     <View style={{ borderBottomWidth: index === (group?.items || []).length - 1 ? 0 : 1, borderColor: colors.grayScale2 }}>
                     <View style={[styles.rowSpaceBetween, styles.pv15, { paddingHorizontal: 16 }]}>
@@ -143,10 +187,30 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
                             color={isOn ? colors.primary : colors.grayScale2}
                           />
                         </TouchableOpacity>
-                        <View style={{ flex: 1, marginRight: 12 }}>
-                          <CText type={'S16'}>{item?.title || item?.nombre || 'Ejercicio'}</CText>
-                        </View>
+                        <TouchableOpacity
+                          onPress={() => hasInfo && toggleExpanded(key)}
+                          activeOpacity={hasInfo ? 0.7 : 1}
+                          style={{ flex: 1, marginRight: 12 }}
+                        >
+                          <CText type={'S16'}>{item?.title || item?.nombre || 'Ejercicio'} </CText>
+                        </TouchableOpacity>
+                        {hasInfo ? (
+                          <TouchableOpacity onPress={() => toggleExpanded(key)}>
+                            <Ionicons
+                              name={'information-circle-outline'}
+                              size={moderateScale(18)}
+                              color={'#999999'}
+                            />
+                          </TouchableOpacity>
+                        ) : null}
                       </View>
+                      {hasInfo && isExpanded ? (
+                        <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
+                          <CText type={'R12'} color={'#666666'} style={{ lineHeight: 18 }}>
+                            {item.info}
+                          </CText>
+                        </View>
+                      ) : null}
                     </View>
                   );
                 }}
@@ -178,8 +242,9 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
           elevation: 6,
         }}
       >
-        <CButton title={'Siguiente'} disabled={!groupOk || selectedIds.length === 0} onPress={onContinue} />
+        <CButton title={'Siguiente'} disabled={selectedIds.length === 0} onPress={onContinue} />
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

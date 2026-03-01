@@ -5,9 +5,11 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { Audio } from 'expo-av';
 import { getDebugTailPosition } from '../../utils/audioDebug';
+import { API_BASE_URL } from '../../api/config';
 
 export default function HealingSanacionScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -34,8 +36,8 @@ export default function HealingSanacionScreen({ navigation, route }: any) {
   const ensureAbsoluteUrl = (u?: string | null) => {
     if (!u) return '';
     if (/^https?:\/\//i.test(u)) return u;
-    // fallback a localhost si viene ruta relativa
-    return `http://localhost${u.startsWith('/') ? '' : '/'}${u}`;
+    const base = API_BASE_URL || '';
+    return `${base}${u.startsWith('/') ? '' : '/'}${u}`;
   };
 
   useEffect(() => {
@@ -198,6 +200,7 @@ export default function HealingSanacionScreen({ navigation, route }: any) {
         </View>
         </TouchableWithoutFeedback>
       </ScrollView>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

@@ -4,6 +4,7 @@ import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import CText from '../../components/common/CText';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import {styles} from '../../theme';
 import {moderateScale} from '../../common/constants';
 import {useDrawer} from '../../navigation/DrawerContext';
@@ -152,6 +153,7 @@ export default function TherapyPendingSessionsScreen({navigation}: any) {
           </ScrollView>
         )}
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

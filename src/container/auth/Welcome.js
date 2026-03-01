@@ -5,21 +5,27 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import {styles} from '../../theme';
-import {getHeight, getWidth} from '../../common/constants';
+import {hp, wp} from '../../common/constants';
 import {AuthNav} from '../../navigation/NavigationKey';
+
+const logoSource = require('../../../assets/logo.png');
+const logoAsset = Image.resolveAssetSource(logoSource);
+const logoAspect = logoAsset?.width && logoAsset?.height ? logoAsset.width / logoAsset.height : 1;
 
 export default function Welcome() {
   const navigation = useNavigation();
+  const logoWidth = wp(50);
+  const logoHeight = logoWidth / (logoAspect || 1);
 
   return (
     <CSafeAreaView>
       <View style={[styles.flex, styles.justifyCenter, styles.ph20]}>
         <Image
-          source={require('../../../assets/logo.png')}
-          style={[localStyles.logo, styles.selfCenter]}
+          source={logoSource}
+          style={[localStyles.logo, styles.selfCenter, {width: logoWidth, height: logoHeight}]}
         />
         <CText type={'B24'} align={'center'} style={styles.mt20}>
-          {'Bienvenido!!!'}
+          {'¡Te damos la bienvenida!'}
         </CText>
 
         <View style={styles.mt30} />
@@ -42,8 +48,6 @@ export default function Welcome() {
 
 const localStyles = StyleSheet.create({
   logo: {
-    height: getHeight(80),
-    width: getWidth(80),
     resizeMode: 'contain',
   },
   fullWidthBtn: {

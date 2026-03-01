@@ -5,10 +5,12 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { submitAgendaItems } from '../../api/sesionTerapeutica';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Calendar from 'expo-calendar';
+import { normalizeTherapyNext } from './therapyUtils';
 
 const DAYS = [
   { key: 'mon', label: 'Lun' },
@@ -21,18 +23,38 @@ const DAYS = [
 ];
 
 const DEFAULTS = {
+  frequency: 'semanal',
   times_per_day: '1',
   time: '21:30',
   duration_minutes: '10',
   start_date: '2026-01-12',
   end_date: '2026-02-12',
+  day_of_month: '12',
   days_of_week: ['mon', 'tue', 'wed', 'thu', 'fri'],
 };
+
+const FREQUENCIES = [
+  { key: 'diaria', label: 'Diario' },
+  { key: 'semanal', label: 'Semanal' },
+  { key: 'quincenal', label: 'Quincenal' },
+  { key: 'mensual', label: 'Mensual' },
+  { key: 'bimestral', label: 'Bimestral' },
+  { key: 'semestral', label: 'Semestral' },
+];
 
 export default function AgendaSetupScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const sessionId = route?.params?.sessionId || null;
-  const exercises = Array.isArray(route?.params?.exercises) ? route.params.exercises : [];
+  const nextPayload = route?.params?.next || null;
+  const { data } = normalizeTherapyNext(nextPayload);
+  const payloadExercises = Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(data?.exercises)
+      ? data.exercises
+      : [];
+  const exercises = Array.isArray(route?.params?.exercises) && route.params.exercises.length
+    ? route.params.exercises
+    : payloadExercises;
   const [rows, setRows] = useState(() =>
     exercises.map((ex: any) => ({
       ejercicio_id: ex.ejercicio_id,
@@ -44,11 +66,6 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
 
   const [datePicker, setDatePicker] = useState<{ idx: number; field: 'start_date' | 'end_date' } | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
-
-  const canSave = useMemo(() => {
-    if (!sessionId || rows.length === 0) return false;
-    return rows.every((r: any) => r.time && r.duration_minutes && r.start_date && r.end_date);
-  }, [rows, sessionId]);
 
   const formatDate = (d: Date) => {
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -65,6 +82,55 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
     return new Date();
   };
 
+  const addDays = (d: Date, days: number) => {
+    const next = new Date(d);
+    next.setDate(next.getDate() + days);
+    return next;
+  };
+
+  const addMonths = (d: Date, months: number) => {
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const day = d.getDate();
+    const next = new Date(year, month + months, 1);
+    const max = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
+    next.setDate(Math.min(day, max));
+    return next;
+  };
+
+  const clampDay = (year: number, month: number, day: number) => {
+    const max = new Date(year, month + 1, 0).getDate();
+    return Math.min(Math.max(1, day), max);
+  };
+
+  const setDateDay = (dateStr: string, day: number) => {
+    const parts = dateStr.split('-').map(n => parseInt(n, 10));
+    if (parts.length !== 3 || parts.some(n => Number.isNaN(n))) return dateStr;
+    const [y, m, d] = parts;
+    const safeDay = clampDay(y, m - 1, day);
+    const next = new Date(y, m - 1, safeDay);
+    return formatDate(next);
+  };
+
+  const isValidRange = (row: any) => {
+    const start = parseDate(row.start_date);
+    const end = parseDate(row.end_date);
+    if (!start || !end) return false;
+    const freq = row.frequency || 'semanal';
+    let minEnd = start;
+    if (freq === 'semanal') minEnd = addDays(start, 6);
+    if (freq === 'quincenal') minEnd = addDays(start, 14);
+    if (freq === 'mensual') minEnd = addMonths(start, 1);
+    if (freq === 'bimestral') minEnd = addMonths(start, 2);
+    if (freq === 'semestral') minEnd = addMonths(start, 6);
+    return end >= minEnd;
+  };
+
+  const canSave = useMemo(() => {
+    if (!sessionId || rows.length === 0) return false;
+    return rows.every((r: any) => r.time && r.duration_minutes && r.start_date && r.end_date && isValidRange(r));
+  }, [rows, sessionId]);
+
   const updateRow = (idx: number, patch: any) => {
     setRows(prev => prev.map((r: any, i: number) => (i === idx ? { ...r, ...patch } : r)));
   };
@@ -73,10 +139,14 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
     setRows(prev =>
       prev.map((r: any, i: number) => {
         if (i !== idx) return r;
-        const next = new Set(r.days_of_week || []);
-        if (next.has(key)) next.delete(key);
-        else next.add(key);
-        return { ...r, days_of_week: Array.from(next) };
+        if (r.frequency !== 'semanal' && r.frequency !== 'diaria' && r.frequency !== 'quincenal') return r;
+        const current = new Set<string>(r.days_of_week || []);
+        if (current.has(key)) {
+          current.delete(key);
+        } else {
+          current.add(key);
+        }
+        return { ...r, days_of_week: Array.from(current) };
       })
     );
   };
@@ -84,12 +154,30 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
   const onSave = async () => {
     try {
       if (!sessionId) throw new Error('No se encontró la sesión.');
+      const invalid = rows.find(r => !isValidRange(r));
+      if (invalid) {
+        Alert.alert(
+          'Error',
+          'La fecha fin debe permitir al menos una ejecución según la periodicidad seleccionada.',
+          [{ text: 'Cerrar', style: 'cancel' }]
+        );
+        return;
+      }
       const items = rows.map((r: any) => ({
         ejercicio_id: r.ejercicio_id,
         custom_title: r.custom_title || r.title || '',
-        frequency: (r.days_of_week || []).length >= 7 ? 'diaria' : 'semanal',
+        frequency: r.frequency || 'semanal',
         times_per_day: Number(r.times_per_day || 1),
-        days_of_week: r.days_of_week,
+        days_of_week:
+          r.frequency === 'semanal' || r.frequency === 'quincenal'
+            ? r.days_of_week
+            : r.frequency === 'diaria'
+              ? DAYS.map(d => d.key)
+              : [],
+        day_of_month:
+          r.frequency !== 'semanal' && r.frequency !== 'diaria' && r.frequency !== 'quincenal'
+            ? Number(r.day_of_month || 1)
+            : undefined,
         time: r.time,
         duration_minutes: Number(r.duration_minutes || 0),
         start_date: r.start_date,
@@ -146,14 +234,29 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
       for (const item of items) {
         const start = new Date(`${item.start_date}T${item.time}:00`);
         const end = new Date(start.getTime() + Number(item.duration_minutes || 0) * 60 * 1000);
-        const recurrence = item.frequency === 'diaria'
-          ? { frequency: Calendar.Frequency.DAILY }
-          : {
-              frequency: Calendar.Frequency.WEEKLY,
-              daysOfWeek: (item.days_of_week || [])
-                .map((d: string) => dayMap[d])
-                .filter(Boolean),
-            };
+        const recurrence =
+          item.frequency === 'diaria'
+            ? { frequency: Calendar.Frequency.DAILY }
+            : item.frequency === 'semanal'
+              ? {
+                  frequency: Calendar.Frequency.WEEKLY,
+                  daysOfWeek: (item.days_of_week || [])
+                    .map((d: string) => dayMap[d])
+                    .filter(Boolean),
+                }
+              : item.frequency === 'quincenal'
+                ? {
+                    frequency: Calendar.Frequency.WEEKLY,
+                    interval: 2,
+                    daysOfWeek: (item.days_of_week || [])
+                      .map((d: string) => dayMap[d])
+                      .filter(Boolean),
+                  }
+                : item.frequency === 'mensual'
+                  ? { frequency: Calendar.Frequency.MONTHLY, interval: 1 }
+                  : item.frequency === 'bimestral'
+                    ? { frequency: Calendar.Frequency.MONTHLY, interval: 2 }
+                    : { frequency: Calendar.Frequency.MONTHLY, interval: 6 };
 
         const eventId = await Calendar.createEventAsync(calendarId, {
           title: item.custom_title || 'Ejercicio',
@@ -184,6 +287,16 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
         <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
           Define cuándo y cómo quieres realizar cada ejercicio.
         </CText>
+        {rows.length === 0 && (
+          <View style={styles.mt20}>
+            <CText type={'S14'} color={colors.labelColor}>
+              No hay ejercicios para programar en este momento. Vuelve a intentar desde la selección de hábitos.
+            </CText>
+            <View style={styles.mt10}>
+              <CButton title={'Volver al inicio'} onPress={() => navigation.navigate('HomeRoot')} />
+            </View>
+          </View>
+        )}
         {rows.map((row: any, idx: number) => (
           <View key={String(row.ejercicio_id)} style={[styles.mt20, { borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 12, padding: 12 }]}>
             <CText type={'B16'}>{row.title}</CText>
@@ -212,13 +325,87 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
                   <TouchableOpacity
                     key={d.key}
                     onPress={() => toggleDay(idx, d.key)}
-                    style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 14, marginRight: 6, marginBottom: 6, backgroundColor: active ? colors.primary : colors.inputBg }}
+                    style={{
+                      paddingVertical: 6,
+                      paddingHorizontal: 10,
+                      borderRadius: 14,
+                      marginRight: 6,
+                      marginBottom: 6,
+                      backgroundColor: active ? colors.primary : colors.inputBg,
+                      opacity: row.frequency === 'semanal' || row.frequency === 'diaria' || row.frequency === 'quincenal' ? 1 : 0.4,
+                    }}
                   >
                     <CText color={active ? colors.white : colors.textColor}>{d.label}</CText>
                   </TouchableOpacity>
                 );
               })}
             </View>
+
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Periodicidad</CText>
+            <View style={[styles.rowStart, styles.wrap, { marginTop: 6 }]}>
+              {FREQUENCIES.map((f) => {
+                const active = row.frequency === f.key;
+                return (
+                  <TouchableOpacity
+                    key={f.key}
+                    onPress={() =>
+                      updateRow(idx, {
+                        frequency: f.key,
+                        days_of_week:
+                          f.key === 'semanal' || f.key === 'quincenal'
+                            ? ['mon']
+                            : f.key === 'diaria'
+                              ? (row.days_of_week && row.days_of_week.length ? row.days_of_week : DAYS.map(d => d.key))
+                              : [],
+                      })
+                    }
+                    style={{
+                      paddingVertical: 6,
+                      paddingHorizontal: 10,
+                      borderRadius: 14,
+                      marginRight: 6,
+                      marginBottom: 6,
+                      backgroundColor: active ? colors.primary : colors.inputBg,
+                    }}
+                  >
+                    <CText color={active ? colors.white : colors.textColor}>{f.label}</CText>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {row.frequency !== 'semanal' && row.frequency !== 'diaria' && (
+              <>
+                <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Día del mes</CText>
+                <View style={[styles.rowStart, styles.wrap, { marginTop: 6 }]}>
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
+                    const active = Number(row.day_of_month || 1) === day;
+                    return (
+                      <TouchableOpacity
+                        key={day}
+                        onPress={() => {
+                          updateRow(idx, {
+                            day_of_month: String(day),
+                            start_date: setDateDay(row.start_date, day),
+                            end_date: setDateDay(row.end_date, day),
+                          });
+                        }}
+                        style={{
+                          paddingVertical: 6,
+                          paddingHorizontal: 10,
+                          borderRadius: 14,
+                          marginRight: 6,
+                          marginBottom: 6,
+                          backgroundColor: active ? colors.primary : colors.inputBg,
+                        }}
+                      >
+                        <CText color={active ? colors.white : colors.textColor}>{day}</CText>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            )}
 
             <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Hora</CText>
             <TextInput
@@ -295,6 +482,7 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
           <CButton title={'Guardar agenda'} disabled={!canSave} onPress={onSave} />
         </View>
       )}
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

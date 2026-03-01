@@ -18,11 +18,11 @@ type SelectedMotivo = { motivo: MotivoItem; encuestaId: string };
 
 const pesoToLabel = (peso?: number | null) => {
   switch (Number(peso)) {
-    case 5: return 'Muy Alto';
+    case 5: return 'Muy alto';
     case 4: return 'Alto';
     case 3: return 'Medio';
     case 2: return 'Bajo';
-    case 1: return 'Muy Bajo';
+    case 1: return 'Muy bajo';
     default: return 'Sin dato';
   }
 };

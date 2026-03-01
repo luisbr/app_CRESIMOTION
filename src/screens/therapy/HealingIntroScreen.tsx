@@ -1,18 +1,23 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { completeTherapyStep } from '../../api/sesionTerapeutica';
 import { getAudioUrl, getAudioTitle, normalizeTherapyNext } from './therapyUtils';
 import { getDebugTailPosition } from '../../utils/audioDebug';
+import { getSession } from '../../api/auth';
+import { API_BASE_URL } from '../../api/config';
 
 const DEFAULT_TEXT =
-  'Antes de la Sesión de sanación emocional, recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia. Por favor, confirma que cumples con las siguientes condiciones para tomar la sanación emocional.';
+  'Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:';
+const DEFAULT_TEXT_HIGHLIGHT = 'dos fases';
 
 export default function HealingIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -23,6 +28,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const required = Array.isArray(data?.checkboxes_required) ? data.checkboxes_required : [];
   const optional = data?.checkbox_optional || null;
   const introText = data?.text || data?.texto || DEFAULT_TEXT;
+  const isDefaultIntro = introText === DEFAULT_TEXT;
   const audioUrl = getAudioUrl(data?.audio || data);
   const audioTitle = getAudioTitle(data?.audio || data);
 
@@ -31,6 +37,10 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const [playing, setPlaying] = useState(false);
   const [nextResponse, setNextResponse] = useState<any>(null);
   const [loadingNext, setLoadingNext] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [prefLoaded, setPrefLoaded] = useState(false);
+  const [prefValue, setPrefValue] = useState<'1' | '0' | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   const allRequiredChecked = useMemo(() => {
     if (!required.length) return true;
@@ -40,8 +50,58 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const ensureAbsoluteUrl = (u?: string) => {
     if (!u) return '';
     if (/^https?:\/\//i.test(u)) return u;
-    return `http://localhost${u.startsWith('/') ? '' : '/'}${u}`;
+    const base = API_BASE_URL || '';
+    return `${base}${u.startsWith('/') ? '' : '/'}${u}`;
   };
+
+  useEffect(() => {
+    let mounted = true;
+    const loadPref = async () => {
+      try {
+        const session = await getSession();
+        const uid = session?.id ? String(session.id) : null;
+        if (!mounted) return;
+        setUserId(uid);
+        if (uid && optional?.key) {
+          const stored = await AsyncStorage.getItem(`healing_intro_hide_${uid}_${optional.key}`);
+          if (!mounted) return;
+          if (stored === '1' || stored === '0') {
+            setPrefValue(stored as '1' | '0');
+          } else {
+            setPrefValue(null);
+          }
+        }
+      } catch (e) {
+        // ignore
+      } finally {
+        if (mounted) setPrefLoaded(true);
+      }
+    };
+    loadPref();
+    return () => {
+      mounted = false;
+    };
+  }, [optional?.key]);
+
+  useEffect(() => {
+    setInitialized(false);
+  }, [required, optional?.key]);
+
+  useEffect(() => {
+    if (initialized) return;
+    if (!prefLoaded) return;
+    const shouldPreselect = prefValue !== '0';
+    const nextChecks: Record<string, boolean> = {};
+    required.forEach((opt: any, idx: number) => {
+      const key = opt?.key || String(idx);
+      nextChecks[key] = shouldPreselect;
+    });
+    if (optional?.key) {
+      nextChecks[optional.key] = shouldPreselect;
+    }
+    setChecks(nextChecks);
+    setInitialized(true);
+  }, [initialized, prefLoaded, prefValue, required, optional?.key]);
 
   const onPlayAudio = async () => {
     if (!audioUrl) return;
@@ -102,6 +162,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
       setLoadingNext(true);
       const next = await completeTherapyStep({ sessionId, action: actionKey });
       setNextResponse(next);
+      navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo continuar.');
     } finally {
@@ -115,7 +176,17 @@ export default function HealingIntroScreen({ navigation, route }: any) {
       <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 240 }]}>
         <CText type={'B18'}>{title}</CText>
         <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-          {introText}
+          {isDefaultIntro ? (
+            <>
+              {introText.split(DEFAULT_TEXT_HIGHLIGHT)[0]}
+              <CText type={'B14'} color={colors.labelColor}>
+                {DEFAULT_TEXT_HIGHLIGHT}
+              </CText>
+              {introText.split(DEFAULT_TEXT_HIGHLIGHT)[1]}
+            </>
+          ) : (
+            introText
+          )}
         </CText>
         {!!audioUrl && (
           <View style={styles.mt20}>
@@ -139,8 +210,8 @@ export default function HealingIntroScreen({ navigation, route }: any) {
                 onPress={() => setChecks(s => ({ ...s, [key]: !s[key] }))}
                 style={[styles.rowSpaceBetween, styles.pv15, idx > 0 ? { marginTop: 4 } : null]}
               >
-                <CText type={'S16'} style={{ flex: 1, marginRight: 12 }}>
-                  {opt?.label || ''}
+                <CText type={'R16'} style={{ flex: 1, marginRight: 12 }}>
+                  {opt?.label || ''} 
                 </CText>
                 <View
                   style={{
@@ -157,11 +228,17 @@ export default function HealingIntroScreen({ navigation, route }: any) {
           })}
           {!!optional?.label && (
             <TouchableOpacity
-              onPress={() => setChecks(s => ({ ...s, [optional.key]: !s[optional.key] }))}
+              onPress={async () => {
+                const next = !checks[optional.key];
+                setChecks(s => ({ ...s, [optional.key]: next }));
+                if (userId) {
+                  await AsyncStorage.setItem(`healing_intro_hide_${userId}_${optional.key}`, next ? '1' : '0');
+                }
+              }}
               style={[styles.rowSpaceBetween, styles.pv15, { marginTop: 4 }]}
             >
-              <CText type={'S16'} style={{ flex: 1, marginRight: 12 }}>
-                {optional.label}
+              <CText type={'R16'} style={{ flex: 1, marginRight: 12 }}>
+                {optional.label} 
               </CText>
               <View
                 style={{
@@ -209,8 +286,9 @@ export default function HealingIntroScreen({ navigation, route }: any) {
         <View style={styles.mb10}>
           <CButton title={data?.actions?.secondary?.label || 'Más tarde'} bgColor={colors.inputBg} color={colors.primary} onPress={onLater} />
         </View>
-        <CButton title={data?.actions?.primary?.label || 'Comenzarss'} disabled={!allRequiredChecked} onPress={onContinue} />
+        <CButton title={data?.actions?.primary?.label || 'Comenzarå'} disabled={!allRequiredChecked} onPress={onContinue} />
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

@@ -3,8 +3,8 @@ import strings from '../i18n/strings';
 // email regEx
 const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 
-//name regEx
-const nameRegEx = /^[a-zA-Z]+(\s[a-zA-Z]+)?$/;
+// name regEx (allow unicode letters, spaces, hyphen, apostrophe)
+const nameRegEx = /^\p{L}+(?:[\s'-]\p{L}+)*$/u;
 
 //Password regEx
 const passWordRegEx = /^(?=.*\d)(?=.*\W)(?=.*[a-z])(?=.*[A-Z]).{1,}$/;
@@ -36,7 +36,7 @@ const validateEmail = email => {
 };
 
 // name Validation
-const validName = name => {
+const validName = (name, invalidMsg) => {
   if (!name) {
     return {
       status: false,
@@ -47,7 +47,7 @@ const validName = name => {
       ? {status: true, msg: ''}
       : {
           status: false,
-          msg: strings.enterValidName,
+          msg: invalidMsg || strings.enterValidName,
         };
   }
 };

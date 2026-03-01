@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {ActivityIndicator, Linking, Modal, ScrollView, TouchableOpacity, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
@@ -19,6 +19,7 @@ import {getMotivosCatalog, getSintomasEmocionalesCatalog, getSintomasFisicosCata
 import {getEmergencyByLocation, getEmergencyContacts} from '../api/emergencyApi';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
+import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 
 export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -40,6 +41,11 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   }, [answers]);
   const [answeredIds, setAnsweredIds] = useState<Set<number>>(initialAnswered);
   const [selectedOption, setSelectedOption] = useState<CatalogOption | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+  const scrollRef = useRef<ScrollView | null>(null);
+  const [showSpecialInput, setShowSpecialInput] = useState(false);
+  const [specialValue, setSpecialValue] = useState('');
+  const [specialValueError, setSpecialValueError] = useState('');
   const [error, setError] = useState('');
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [emergencyVisible, setEmergencyVisible] = useState(false);
@@ -51,7 +57,8 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const [countryQuery, setCountryQuery] = useState('');
 
   const selectedItems = useMemo(() => items.filter(i => selectedIds.includes(Number(i.id))), [items, selectedIds]);
-  const currentItem = useMemo(() => selectedItems.find(i => !answeredIds.has(Number(i.id))), [selectedItems, answeredIds]);
+  const currentItem =
+    currentIndex != null && currentIndex < selectedItems.length ? selectedItems[currentIndex] : null;
   const options = currentItem ? normalizeOptions(currentItem) : [];
   const selectedBehavior = useMemo(() => {
     if (!currentItem || !selectedOption) return null;
@@ -76,19 +83,27 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     );
   }, [currentItem, selectedOption]);
   const totalItems = selectedItems.length;
-  const currentIndex = totalItems
-    ? currentItem
-      ? Math.min(totalItems, answeredIds.size + 1)
-      : totalItems
+  const currentStep = totalItems
+    ? Math.min(totalItems, (currentIndex ?? 0) + 1)
     : 0;
-  const progress = totalItems ? currentIndex / totalItems : 0;
+  const progress = totalItems ? currentStep / totalItems : 0;
+
+  useEffect(() => {
+    if (currentIndex != null) return;
+    if (!selectedItems.length) return;
+    const nextIdx = selectedItems.findIndex(i => !answeredIds.has(Number(i.id)));
+    setCurrentIndex(nextIdx === -1 ? selectedItems.length : nextIdx);
+  }, [currentIndex, selectedItems, answeredIds]);
 
   const introPrompt =
     moduleKey === 'motivos'
       ? 'Ahora cuéntanos cuál es la intensidad de tu estado emocional.'
       : moduleKey === 'sintomas_fisicos'
       ? 'Ahora cuéntanos cuál es la intensidad de tu sintomatología física.'
-      : 'Ahora cuéntanos cuál es la intensidad de tu estado emocional.';
+      : 'Ahora cuéntanos cuál es la intensidad de tu sintomatología emocional.';
+  const currentTitle = String(currentItem?.titulo || '').toLowerCase().trim();
+  const isOtherAddictionsItem =
+    currentTitle === 'adicciones otras' || currentTitle === 'otras adicciones';
 
   const onSelectOption = (opt: CatalogOption) => {
     console.log('[DiagnosticoWizard] option selected', {
@@ -99,7 +114,18 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       optionValue: opt?.value,
     });
     setSelectedOption(opt);
+    console.log('[DiagnosticoWizard] selected key check', {
+      key: String(opt?.key || ''),
+      matchesOtrasAdicciones: String(opt?.key || '').toLowerCase() === 'otras_adicciones',
+    });
     setError('');
+    const shouldShow = isOtherAddictionsItem;
+    setShowSpecialInput(shouldShow);
+    if (shouldShow) {
+      setTimeout(() => {
+        scrollRef.current?.scrollToEnd({animated: true});
+      }, 80);
+    }
     if (
       currentItem?.response_type === 'pensamiento_extremo_planes' &&
       (String(opt?.value ?? opt?.key).toLowerCase() === 'si' || String(opt?.key).toLowerCase() === 'si')
@@ -218,6 +244,11 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       setError('Selecciona una opcion para continuar.');
       return;
     }
+    if (isOtherAddictionsItem && !specialValue.trim()) {
+      setSpecialValueError('Especifica tu respuesta.');
+      return;
+    }
+    console.log('[DiagnosticoWizard] item', {currentItem});
     console.log('[DiagnosticoWizard] save answer start', {
       sessionId,
       itemId: currentItem.id,
@@ -234,6 +265,9 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     } else {
       payload.intensity_key = selectedOption.key;
       payload.intensity_value = selectedOption.value ?? 0;
+      if (isOtherAddictionsItem) {
+        payload.special_value = specialValue.trim();
+      }
     }
     console.log('[DiagnosticoWizard] save answer payload', payload);
     try {
@@ -248,6 +282,13 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     next.add(Number(currentItem.id));
     setAnsweredIds(next);
     setSelectedOption(null);
+    setShowSpecialInput(false);
+    setSpecialValue('');
+    setSpecialValueError('');
+    if (currentIndex != null) {
+      const nextIndex = Math.min(selectedItems.length, currentIndex + 1);
+      setCurrentIndex(nextIndex);
+    }
   };
 
   const onPressComplete = async () => {
@@ -268,16 +309,48 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     }
   };
 
+  const onPressBack = () => {
+    if (currentIndex == null) return;
+    if (currentIndex <= 0) {
+      navigation.navigate('DiagnosticoSelection', {
+        module_key: moduleKey,
+        sessionId,
+        selection: selectedIds,
+        answers,
+      });
+      return;
+    }
+    setCurrentIndex(prev => (prev == null ? 0 : Math.max(0, prev - 1)));
+    setSelectedOption(null);
+    setShowSpecialInput(false);
+    setSpecialValue('');
+    setSpecialValueError('');
+  };
+
   return (
     <CSafeAreaView>
-      <CHeader />
+      <CHeader
+        isHideBack
+        isLeftIcon={
+          <TouchableOpacity
+            onPress={onPressBack}
+            style={{padding: 6, marginLeft: -8}}
+          >
+            <Ionicons name={'arrow-back'} size={moderateScale(24)} color={colors.textColor} />
+          </TouchableOpacity>
+        }
+      />
       <View style={[styles.p20, {paddingBottom: 120}]}>
         <CText type={'S20'} style={styles.mb10}>
-          {currentItem ? currentItem.titulo : 'Completar autoevaluación'}
+          {currentItem ? currentItem.titulo : 'Completando autoevaluación'}
         </CText>
         {!!currentItem && totalItems > 0 && (
           <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
-            {`Paso ${currentIndex} de ${totalItems}`}
+            {moduleKey === 'motivos'
+              ? `Motivo ${currentStep} de ${totalItems}`
+              : moduleKey === 'sintomas_fisicos'
+              ? `Síntoma físico ${currentStep} de ${totalItems}`
+              : `Síntoma emocional ${currentStep} de ${totalItems}`}
           </CText>
         )}
         <ProgressBar progress={progress} />
@@ -287,8 +360,10 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
           </CText>
         ) : currentItem ? (
           <ScrollView
+            ref={scrollRef}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: 140}}
+            keyboardShouldPersistTaps="handled"
           >
             <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
               {introPrompt}
@@ -302,9 +377,33 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
                     key={String(opt.key)}
                     label={opt.label}
                     selected={selectedOption?.key === opt.key}
-                    onPress={() => onSelectOption(opt)}
+                    onPress={() => {
+                      onSelectOption(opt);
+                      if (!isOtherAddictionsItem) {
+                        setSpecialValue('');
+                        setSpecialValueError('');
+                      }
+                    }}
                   />
                 ))}
+                {showSpecialInput && (
+                  <View style={styles.mt10}>
+                    <CInput
+                      label={'Especifica'}
+                      placeHolder={'Escribe aquí'}
+                      keyBoardType={'default'}
+                      _value={specialValue}
+                      _errorText={specialValueError}
+                      autoCapitalize={'sentences'}
+                      toGetTextFieldValue={(val) => {
+                        setSpecialValue(val);
+                        if (val.trim()) setSpecialValueError('');
+                      }}
+                      required
+                      multiline
+                    />
+                  </View>
+                )}
                 <BehaviorMessageCard behavior={selectedBehavior} />
               </>
             )}
@@ -313,7 +412,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
           <CText type={'S16'} color={colors.labelColor}>
             {`Has completado todas las respuestas de ${
               moduleKey === 'motivos'
-                ? 'Motivos'
+                ? 'Motivos de tu estado emocional'
                 : moduleKey === 'sintomas_fisicos'
                 ? 'Síntomas físicos'
                 : moduleKey === 'sintomas_emocionales'
@@ -453,9 +552,9 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
         ]}
       >
         {currentItem ? (
-          <CButton title={'Siguiente'} onPress={onPressNext} />
+          <CButton title={'Siguiente ...'} onPress={onPressNext} />
         ) : selectedIds.length ? (
-          <CButton title={'Completar'} onPress={onPressComplete} />
+          <CButton title={'Continuar'} onPress={onPressComplete} />
         ) : (
           <CButton
             title={'Volver a seleccion'}
@@ -463,6 +562,25 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
           />
         )}
       </View>
+      {SHOW_SCREEN_TOOLTIP && (
+        <View style={localStyles.screenTooltip} pointerEvents="none">
+          <CText type={'S12'} color={'#fff'}>
+            DiagnosticoWizardScreen
+          </CText>
+        </View>
+      )}
     </CSafeAreaView>
   );
 }
+
+const localStyles = {
+  screenTooltip: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+};

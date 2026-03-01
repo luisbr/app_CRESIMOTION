@@ -6,6 +6,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { getSession } from "../../api/auth";
 
@@ -200,6 +201,7 @@ export default function HealingStartScreen({ navigation }: any) {
         </View>
         <View style={[styles.mt10]}> <CButton title={'Log resultados (debug)'} onPress={async () => { try { const s = await getSession(); const userId = String(s?.id || 'anon'); const progresses = listAllProgress(userId); console.log('[DEBUG] Progresos:', progresses); for (const p of progresses) { const reasons = listReasonsForProgress(p.id); const intensities = listIntensitiesForProgress(p.id); console.log('[DEBUG] Progreso **',p.id, 'encuesta', p.encuesta_id, 'status', p.status); console.log(' [DEBUG] Motivos seleccionados:', reasons.map(r => String(r.motivo_id))); console.log(' [DEBUG] Intensidades:', intensities); } } catch (e) { console.log('[DEBUG][ERROR]', e?.message || e); } }} bgColor={colors.inputBg} color={colors.primary} /> </View>
       </ScrollView>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

@@ -35,8 +35,14 @@ const safeJson = async (res) => {
   return raw || null;
 };
 
-export const getTherapyNext = async (userId) => {
-  const path = `/api/app/sesion-terapeutica/next?usuario_id=${encodeURIComponent(String(userId))}`;
+export const getTherapyNext = async (userId, { from_menu } = {}) => {
+  const params = new URLSearchParams({
+    usuario_id: String(userId),
+  });
+  if (from_menu != null) {
+    params.set('from_menu', String(from_menu));
+  }
+  const path = `/api/app/sesion-terapeutica/next?${params.toString()}`;
   const session = await getSession();
   const uuid = await getOrCreateDeviceUUID();
   console.log(

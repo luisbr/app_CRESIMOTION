@@ -23,7 +23,7 @@ export default function ThankYou({navigation}) {
             {'Gracias por registrarte en CresiMotion'}
           </CText>
           <CText type={'R16'} align={'center'} color={colors.labelColor} style={styles.mt15}>
-            {'Te damos la más cordial bienvenida. Para ayudarte a entender mejor cómo te sientes hoy y brindarte un servicio de calidad, por favor cuéntanos cuáles son los motivos de tu estado emocional.'}
+            
           </CText>
         </View>
         <CButton title={'Siguiente'} onPress={onNext} />

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CText from '../../components/common/CText';
+import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { getSession } from '../../api/auth';
 import { getTherapyNext } from '../../api/sesionTerapeutica';
 import { isTherapyRoute, normalizeTherapyNext } from './therapyUtils';
@@ -28,6 +29,10 @@ export default function TherapyFlowRouter({ navigation, route }: any) {
     }
     if (next.route === 'FOCUS_CONTENT') {
       navigation.replace('TherapyFocusContent', common);
+      return;
+    }
+    if (next.route === 'FOCUS_INTRO') {
+      navigation.replace('TherapyHealingIntro', { entrypoint, next: payload });
       return;
     }
     if (next.route === 'HEALING_SELECT_EMOTION') {
@@ -88,6 +93,7 @@ export default function TherapyFlowRouter({ navigation, route }: any) {
           <CText>Cargando sesión...</CText>
         )}
       </View>
+      <ScreenTooltip />
     </CSafeAreaView>
   );
 }

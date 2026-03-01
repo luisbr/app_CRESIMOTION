@@ -187,7 +187,7 @@ loadHomeState();
                     drName={pendingTitle || "-"}
                     specialist={""}
                     color={colors.white}
-                    scheduleLabel={therapyNext ? 'Continuar sesión terapéutica' : 'Iniciar diagnostico'}
+                    scheduleLabel={therapyNext ? 'Continuar sesión terapéutica' : 'Motivos de tu estado emocional'}
                     scheduleBgColor={colors.checkMark}
                     
                   />
