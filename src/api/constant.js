@@ -323,6 +323,13 @@ export const ProfileData = [
         title: strings.paymentMethod,
         route: StackNav.MyPayment,
       },
+      {
+        id: 99,
+        darkIcon: <MoreIcon width={moderateScale(24)} height={moderateScale(24)} />,
+        lightIcon: <MoreIcon width={moderateScale(24)} height={moderateScale(24)} />,
+        title: 'Suscripción',
+        route: StackNav.Subscription,
+      },
     ],
   },
   {

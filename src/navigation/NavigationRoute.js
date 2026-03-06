@@ -25,6 +25,7 @@ import MyPayment from '../container/profile/MyPayment';
 import AddNewCard from '../container/profile/AddNewCard';
 import HelpAndSupport from '../container/profile/HelpAndSupport';
 import Languages from '../container/profile/Languages';
+import SubscriptionScreen from '../container/profile/SubscriptionScreen';
 // forms flow
 import ReasonsListScreen from '../screens/forms/ReasonsListScreen';
 import IntensityWizardScreen from '../screens/forms/IntensityWizardScreen';
@@ -72,6 +73,7 @@ export const StackRoute = {
   AddNewCard,
   HelpAndSupport,
   Languages,
+  Subscription: SubscriptionScreen,
   // forms
   ReasonsListScreen,
   IntensityWizardScreen,
