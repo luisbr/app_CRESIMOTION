@@ -69,8 +69,10 @@ export default function SubscriptionScreen({navigation}) {
     try {
       setLoading(true);
       const resPaquetes = await getMembresias();
+      let fetchedPackages = [];
       if (resPaquetes && resPaquetes.data) {
-        setPackages(resPaquetes.data);
+        fetchedPackages = resPaquetes.data;
+        setPackages(fetchedPackages);
       }
 
       const resActual = await getSuscripcionActual();
@@ -78,6 +80,21 @@ export default function SubscriptionScreen({navigation}) {
         setCurrentSub(resActual.suscripcion);
       } else {
         setCurrentSub(null);
+        
+        // Auto-assign basic plan if no subscription
+        if (fetchedPackages.length > 0) {
+          const basicPlan = fetchedPackages.find(p => p.precio == 0 || (p.nombre && (p.nombre.toLowerCase().includes('básic') || p.nombre.toLowerCase().includes('basic'))));
+          if (basicPlan) {
+            const confirm = await confirmarSuscripcion(basicPlan.id);
+            if (confirm.success) {
+              const resActualNew = await getSuscripcionActual();
+              if (resActualNew && resActualNew.suscripcion) {
+                setCurrentSub(resActualNew.suscripcion);
+              }
+              Alert.alert('¡Plan Asignado!', `Se te ha asignado automáticamente el plan ${basicPlan.nombre}.`);
+            }
+          }
+        }
       }
     } catch (e) {
       console.log(e);
@@ -206,7 +223,12 @@ export default function SubscriptionScreen({navigation}) {
     const hasConcepts = pkg.conceptos && pkg.conceptos.length > 0;
     
     return (
-      <View key={pkg.id} style={[localStyles.packageCard, {backgroundColor: colors.secondary, borderColor: isCurrent ? colors.primary : 'transparent'}]}>
+      <View key={pkg.id} style={[localStyles.packageCard, {backgroundColor: colors.secondary, borderColor: isCurrent ? colors.primary : 'transparent', borderWidth: isCurrent ? 3 : 2}]}>
+        {isCurrent && (
+          <View style={[localStyles.currentBadge, {backgroundColor: colors.primary}]}>
+            <CText type={"B12"} color={colors.white}>TU PLAN ACTUAL</CText>
+          </View>
+        )}
         
         {/* Encabezado: Título y Precio */}
         <View style={localStyles.cardHeader}>
@@ -267,7 +289,14 @@ export default function SubscriptionScreen({navigation}) {
           <>
             <CText type={"B20"} color={colors.textColor} style={styles.mb20}>Elige tu paquete</CText>
             
-            {packages.map(renderPackage)}
+            {[...packages].sort((a, b) => {
+              if (!currentSub) return 0;
+              const aIsCurrent = parseInt(currentSub.membresia_id) === parseInt(a.id);
+              const bIsCurrent = parseInt(currentSub.membresia_id) === parseInt(b.id);
+              if (aIsCurrent) return -1;
+              if (bIsCurrent) return 1;
+              return 0;
+            }).map(renderPackage)}
 
             {currentSub && (
               <TouchableOpacity style={localStyles.cancelBtn} onPress={handleCancel} disabled={loading}>
@@ -284,6 +313,20 @@ export default function SubscriptionScreen({navigation}) {
 }
 
 const localStyles = StyleSheet.create({
+  currentBadge: {
+    position: 'absolute',
+    top: -15,
+    alignSelf: 'center',
+    paddingHorizontal: moderateScale(15),
+    paddingVertical: moderateScale(5),
+    borderRadius: moderateScale(15),
+    zIndex: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
   packageCard: {
     ...styles.p20,
     ...styles.mb20,

@@ -49,10 +49,10 @@ export default function Appointment({ route, navigation }) {
   const onPressCalender = () => setDatePickerVisible(true);
 
   const handleDateConfirm = (date) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const formattedDate = new Intl.DateTimeFormat("en-US", options).format(
-      date
-    );
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
     setBirthDate(formattedDate);
     setDatePickerVisible(false);
   };
@@ -136,13 +136,12 @@ export default function Appointment({ route, navigation }) {
               },
             ]}
           >
-            <CText
-              type={"M16"}
-              color={birthDate ? colors.textColor : colors.grayScale1}
-              style={styles.ml10}
-            >
-              {birthDate ? birthDate : "June 14, 1996"}
-            </CText>
+              <CText
+                type={"M14"}
+                color={birthDate ? colors.textColor : colors.grayScale1}
+              >
+                {birthDate ? birthDate : "DD/MM/YYYY"}
+              </CText>
             <CalendarIcon />
           </TouchableOpacity>
 

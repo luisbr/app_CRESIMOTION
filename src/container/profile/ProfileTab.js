@@ -82,7 +82,16 @@ export default function ProfileTab({navigation}) {
           setFirstName(nombre || '');
           setLastName(apellido || '');
           setAlias(alias || '');
-          setDob(fecha_nacimiento || '');
+          const formatDob = (dateString) => {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+              return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateString;
+          };
+
+          setDob(formatDob(fecha_nacimiento));
           setGender(genero || '');
           setEmail(correo || '');
           setPhone(telefono || '');
@@ -91,7 +100,7 @@ export default function ProfileTab({navigation}) {
           setIsMinor(parseInt(menor_edad || 0) === 1);
           setTutorName(tutor_nombre || '');
           setTutorLastName(tutor_apellido || '');
-          setTutorDob(tutor_fecha_nacimiento || '');
+          setTutorDob(formatDob(tutor_fecha_nacimiento));
           setTutorPhone(tutor_telefono || '');
           setTutorEmail(tutor_correo || '');
         }
