@@ -61,6 +61,14 @@ export const login = async ({correo, contrasena}) => {
     ]);
     await SecureStore.setItemAsync(AUTH_TOKEN, JSON.stringify(token));
     await SecureStore.setItemAsync(AUTH_HASH, JSON.stringify(hash));
+    
+    // Also try to send the push token if we just logged in
+    try {
+      const pushToken = await AsyncStorage.getItem('EXPO_PUSH_TOKEN');
+      if (pushToken) await savePushToken(pushToken);
+    } catch(e) {
+      console.log('Error saving push token after login', e);
+    }
   }
   return resp;
 };
@@ -155,6 +163,14 @@ export const register = async ({
     ]);
     await SecureStore.setItemAsync(AUTH_TOKEN, JSON.stringify(token));
     await SecureStore.setItemAsync(AUTH_HASH, JSON.stringify(hash));
+
+    // Also try to send the push token if we just registered
+    try {
+      const pushToken = await AsyncStorage.getItem('EXPO_PUSH_TOKEN');
+      if (pushToken) await savePushToken(pushToken);
+    } catch(e) {
+      console.log('Error saving push token after register', e);
+    }
   }
   return resp;
 };
@@ -251,4 +267,8 @@ export const confirmarSuscripcion = async (membresia_id) => {
 
 export const cancelarSuscripcion = async () => {
   return authPost(ENDPOINTS.SUSCRIPCION_CANCELAR, {});
+};
+
+export const savePushToken = async (expo_push_token) => {
+  return authPost(ENDPOINTS.ACTUALIZAR_PUSH_TOKEN, { expo_push_token });
 };

@@ -16,7 +16,10 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Usamos tu ubicación para mostrarte teléfonos de emergencia cercanos en caso de riesgo.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       },
       "bundleIdentifier": "com.luis.buendiagmail.com.crestimotion"
     },
@@ -35,13 +38,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "useNextNotificationsApi": true,
       "package": "com.luis.buendiagmail.com.crestimotion"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "API_BASE_URL": "http://192.168.1.105",
+      "API_BASE_URL": "http://192.168.3.34",
       "eas": {
         "projectId": "3addbbcb-6772-4100-aeda-cc592300a1a4"
       }
@@ -51,7 +55,14 @@
       "expo-sqlite",
       "expo-location",
       "@react-native-community/datetimepicker",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/push/notification_icon.png",
+          "color": "#0aa693"
+        }
+      ]
     ],
     "runtimeVersion": {
       "policy": "appVersion"
