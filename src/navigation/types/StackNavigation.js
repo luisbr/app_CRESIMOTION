@@ -70,6 +70,10 @@ export default function StackNavigation() {
         component={StackRoute.AddNewCard}
       />
       <Stack.Screen
+        name={StackNav.Subscription}
+        component={StackRoute.Subscription}
+      />
+      <Stack.Screen
         name={StackNav.HelpAndSupport}
         component={StackRoute.HelpAndSupport}
       />

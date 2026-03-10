@@ -61,6 +61,14 @@ export const login = async ({correo, contrasena}) => {
     ]);
     await SecureStore.setItemAsync(AUTH_TOKEN, JSON.stringify(token));
     await SecureStore.setItemAsync(AUTH_HASH, JSON.stringify(hash));
+    
+    // Also try to send the push token if we just logged in
+    try {
+      const pushToken = await AsyncStorage.getItem('EXPO_PUSH_TOKEN');
+      if (pushToken) await savePushToken(pushToken);
+    } catch(e) {
+      console.log('Error saving push token after login', e);
+    }
   }
   return resp;
 };
@@ -155,6 +163,14 @@ export const register = async ({
     ]);
     await SecureStore.setItemAsync(AUTH_TOKEN, JSON.stringify(token));
     await SecureStore.setItemAsync(AUTH_HASH, JSON.stringify(hash));
+
+    // Also try to send the push token if we just registered
+    try {
+      const pushToken = await AsyncStorage.getItem('EXPO_PUSH_TOKEN');
+      if (pushToken) await savePushToken(pushToken);
+    } catch(e) {
+      console.log('Error saving push token after register', e);
+    }
   }
   return resp;
 };
@@ -217,4 +233,42 @@ export const authPost = async (path, body) => {
     uuid: session.uuid,
   };
   return postJson(path, payload);
+};
+
+export const getProfile = async () => {
+  return authPost(ENDPOINTS.PROFILE, {});
+};
+
+export const getMembresias = async () => {
+  const url = `${API_BASE_URL}${ENDPOINTS.MEMBRESIAS}`;
+  const res = await fetch(url);
+  return res.json();
+};
+
+export const getSuscripcionActual = async () => {
+  const session = await getSession();
+  const url = `${API_BASE_URL}${ENDPOINTS.SUSCRIPCION_ACTUAL}/${session.id}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return res.json();
+  } catch (e) {
+    return null;
+  }
+};
+
+export const createSuscripcionIntent = async (membresia_id, success_url, cancel_url) => {
+  return authPost(ENDPOINTS.SUSCRIPCION_INTENT, { membresia_id, success_url, cancel_url });
+};
+
+export const confirmarSuscripcion = async (membresia_id) => {
+  return authPost(ENDPOINTS.SUSCRIPCION_CONFIRMAR, { membresia_id });
+};
+
+export const cancelarSuscripcion = async () => {
+  return authPost(ENDPOINTS.SUSCRIPCION_CANCELAR, {});
+};
+
+export const savePushToken = async (expo_push_token) => {
+  return authPost(ENDPOINTS.ACTUALIZAR_PUSH_TOKEN, { expo_push_token });
 };

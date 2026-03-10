@@ -316,12 +316,19 @@ export const ProfileData = [
   {
     header: strings.personalInfo,
     data: [
+      // {
+      //   id: 2,
+      //   darkIcon: <PaymentDarkIcon />,
+      //   lightIcon: <PaymentLightIcon />,
+      //   title: strings.paymentMethod,
+      //   route: StackNav.MyPayment,
+      // },
       {
-        id: 2,
-        darkIcon: <PaymentDarkIcon />,
-        lightIcon: <PaymentLightIcon />,
-        title: strings.paymentMethod,
-        route: StackNav.MyPayment,
+        id: 99,
+        darkIcon: <MoreIcon width={moderateScale(24)} height={moderateScale(24)} />,
+        lightIcon: <MoreIcon width={moderateScale(24)} height={moderateScale(24)} />,
+        title: 'Suscripción',
+        route: StackNav.Subscription,
       },
     ],
   },

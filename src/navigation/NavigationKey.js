@@ -18,6 +18,7 @@ export const StackNav = {
   HelpAndSupport: 'HelpAndSupport',
   Languages: 'Languages',
   FormsStack: 'FormsStack',
+  Subscription: 'Subscription',
 };
 
 export const AuthNav = {

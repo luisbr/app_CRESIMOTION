@@ -28,4 +28,11 @@ export const ENDPOINTS = {
   TUTOR_VERIFY_CODE: '/api/ws/tutor/validarCodigo',
   REGISTER_REQUEST_CODE: '/api/ws/registro/solicitudCodigo',
   REGISTER_VERIFY_CODE: '/api/ws/registro/validarCodigo',
+  PROFILE: '/api/ws/perfil',
+  MEMBRESIAS: '/api/ws/membresias',
+  SUSCRIPCION_ACTUAL: '/api/ws/obtenerSuscripcion',
+  SUSCRIPCION_INTENT: '/api/ws/suscripcion/intent',
+  SUSCRIPCION_CONFIRMAR: '/api/ws/suscripcion/confirmar',
+  SUSCRIPCION_CANCELAR: '/api/ws/suscripcion/cancelar',
+  ACTUALIZAR_PUSH_TOKEN: '/api/ws/actualizarPushToken',
 };

@@ -25,7 +25,7 @@ import {changeThemeAction} from '../../redux/action/themeAction';
 import {colors} from '../../theme/colors';
 import {StackNav} from '../../navigation/NavigationKey';
 import LogOutModel from '../../components/model/LogOutModel';
-import {getSession} from '../../api/auth';
+import {getSession, getProfile} from '../../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AUTH_ALIAS, AUTH_HASH, AUTH_ID, AUTH_NAME, AUTH_TOKEN, AUTH_UUID, ACCESS_TOKEN, DEVICE_UUID} from '../../common/constants';
 import { clearSession } from '../../session/storage';
@@ -35,9 +35,20 @@ export default function ProfileTab({navigation}) {
   const [isEnabled, setIsEnabled] = useState(!!color.dark);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [alias, setAlias] = useState('');
-  const [userId, setUserId] = useState('');
-  const [uuid, setUuid] = useState('');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [language, setLanguage] = useState('');
+  const [isMinor, setIsMinor] = useState(false);
+  const [tutorName, setTutorName] = useState('');
+  const [tutorLastName, setTutorLastName] = useState('');
+  const [tutorDob, setTutorDob] = useState('');
+  const [tutorPhone, setTutorPhone] = useState('');
+  const [tutorEmail, setTutorEmail] = useState('');
 
   const dispatch = useDispatch();
 
@@ -46,8 +57,56 @@ export default function ProfileTab({navigation}) {
       const s = await getSession();
       setName(s?.nombre || '');
       setAlias(s?.alias || '');
-      setUserId(s?.id ? String(s.id) : '');
-      setUuid(s?.uuid || '');
+
+      try {
+        const resp = await getProfile();
+        if (resp && resp.success && resp.perfil) {
+          const { 
+            nombre, 
+            apellido, 
+            alias, 
+            fecha_nacimiento, 
+            genero, 
+            correo,
+            telefono,
+            idioma,
+            menor_edad,
+            tutor_nombre,
+            tutor_apellido,
+            tutor_fecha_nacimiento,
+            tutor_telefono,
+            tutor_correo
+          } = resp.perfil;
+          
+          setName(`${nombre || ''} ${apellido || ''}`.trim());
+          setFirstName(nombre || '');
+          setLastName(apellido || '');
+          setAlias(alias || '');
+          const formatDob = (dateString) => {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+              return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateString;
+          };
+
+          setDob(formatDob(fecha_nacimiento));
+          setGender(genero || '');
+          setEmail(correo || '');
+          setPhone(telefono || '');
+          setLanguage(idioma || '');
+          
+          setIsMinor(parseInt(menor_edad || 0) === 1);
+          setTutorName(tutor_nombre || '');
+          setTutorLastName(tutor_apellido || '');
+          setTutorDob(formatDob(tutor_fecha_nacimiento));
+          setTutorPhone(tutor_telefono || '');
+          setTutorEmail(tutor_correo || '');
+        }
+      } catch (err) {
+        console.log('Failed to fetch profile', err);
+      }
     })();
   }, []);
 
@@ -99,21 +158,35 @@ export default function ProfileTab({navigation}) {
   const onPressEditIcon = () => {
     navigation.navigate(StackNav.Appointment, {title: strings.edit});
   };
-  const PersonalDetails = ({item}) => {
+  const ProfileInfoCard = ({ title, iconName, data }) => {
     return (
-      <View
-        style={[
-          localStyles.detailContainer,
-          {
-            backgroundColor: color.dark
-              ? color.indicatorColor
-              : color.secondary,
-          },
-        ]}>
-        <CText type={'M12'} color={color.grayScale1}>
-          {item.title}
-        </CText>
-        <CText type={'S14'}>{item.value}</CText>
+      <View style={[
+        localStyles.infoCard,
+        {
+          backgroundColor: color.dark ? color.indicatorColor : color.white,
+          borderColor: color.dark ? color.dividerColor : color.grayScale2,
+          borderWidth: color.dark ? 1 : 1,
+          shadowColor: color.dark ? 'transparent' : color.shadowColor,
+          shadowOffset: {width: 0, height: 2},
+          shadowOpacity: color.dark ? 0 : 0.1,
+          shadowRadius: color.dark ? 0 : 8,
+          elevation: color.dark ? 0 : 2,
+        }
+      ]}>
+        {title && (
+          <View style={[localStyles.infoCardHeader, { borderBottomColor: color.dark ? color.dividerColor : color.grayScale2 }]}>
+            {iconName && <Feather name={iconName} size={moderateScale(18)} color={color.primary} />}
+            <CText type={'B16'} style={{marginLeft: iconName ? moderateScale(8) : 0}}>{title}</CText>
+          </View>
+        )}
+        <View style={localStyles.infoCardGrid}>
+          {data.map((item, idx) => (
+            <View key={`info-${idx}`} style={[localStyles.infoCardItem, item.isFullWidth && {width: '100%'}]}>
+              <CText type={'M12'} color={color.labelColor}>{item.title}</CText>
+              <CText type={'S14'} color={color.textColor} style={{marginTop: moderateScale(4)}}>{item.value}</CText>
+            </View>
+          ))}
+        </View>
       </View>
     );
   };
@@ -148,15 +221,32 @@ export default function ProfileTab({navigation}) {
             </TouchableOpacity>
           </View>
         </View>
-        <View style={localStyles.personalContainer}>
-          {[
-            {title: 'ID de usuario', value: userId || '-'},
+        <ProfileInfoCard 
+          data={[
+            {title: 'Nombre', value: firstName || '-'},
+            {title: 'Apellido', value: lastName || '-'},
             {title: 'Alias', value: alias || '-'},
-            {title: 'UUID', value: uuid || '-'},
-          ].map((info, idx) => (
-            <PersonalDetails key={`pd-${idx}`} item={info} />
-          ))}
-        </View>
+            {title: 'Fecha de nacimiento', value: dob || '-'},
+            {title: 'Teléfono', value: phone || '-'},
+            {title: 'Género', value: gender || '-'},
+            {title: 'Idioma', value: language || '-'},
+            {title: 'Correo', value: email || '-', isFullWidth: true},
+          ]} 
+        />
+        
+        {isMinor && (
+          <ProfileInfoCard 
+            title="Datos del Tutor"
+            iconName="shield"
+            data={[
+              {title: 'Nombre', value: tutorName || '-'},
+              {title: 'Apellido', value: tutorLastName || '-'},
+              {title: 'Teléfono', value: tutorPhone || '-'},
+              {title: 'Fecha de nacimiento', value: tutorDob || '-'},
+              {title: 'Correo', value: tutorEmail || '-', isFullWidth: true},
+            ]}
+          />
+        )}
       </View>
     );
   };
@@ -251,20 +341,27 @@ const localStyles = StyleSheet.create({
     ...styles.rowSpaceBetween,
     ...styles.flex,
   },
-  detailContainer: {
-    height: moderateScale(62),
-    width: getWidth(101),
-    ...styles.center,
-    ...styles.g5,
-    borderRadius: moderateScale(12),
+  infoCard: {
+    ...styles.mt20,
+    ...styles.p15,
+    borderRadius: moderateScale(16),
   },
-  personalContainer: {
+  infoCardHeader: {
+    ...styles.flexRow,
+    alignItems: 'center',
+    marginBottom: moderateScale(15),
+    borderBottomWidth: moderateScale(1),
+    paddingBottom: moderateScale(10),
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  infoCardGrid: {
     ...styles.flexRow,
     ...styles.wrap,
-    ...styles.g12,
-    ...styles.selfCenter,
-    ...styles.mt20,
-    ...styles.mb10,
+    justifyContent: 'space-between',
+  },
+  infoCardItem: {
+    width: '48%',
+    marginBottom: moderateScale(15),
   },
   profileDetailRoot: {
     ...styles.flexRow,
