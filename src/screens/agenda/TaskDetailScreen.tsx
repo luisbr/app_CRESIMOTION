@@ -23,6 +23,7 @@ const DAYS = [
 export default function TaskDetailScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const item = route?.params?.item || {};
+  const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({
     id: item.id,
     custom_title: item.custom_title || item.titulo || '',
@@ -49,6 +50,11 @@ export default function TaskDetailScreen({ navigation, route }: any) {
       }
     }
     return new Date();
+  };
+
+  const formatTimeLabel = (time?: string) => {
+    if (!time) return 'Horario libre';
+    return time;
   };
 
   const canSave = useMemo(() => {
@@ -88,68 +94,96 @@ export default function TaskDetailScreen({ navigation, route }: any) {
     <CSafeAreaView>
       <CHeader title={'Detalle de tarea'} />
       <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 140 }]}> 
-        <CText type={'B18'}>Editar tarea</CText>
-        <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Titulo personalizado</CText>
-        <TextInput
-          value={form.custom_title}
-          onChangeText={(v) => setForm(s => ({ ...s, custom_title: v }))}
-          style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}
-        />
+        {!editMode ? (
+          <View style={{ backgroundColor: colors.inputBg, borderRadius: 12, padding: 16 }}>
+            <CText type={'B18'}>{item.titulo || item.title || 'Tarea'}</CText>
+            {item.custom_title && item.custom_title !== item.titulo && (
+              <CText type={'R14'} color={colors.labelColor} style={styles.mt5}>
+                {item.custom_title}
+              </CText>
+            )}
+            <View style={[styles.rowSpaceBetween, styles.mt15]}>
+              <View>
+                <CText type={'S12'} color={colors.labelColor}>Hora</CText>
+                <CText type={'S14'}>{formatTimeLabel(item.time)}</CText>
+              </View>
+              <View>
+                <CText type={'S12'} color={colors.labelColor}>Duración</CText>
+                <CText type={'S14'}>
+                  {item.duration_minutes ? `${item.duration_minutes} min` : 'Sin duración'}
+                </CText>
+              </View>
+            </View>
+            <View style={styles.mt20}>
+              <CButton title={'Editar'} onPress={() => setEditMode(true)} />
+            </View>
+          </View>
+        ) : (
+          <>
+            <CText type={'B18'}>Editar tarea</CText>
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Titulo personalizado</CText>
+            <TextInput
+              value={form.custom_title}
+              onChangeText={(v) => setForm(s => ({ ...s, custom_title: v }))}
+              style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}
+            />
 
-        <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Veces por dia</CText>
-        <TextInput
-          value={String(form.times_per_day)}
-          onChangeText={(v) => setForm(s => ({ ...s, times_per_day: v }))}
-          keyboardType={'numeric'}
-          style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}
-        />
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Veces por dia</CText>
+            <TextInput
+              value={String(form.times_per_day)}
+              onChangeText={(v) => setForm(s => ({ ...s, times_per_day: v }))}
+              keyboardType={'numeric'}
+              style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}
+            />
 
-        <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Dias de la semana</CText>
-        <View style={[styles.rowStart, styles.wrap, { marginTop: 6 }]}> 
-          {DAYS.map((d) => {
-            const active = (form.days_of_week || []).includes(d.key);
-            return (
-              <TouchableOpacity
-                key={d.key}
-                onPress={() => toggleDay(d.key)}
-                style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 14, marginRight: 6, marginBottom: 6, backgroundColor: active ? colors.primary : colors.inputBg }}
-              >
-                <CText color={active ? colors.white : colors.textColor}>{d.label}</CText>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Dias de la semana</CText>
+            <View style={[styles.rowStart, styles.wrap, { marginTop: 6 }]}> 
+              {DAYS.map((d) => {
+                const active = (form.days_of_week || []).includes(d.key);
+                return (
+                  <TouchableOpacity
+                    key={d.key}
+                    onPress={() => toggleDay(d.key)}
+                    style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 14, marginRight: 6, marginBottom: 6, backgroundColor: active ? colors.primary : colors.inputBg }}
+                  >
+                    <CText color={active ? colors.white : colors.textColor}>{d.label}</CText>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-        <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Hora</CText>
-        <TextInput
-          value={form.time}
-          onChangeText={(v) => setForm(s => ({ ...s, time: v }))}
-          style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}
-        />
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Hora</CText>
+            <TextInput
+              value={form.time}
+              onChangeText={(v) => setForm(s => ({ ...s, time: v }))}
+              style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}
+            />
 
-        <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Duracion (minutos)</CText>
-        <TextInput
-          value={String(form.duration_minutes)}
-          onChangeText={(v) => setForm(s => ({ ...s, duration_minutes: v }))}
-          keyboardType={'numeric'}
-          style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}
-        />
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Duracion (minutos)</CText>
+            <TextInput
+              value={String(form.duration_minutes)}
+              onChangeText={(v) => setForm(s => ({ ...s, duration_minutes: v }))}
+              keyboardType={'numeric'}
+              style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}
+            />
 
-        <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Fecha inicio</CText>
-        <TouchableOpacity
-          onPress={() => setDatePicker({ field: 'start_date' })}
-          style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, marginTop: 6 }}
-        >
-          <CText color={colors.textColor}>{form.start_date}</CText>
-        </TouchableOpacity>
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Fecha inicio</CText>
+            <TouchableOpacity
+              onPress={() => setDatePicker({ field: 'start_date' })}
+              style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, marginTop: 6 }}
+            >
+              <CText color={colors.textColor}>{form.start_date}</CText>
+            </TouchableOpacity>
 
-        <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Fecha fin</CText>
-        <TouchableOpacity
-          onPress={() => setDatePicker({ field: 'end_date' })}
-          style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, marginTop: 6 }}
-        >
-          <CText color={colors.textColor}>{form.end_date}</CText>
-        </TouchableOpacity>
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Fecha fin</CText>
+            <TouchableOpacity
+              onPress={() => setDatePicker({ field: 'end_date' })}
+              style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, marginTop: 6 }}
+            >
+              <CText color={colors.textColor}>{form.end_date}</CText>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
 
       {datePicker && (
@@ -170,7 +204,7 @@ export default function TaskDetailScreen({ navigation, route }: any) {
         />
       )}
 
-      {!datePicker && (
+      {!datePicker && editMode && (
         <View
           style={{
             position: 'absolute',

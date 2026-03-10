@@ -46,12 +46,24 @@ const addDays = (date: Date, amount: number) => {
   return next;
 };
 
+const parseLocalDate = (value?: string | null) => {
+  if (!value) return null;
+  if (value.includes('T')) {
+    const dt = new Date(value);
+    return Number.isNaN(dt.getTime()) ? null : dt;
+  }
+  const parts = value.split('-').map(n => parseInt(n, 10));
+  if (parts.length !== 3 || parts.some(n => Number.isNaN(n))) return null;
+  const [y, m, d] = parts;
+  return new Date(y, m - 1, d);
+};
+
 const expandAgendaEvents = (items: any[]) => {
   const map = new Map<string, AgendaEvent[]>();
   items.forEach(item => {
-    const startDate = item?.start_date ? new Date(item.start_date) : null;
+    const startDate = parseLocalDate(item?.start_date);
     if (!startDate) return;
-    const endDate = item?.end_date ? new Date(item.end_date) : startDate;
+    const endDate = parseLocalDate(item?.end_date) || startDate;
     const freq = item?.frequency;
     const daysOfWeek = Array.isArray(item?.days_of_week) ? item.days_of_week.map((d: string) => d.toLowerCase()) : [];
     const timesPerDay = Number(item?.times_per_day) || 1;
@@ -60,13 +72,18 @@ const expandAgendaEvents = (items: any[]) => {
     const title = item?.custom_title || item?.titulo || item?.title || 'Tarea';
 
     let current = startDate;
+    const allowWeekDay = (date: Date) => {
+      if (!daysOfWeek.length) return true;
+      const weekDayKey = Object.entries(WEEK_DAY_MAP).find(([, num]) => num === date.getDay())?.[0];
+      return weekDayKey ? daysOfWeek.includes(weekDayKey) : false;
+    };
+
     while (current <= endDate) {
       let shouldInclude = false;
       if (!freq || freq === 'diaria') {
-        shouldInclude = true;
+        shouldInclude = allowWeekDay(current);
       } else if (freq === 'semanal') {
-        const weekDayKey = Object.entries(WEEK_DAY_MAP).find(([, num]) => num === current.getDay())?.[0];
-        shouldInclude = weekDayKey ? daysOfWeek.includes(weekDayKey) : false;
+        shouldInclude = allowWeekDay(current);
       } else {
         shouldInclude = true;
       }
@@ -99,7 +116,7 @@ export default function TasksScreen({ navigation }: any) {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [view] = useState<'calendar'>('calendar');
   const [month, setMonth] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
@@ -269,31 +286,6 @@ export default function TasksScreen({ navigation }: any) {
       <View style={styles.p20}>
         <View style={[styles.rowSpaceBetween, styles.mb10]}>
           <CText type={'B20'}>Tareas</CText>
-          <View style={styles.rowStart}>
-            <TouchableOpacity
-              onPress={() => setView('list')}
-              style={{
-                paddingVertical: 6,
-                paddingHorizontal: 14,
-                borderRadius: 16,
-                marginRight: 8,
-                backgroundColor: view === 'list' ? colors.primary : colors.inputBg,
-              }}
-            >
-              <CText color={view === 'list' ? colors.white : colors.textColor}>Lista</CText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setView('calendar')}
-              style={{
-                paddingVertical: 6,
-                paddingHorizontal: 14,
-                borderRadius: 16,
-                backgroundColor: view === 'calendar' ? colors.primary : colors.inputBg,
-              }}
-            >
-              <CText color={view === 'calendar' ? colors.white : colors.textColor}>Calendario</CText>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
       {loading ? (
@@ -304,8 +296,6 @@ export default function TasksScreen({ navigation }: any) {
         <View style={[styles.flex, styles.center, styles.ph20]}>
           <CText>{error}</CText>
         </View>
-      ) : view === 'list' ? (
-        renderList()
       ) : (
         renderCalendar()
       )}

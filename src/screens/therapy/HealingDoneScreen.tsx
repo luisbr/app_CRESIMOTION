@@ -10,6 +10,10 @@ import ScreenTooltip from '../../components/common/ScreenTooltip';
 export default function HealingDoneScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const nextPayload = route?.params?.next || null;
+  const postWork = route?.params?.postWork || false;
+  const postWorkGroupId = route?.params?.groupId || null;
+  const postWorkEmotionId = route?.params?.emocionId || null;
+  const postWorkEmotionLabel = route?.params?.emotionLabel || '';
   const { sessionId, data } = normalizeTherapyNext(nextPayload);
   const emotionLabel = data?.emotion?.label || data?.emocion?.label || '';
   const emocionId =
@@ -22,12 +26,16 @@ export default function HealingDoneScreen({ navigation, route }: any) {
     const timer = setTimeout(() => {
       navigation.navigate('TherapyBehaviorIntro', {
         sessionId,
-        emotionLabel,
-        emocionId,
+        emotionLabel: postWorkEmotionLabel || emotionLabel,
+        emocionId: postWorkEmotionId || emocionId,
+        postWork,
+        groupId: postWorkGroupId,
+        next: nextPayload,
+        entrypoint: postWork ? 'post_work' : undefined,
       });
     }, 2000);
     return () => clearTimeout(timer);
-  }, [navigation, sessionId, emotionLabel, emocionId]);
+  }, [navigation, sessionId, emotionLabel, emocionId, postWork, postWorkGroupId, postWorkEmotionId, postWorkEmotionLabel, nextPayload]);
 
   return (
     <CSafeAreaView>

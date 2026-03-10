@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Platform, ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -22,15 +22,20 @@ const DAYS = [
   { key: 'sun', label: 'Dom' },
 ];
 
-const DEFAULTS = {
-  frequency: 'semanal',
-  times_per_day: '1',
-  time: '21:30',
-  duration_minutes: '10',
-  start_date: '2026-01-12',
-  end_date: '2026-02-12',
-  day_of_month: '12',
-  days_of_week: ['mon', 'tue', 'wed', 'thu', 'fri'],
+const getTodayDefaults = () => {
+  const today = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const format = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return {
+    frequency: 'semanal',
+    times_per_day: '1',
+    time: '21:30',
+    duration_minutes: '10',
+    start_date: format(today),
+    end_date: format(today),
+    day_of_month: String(today.getDate()),
+    days_of_week: ['mon', 'tue', 'wed', 'thu', 'fri'],
+  };
 };
 
 const FREQUENCIES = [
@@ -44,9 +49,9 @@ const FREQUENCIES = [
 
 export default function AgendaSetupScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
-  const sessionId = route?.params?.sessionId || null;
   const nextPayload = route?.params?.next || null;
-  const { data } = normalizeTherapyNext(nextPayload);
+  const { data, sessionId: nextSessionId } = normalizeTherapyNext(nextPayload);
+  const sessionId = route?.params?.sessionId ?? nextSessionId ?? null;
   const payloadExercises = Array.isArray(data?.items)
     ? data.items
     : Array.isArray(data?.exercises)
@@ -55,14 +60,15 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
   const exercises = Array.isArray(route?.params?.exercises) && route.params.exercises.length
     ? route.params.exercises
     : payloadExercises;
-  const [rows, setRows] = useState(() =>
-    exercises.map((ex: any) => ({
+  const [rows, setRows] = useState(() => {
+    const base = getTodayDefaults();
+    return exercises.map((ex: any) => ({
       ejercicio_id: ex.ejercicio_id,
       title: ex.title || 'Ejercicio',
       custom_title: ex.custom_title || '',
-      ...DEFAULTS,
-    }))
-  );
+      ...base,
+    }));
+  });
 
   const [datePicker, setDatePicker] = useState<{ idx: number; field: 'start_date' | 'end_date' } | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
@@ -112,17 +118,21 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
     return formatDate(next);
   };
 
+  const getMinEndDate = (row: any) => {
+    const start = parseDate(row.start_date);
+    if (!start) return null;
+    const freq = row.frequency || 'semanal';
+    if (freq === 'bimestral') return addMonths(start, 2);
+    if (freq === 'semestral') return addMonths(start, 6);
+    return addMonths(start, 1);
+  };
+
   const isValidRange = (row: any) => {
     const start = parseDate(row.start_date);
     const end = parseDate(row.end_date);
     if (!start || !end) return false;
-    const freq = row.frequency || 'semanal';
-    let minEnd = start;
-    if (freq === 'semanal') minEnd = addDays(start, 6);
-    if (freq === 'quincenal') minEnd = addDays(start, 14);
-    if (freq === 'mensual') minEnd = addMonths(start, 1);
-    if (freq === 'bimestral') minEnd = addMonths(start, 2);
-    if (freq === 'semestral') minEnd = addMonths(start, 6);
+    const minEnd = getMinEndDate(row);
+    if (!minEnd) return false;
     return end >= minEnd;
   };
 
@@ -131,8 +141,55 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
     return rows.every((r: any) => r.time && r.duration_minutes && r.start_date && r.end_date && isValidRange(r));
   }, [rows, sessionId]);
 
+  useEffect(() => {
+    if (!sessionId) {
+      console.log('[AgendaSetup] canSave=false: missing sessionId');
+      return;
+    }
+    if (rows.length === 0) {
+      console.log('[AgendaSetup] canSave=false: empty rows');
+      return;
+    }
+    const details = rows.map((r: any, idx: number) => {
+      const missing = [];
+      if (!r.time) missing.push('time');
+      if (!r.duration_minutes) missing.push('duration_minutes');
+      if (!r.start_date) missing.push('start_date');
+      if (!r.end_date) missing.push('end_date');
+      const rangeOk = isValidRange(r);
+      return {
+        idx,
+        frequency: r.frequency,
+        days_of_week: r.days_of_week,
+        missing,
+        rangeOk,
+      };
+    });
+    const firstBad = details.find(d => d.missing.length > 0 || !d.rangeOk);
+    console.log('[AgendaSetup] canSave', {
+      canSave,
+      firstBad,
+      details,
+    });
+  }, [rows, sessionId, canSave]);
+
   const updateRow = (idx: number, patch: any) => {
-    setRows(prev => prev.map((r: any, i: number) => (i === idx ? { ...r, ...patch } : r)));
+    setRows(prev =>
+      prev.map((r: any, i: number) => {
+        if (i !== idx) return r;
+        const next = { ...r, ...patch };
+        if (patch.frequency || patch.start_date) {
+          const minEnd = getMinEndDate(next);
+          if (minEnd) {
+            const currentEnd = parseDate(next.end_date);
+            if (!currentEnd || currentEnd < minEnd) {
+              next.end_date = formatDate(minEnd);
+            }
+          }
+        }
+        return next;
+      })
+    );
   };
 
   const toggleDay = (idx: number, key: string) => {

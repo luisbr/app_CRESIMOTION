@@ -8,14 +8,31 @@ import CButton from '../../components/common/CButton';
 import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { postEval } from '../../api/sesionTerapeutica';
+import { postPostWorkEval } from '../../modules/diagnostico/api/sessionsApi';
 import { API_BASE_URL } from '../../api/config';
+import { getSession } from '../../api/auth';
+import { getOrCreateDeviceUUID } from '../../utils/uuid';
 import { normalizeTherapyNext } from './therapyUtils';
 
 export default function BehaviorIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const sessionId = route?.params?.sessionId || null;
   const emocionId = route?.params?.emocionId || null;
+  const resolvedEmotionId =
+    emocionId ??
+    route?.params?.item_id ??
+    route?.params?.itemId ??
+    null;
+  const postWork = route?.params?.postWork || false;
   const nextPayload = route?.params?.next || null;
+  const postWorkGroupId =
+    route?.params?.groupId ||
+    route?.params?.group_id ||
+    nextPayload?.group_id ||
+    nextPayload?.groupId ||
+    null;
+  const inferredPostWork = postWork || Boolean(postWorkGroupId) || route?.params?.entrypoint === 'post_work';
+  const resolvedPostWorkGroupId = postWorkGroupId ?? null;
   const { data } = normalizeTherapyNext(nextPayload);
   const initialEmotionLabel =
     route?.params?.emotionLabel ||
@@ -55,6 +72,12 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   const message = postEvalMessage?.message_body ||
     `¿Cómo percibes ahora la emoción de ${resolvedEmotionLabel || `#${emocionId || ''}` }? Selecciona la opción que mejor describa cómo te sientes ahora.`;
 
+  useEffect(() => {
+    if (inferredPostWork && nextResponse && !postEvalMessage) {
+      navigation.navigate('DiagnosticoHistory');
+    }
+  }, [inferredPostWork, nextResponse, postEvalMessage, navigation]);
+
   const options = useMemo(
     () => [
       { value: 0, label: 'Nulo (no percibo esa emoción en este momento)' },
@@ -67,22 +90,51 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   );
 
   const onSubmitEval = async () => {
+    console.log('[THERAPY] post-eval route params', route?.params || {});
+    console.log('[THERAPY] post-eval mode', {
+      postWork: inferredPostWork,
+      postWorkGroupId: resolvedPostWorkGroupId,
+      emocionId: resolvedEmotionId,
+      sessionId,
+    });
     console.log('[THERAPY] post-eval payload', {
       sessionId,
-      emocionId,
+      emocionId: resolvedEmotionId,
       value: selectedValue,
     });
     try {
-      if (!sessionId || !emocionId) {
+      if (!inferredPostWork && !resolvedEmotionId) {
         throw new Error('Falta información para continuar.');
       }
       if (selectedValue == null) {
         throw new Error('Selecciona una opción para continuar.');
       }
       setLoading(true);
-      const next = await postEval({ sessionId, emocionId, value: selectedValue });
-      console.log('[THERAPY] post-eval response', next);
-      setNextResponse(next);
+      if (inferredPostWork) {
+        if (!resolvedPostWorkGroupId) throw new Error('Falta información para continuar.');
+        const session = await getSession();
+        const uuid = await getOrCreateDeviceUUID();
+        console.log(
+          '[THERAPY] curl post-work eval',
+          `curl -X POST '${API_BASE_URL}/api/v1/evaluations/groups/${resolvedPostWorkGroupId}/post-work/eval' -H 'Content-Type: application/json' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}' -d '${JSON.stringify({
+            tipo: 'emocion',
+            item_id: Number(resolvedEmotionId),
+            value: selectedValue,
+          })}'`
+        );
+        const next = await postPostWorkEval(Number(resolvedPostWorkGroupId), {
+          tipo: 'emocion',
+          item_id: Number(resolvedEmotionId),
+          value: selectedValue,
+        });
+        console.log('[THERAPY] post-work emotion eval response', next);
+        setNextResponse(next);
+      } else {
+        if (!sessionId) throw new Error('Falta información para continuar.');
+        const next = await postEval({ sessionId, emocionId, value: selectedValue });
+        console.log('[THERAPY] post-eval response', next);
+        setNextResponse(next);
+      }
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo continuar.');
     } finally {
@@ -92,6 +144,10 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
 
   const onContinue = () => {
     if (!nextResponse) return;
+    if (inferredPostWork) {
+      navigation.navigate('DiagnosticoHistory');
+      return;
+    }
     if (nextResponse?.route === 'BEHAVIOR_RECO_SELECT') {
       navigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint: 'behavior' });
     } else {

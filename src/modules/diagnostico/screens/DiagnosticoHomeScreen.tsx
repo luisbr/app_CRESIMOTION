@@ -1,6 +1,5 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, Image, TouchableOpacity, View} from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
@@ -25,6 +24,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   const [loading, setLoading] = useState(false);
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
   const [therapyNext, setTherapyNext] = useState<any | null>(null);
+  const isCheckingRef = useRef(false);
   const nextModuleKey: ModuleKey =
     (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
   const moduleTitleMap: Record<ModuleKey, string> = {
@@ -60,6 +60,8 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   console.log('DiagnosticoHomeScreen render', {nextModuleKey, therapyNext});
 
   const checkResume = useCallback(async () => {
+    if (isCheckingRef.current) return;
+    isCheckingRef.current = true;
     setLoading(true);
     try {
       try {
@@ -67,6 +69,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         const userId = s?.id ? String(s.id) : null;
         if (userId) {
           const next = await getTherapyNext(userId, { from_menu: 1 });
+          console.log('[DiagnosticoHomeScreen] getTherapyNext response', next);
           const normalized = normalizeTherapyNext(next);
           if (isTherapyRoute(normalized.route)) {
             setTherapyNext(next);
@@ -135,14 +138,16 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
       setResumeTarget(null);
     } finally {
       setLoading(false);
+      isCheckingRef.current = false;
     }
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
       checkResume();
-    }, [checkResume])
-  );
+    });
+    return unsubscribe;
+  }, [navigation, checkResume]);
 
   const onPressStart = () => {
     if (therapyNext) {
@@ -239,7 +244,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : therapyNext ? (
-          <CButton title={'Continuar sesión terapéutica'} onPress={onPressTherapy} />
+          <CButton title={therapyNext?.payload?.title || 'Continuar sesión terapéutica'} onPress={onPressTherapy} />
         ) : resumeTarget ? (
           <CButton
             title={''}

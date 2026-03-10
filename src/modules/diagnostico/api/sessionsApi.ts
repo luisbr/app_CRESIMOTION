@@ -114,3 +114,52 @@ export const getOpenSession = async () => {
   const res = await authFetch('/api/v1/evaluations/sessions/open');
   return parseJson(res);
 };
+
+export const getPostWork = async (groupId: number) => {
+  const res = await authFetch(`/api/v1/evaluations/groups/${groupId}/post-work`);
+  return parseJson(res);
+};
+
+export const postPostWorkEval = async (groupId: number, payload: { tipo: 'motivo' | 'emocion'; item_id: number; value: number }) => {
+  const res = await authFetch(`/api/v1/evaluations/groups/${groupId}/post-work/eval`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return parseJson(res);
+};
+
+export const postPostWorkEmotion = async (groupId: number, payload: { emocion_id: number }) => {
+  const res = await authFetch(`/api/v1/evaluations/groups/${groupId}/post-work/emocion`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return parseJson(res);
+};
+
+export const postPostWorkEmotionIntro = async (groupId: number, payload: { item_id: number }) => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  console.log(
+    '[POST_WORK] curl emocion-intro',
+    `curl -X POST '${API_BASE_URL}/api/v1/evaluations/groups/${groupId}/post-work/emocion-intro' -H 'Content-Type: application/json' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}' -d '${JSON.stringify(payload)}'`
+  );
+  const res = await authFetch(`/api/v1/evaluations/groups/${groupId}/post-work/emocion-intro`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return parseJson(res);
+};
+
+export const postPostWorkMotivoIntro = async (groupId: number, payload: { motivo_id: number }) => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  console.log(
+    '[POST_WORK] curl motivo-intro',
+    `curl -X POST '${API_BASE_URL}/api/v1/evaluations/groups/${groupId}/post-work/motivo-intro' -H 'Content-Type: application/json' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}' -d '${JSON.stringify(payload)}'`
+  );
+  const res = await authFetch(`/api/v1/evaluations/groups/${groupId}/post-work/motivo-intro`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return parseJson(res);
+};

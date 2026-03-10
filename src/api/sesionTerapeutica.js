@@ -186,6 +186,25 @@ export const postEval = async ({ sessionId, emocionId, value }) => {
   return json?.data ?? json;
 };
 
+export const postMotivoEval = async ({ sessionId, motivoId, value }) => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  const payload = { session_id: sessionId, motivo_id: motivoId, value };
+  console.log(
+    '[THERAPY] curl post-motivo-eval',
+    `curl -X POST '${API_BASE_URL}/api/app/sesion-terapeutica/post-motivo-eval' -H 'Content-Type: application/json' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}' -d '${JSON.stringify(payload)}'`
+  );
+  const res = await authFetch('/api/app/sesion-terapeutica/post-motivo-eval', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  const json = await safeJson(res);
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudo enviar la evaluación.');
+  }
+  return json?.data ?? json;
+};
+
 export const submitBehaviorRecommendations = async ({ sessionId, recomendacionIds }) => {
   const session = await getSession();
   const uuid = await getOrCreateDeviceUUID();
@@ -277,6 +296,12 @@ export const submitBehaviorExercises = async ({ sessionId, items }) => {
 };
 
 export const getAgendaItems = async () => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  console.log(
+    '[THERAPY] curl get-agenda-items',
+    `curl -X GET '${API_BASE_URL}/api/app/agenda' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}'`
+  );
   const res = await authFetch('/api/app/agenda');
   const json = await safeJson(res);
   if (!res.ok || (json && json.ok === false)) {

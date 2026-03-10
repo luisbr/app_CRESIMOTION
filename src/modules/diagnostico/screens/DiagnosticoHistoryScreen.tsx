@@ -6,7 +6,7 @@ import CHeader from '../../../components/common/CHeader';
 import CText from '../../../components/common/CText';
 import {styles} from '../../../theme';
 import type {ModuleKey} from '../types';
-import {getHistory, getResults} from '../api/sessionsApi';
+import {getHistory, getPostWork} from '../api/sessionsApi';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
@@ -20,11 +20,9 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
   const [moduleKey] = useState<ModuleKey | null>(null);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<any[]>([]);
-  const [emotionStatus, setEmotionStatus] = useState<any[]>([]);
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [resultsCache, setResultsCache] = useState<Record<string, any>>({});
-  const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({});
+  const [startingId, setStartingId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -35,32 +33,8 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
         const data = await getHistory(moduleKey, 20, 0);
         if (!mounted) return;
         const list = data?.items || data?.data || data || [];
-        const status = data?.emotion_status || [];
         const rawItems = Array.isArray(list) ? list : [];
-        const grouped = new Map<string, any>();
-        rawItems.forEach((item: any) => {
-          const groupId = String(item?.group_id ?? item?.session_id ?? item?.id ?? '');
-          if (!grouped.has(groupId)) {
-            grouped.set(groupId, {
-              group_id: item?.group_id ?? null,
-              items: [item],
-            });
-          } else {
-            grouped.get(groupId).items.push(item);
-          }
-        });
-        const groupedList = Array.from(grouped.values()).map(group => {
-          const sorted = [...group.items].sort((a: any, b: any) => {
-            return String(b?.completed_at || '').localeCompare(String(a?.completed_at || ''));
-          });
-          return {
-            group_id: group.group_id,
-            items: sorted,
-            latest: sorted[0],
-          };
-        });
-        setItems(groupedList);
-        setEmotionStatus(Array.isArray(status) ? status : []);
+        setItems(rawItems);
       } catch (e: any) {
         if (!mounted) return;
         setError(e?.body?.message || e?.message || 'No se pudo cargar el historial.');
@@ -82,10 +56,18 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
     return date.toLocaleString();
   };
 
-  const getStatusColor = (hours: number) => {
-    if (hours <= 0) return '#EF4444';
-    if (hours < 24) return '#F97316';
-    return '#22C55E';
+  const formatLocalDateShort = (value: string) => {
+    if (!value) return '';
+    const iso = value.includes('T') ? value : `${value.replace(' ', 'T')}Z`;
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
   };
 
   const getIntensityColor = (value: number) => {
@@ -95,55 +77,93 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
     return '#22C55E';
   };
 
-  const extractSessionItems = (results: any) => {
-    const groups = results?.groups || [];
-    const flat = groups.flatMap((g: any) =>
-      (g?.items || []).map((it: any) => ({
-        ...it,
-        __groupKey: g?.key,
-      }))
-    );
-    return flat
-      .map((it: any) => {
-        const label = it?.label || it?.titulo || it?.name || it?.item_label || '';
-        const rawValue = it?.value ?? it?.valor ?? it?.intensity_value ?? it?.severity ?? null;
-        const value = Number(rawValue);
-        if (!label || Number.isNaN(value)) return null;
-        const intensityLabel =
-          it?.intensity_label ||
-          it?.value_label ||
-          it?.intensidad_label ||
-          it?.intensity_key ||
-          it?.key ||
-          '';
-        return {
-          label,
-          value,
-          intensityLabel,
-          groupKey: it?.__groupKey || '',
-        };
-      })
-      .filter(Boolean)
-      .sort((a: any, b: any) => b.value - a.value);
+  const getIntensityTint = (value: number) => {
+    if (value >= 4) return 'rgba(239, 68, 68, 0.12)';
+    if (value >= 3) return 'rgba(249, 115, 22, 0.12)';
+    if (value >= 2) return 'rgba(253, 224, 71, 0.18)';
+    return 'rgba(34, 197, 94, 0.12)';
   };
 
-  const onToggleDetails = async (sessionId: number | string) => {
+  const onToggleDetails = (sessionId: number | string) => {
     const key = String(sessionId);
     if (expandedId === key) {
       setExpandedId(null);
       return;
     }
     setExpandedId(key);
-    if (resultsCache[key] || loadingDetails[key]) return;
-    setLoadingDetails(prev => ({...prev, [key]: true}));
+  };
+
+  const onStartTherapy = async (groupId: number) => {
+    const key = String(groupId);
     try {
-      const data = await getResults(Number(sessionId));
-      setResultsCache(prev => ({...prev, [key]: data}));
+      setStartingId(key);
+      const data = await getPostWork(groupId);
+      navigation.navigate('TherapyFocusSelect', {
+        postWork: true,
+        groupId,
+        motivos: data?.motivos || [],
+        emotions: data?.emotions || [],
+        entrypoint: 'history',
+      });
     } catch (e: any) {
-      setError(e?.body?.message || e?.message || 'No se pudieron cargar los resultados.');
+      setError(e?.body?.message || e?.message || 'No se pudo iniciar la terapia.');
     } finally {
-      setLoadingDetails(prev => ({...prev, [key]: false}));
+      setStartingId(null);
     }
+  };
+
+  const getLatestEvalValue = (item: any) => {
+    const evals = Array.isArray(item?.evaluations) ? item.evaluations : [];
+    if (!evals.length) return null;
+    const sorted = [...evals].sort((a: any, b: any) =>
+      String(b?.created_at || '').localeCompare(String(a?.created_at || ''))
+    );
+    const latest = sorted[0];
+    const val = Number(latest?.value);
+    return Number.isNaN(val) ? null : val;
+  };
+
+  const getSummaryMax = (summary: any) => {
+    const motivos = Array.isArray(summary?.motivos) ? summary.motivos : [];
+    const emotions = Array.isArray(summary?.emotions) ? summary.emotions : [];
+    const values = [...motivos, ...emotions].map((t: any) => {
+      const latestEval = getLatestEvalValue(t);
+      if (latestEval != null) return latestEval;
+      return Number(t?.intensity_value || 0);
+    });
+    return values.length ? Math.max(0, ...values) : 0;
+  };
+
+  const sortByIntensity = (list: any[]) =>
+    [...list].sort((a: any, b: any) => Number(b?.intensity_value || 0) - Number(a?.intensity_value || 0));
+
+  const valueToLabel = (value: number) => {
+    if (value >= 4) return 'Muy alto';
+    if (value >= 3) return 'Alto';
+    if (value >= 2) return 'Medio';
+    if (value >= 1) return 'Bajo';
+    return 'Nulo';
+  };
+
+  const toCapitalized = (value?: string) => {
+    if (!value) return '';
+    const trimmed = String(value).trim();
+    if (!trimmed) return '';
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+  };
+
+  const getEvalStats = (evaluations: any[], fallbackValue: number) => {
+    if (!Array.isArray(evaluations) || evaluations.length === 0) {
+      return { initialValue: fallbackValue, currentValue: fallbackValue };
+    }
+    const sorted = [...evaluations].sort((a: any, b: any) =>
+      String(b?.created_at || '').localeCompare(String(a?.created_at || ''))
+    );
+    const current = sorted[0];
+    const initial = sorted[sorted.length - 1];
+    const currentValue = Number(current?.value ?? fallbackValue);
+    const initialValue = Number(current?.baseline_value ?? initial?.baseline_value ?? fallbackValue);
+    return { initialValue, currentValue };
   };
 
   return (
@@ -177,61 +197,6 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
         <CText type={'S24'} style={styles.mb10}>
           Mis autoevaluaciones
         </CText>
-        {!!emotionStatus.length && (
-          <View style={[styles.mb10, {backgroundColor: colors.inputBg, borderRadius: 12, padding: 12}]}>
-            <CText type={'S16'} style={styles.mb10}>
-              Seguimiento de emociones
-            </CText>
-            {emotionStatus.map((item: any, idx: number) => {
-              const hours = Number(item?.next_recommendation_hours ?? 0);
-              const color = getStatusColor(hours);
-              return (
-                <View
-                  key={`emotion-${item?.emocion_id ?? idx}`}
-                  style={[styles.mb10, {borderRadius: 10, borderWidth: 1, borderColor: colors.grayScale2, padding: 10}]}
-                >
-                  <View style={[styles.rowSpaceBetween, styles.mb5]}>
-                    <CText type={'S14'}>
-                      {item?.label || 'Emoción'}
-                      {!!item?.level_label && ` · ${item.level_label}`}
-                    </CText>
-                    <View style={{backgroundColor: color, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10}}>
-                      <CText type={'S12'} color={colors.white}>
-                        {item?.next_recommendation_label || 'Evaluación'}
-                      </CText>
-                    </View>
-                  </View>
-                  {!!item?.motivo && (
-                    <CText type={'S12'} color={colors.labelColor}>
-                      Motivo: {item.motivo}
-                    </CText>
-                  )}
-                  {!!item?.evaluated_at && (
-                    <CText type={'S12'} color={colors.labelColor}>
-                      Evaluado: {formatLocalDate(item.evaluated_at)}
-                    </CText>
-                  )}
-                  <View style={[styles.mt10]}>
-                    <TouchableOpacity
-                      disabled
-                      style={{
-                        backgroundColor: colors.primary,
-                        opacity: 0.5,
-                        paddingVertical: 8,
-                        borderRadius: 10,
-                        alignItems: 'center',
-                      }}
-                    >
-                      <CText type={'S14'} color={colors.white}>
-                        Iniciar sesión terapéutica
-                      </CText>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-        )}
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : error ? (
@@ -246,48 +211,178 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
               </CText>
             )}
             {items.map((item: any, idx: number) => {
-              const latest = item?.latest || {};
-              const sessionId = latest?.session_id ?? latest?.id;
-              const groupId = item?.group_id ?? latest?.group_id;
-              const sessionKey = String(sessionId || groupId || idx);
-              const isExpanded = expandedId === String(sessionId);
-              const results = resultsCache[String(sessionId)];
-              const detailItems = results ? extractSessionItems(results) : [];
+              const groupId = item?.group_id ?? item?.id ?? idx;
+              const sessionKey = String(groupId);
+              const isExpanded = expandedId === sessionKey;
+              const summary = item?.summary || {};
+              const motivos = Array.isArray(summary?.motivos) ? summary.motivos : [];
+              const emotions = Array.isArray(summary?.emotions) ? summary.emotions : [];
+              const topMax = getSummaryMax(summary);
+              const sessions = item?.sessions || {};
+              const groupItems = [
+                sessions?.motivos ? { session_id: sessions.motivos, module_key: 'motivos' } : null,
+                sessions?.emotions ? { session_id: sessions.emotions, module_key: 'sintomas_emocionales' } : null,
+              ].filter(Boolean);
               return (
                 <TouchableOpacity
-                  key={String(groupId ?? sessionId ?? idx)}
-                  style={[styles.p15, styles.mb10, {backgroundColor: colors.inputBg, borderRadius: 12}]}
-                  onPress={() => onToggleDetails(sessionId)}
+                  key={String(groupId ?? idx)}
+                  style={[
+                    styles.p15,
+                    styles.mb10,
+                    {
+                      backgroundColor: topMax ? getIntensityTint(topMax) : colors.inputBg,
+                      borderRadius: 12,
+                    },
+                  ]}
+                  onPress={() => onToggleDetails(sessionKey)}
                 >
                   <CText type={'S16'}>
-                    {latest?.completed_at ? `Sesión ${formatLocalDate(latest.completed_at)}` : 'Sesión'}
+                    {item?.completed_at ? `Sesión ${formatLocalDate(item.completed_at)}` : 'Sesión'}
                   </CText>
-                  {!!latest?.module_key && (
-                    <CText type={'S12'} color={colors.labelColor}>
-                      {latest.module_key}
-                    </CText>
-                  )}
-                  {loadingDetails[sessionKey] && (
+                  <CText type={'S12'} color={colors.labelColor}>
+                    {`Motivos: ${motivos.length} · Emociones: ${emotions.length}`}
+                  </CText>
+                  {isExpanded && (
                     <View style={[styles.mt10]}>
-                      <ActivityIndicator color={colors.primary} />
-                    </View>
-                  )}
-                  {isExpanded && !loadingDetails[sessionKey] && (
-                    <View style={[styles.mt10]}>
-                      {!!detailItems.length ? (
-                        detailItems.map((d: any, i: number) => (
-                          <View key={`${sessionKey}-d-${i}`} style={[styles.rowSpaceBetween, styles.mb5]}>
-                            <CText type={'S12'} style={{flex: 1, marginRight: 8}}>
-                              {d.label}
-                            </CText>
-                            <View style={{backgroundColor: getIntensityColor(d.value), paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10}}>
-                              <CText type={'S12'} color={colors.white}>
-                                {d.intensityLabel || d.value}
-                              </CText>
+                      {!!motivos.length && (
+                        <View style={styles.mb10}>
+                          <CText type={'S14'} style={styles.mb5}>
+                            Motivos
+                          </CText>
+                          {sortByIntensity(motivos).map((m: any, i: number) => (
+                            <View key={`${sessionKey}-m-${i}`} style={[styles.mb10, {padding: 10, borderRadius: 10, backgroundColor: colors.inputBg}]}>
+                              <View style={[styles.rowSpaceBetween, styles.mb5]}>
+                                <CText type={'S12'} style={{flex: 1, marginRight: 8}}>
+                                  {m?.titulo || m?.label || m?.name || 'Motivo'}
+                                </CText>
+                                {(() => {
+                                  const {initialValue, currentValue} = getEvalStats(m?.evaluations || [], Number(m?.intensity_value || 0));
+                                  return (
+                                    <View style={[styles.rowEnd, styles.g5]}>
+                                      <View style={{backgroundColor: getIntensityColor(initialValue), paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10}}>
+                                        <CText type={'S12'} color={colors.white}>
+                                          {valueToLabel(initialValue)}
+                                        </CText>
+                                      </View>
+                                      <CText type={'S12'} color={colors.labelColor}>
+                                        →
+                                      </CText>
+                                      <View style={{backgroundColor: getIntensityColor(currentValue), paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10}}>
+                                        <CText type={'S12'} color={colors.white}>
+                                          {valueToLabel(currentValue)}
+                                        </CText>
+                                      </View>
+                                    </View>
+                                  );
+                                })()}
+                              </View>
+                              {!!m?.next_recommendation_label && (
+                                <CText type={'R12'} color={colors.labelColor}>
+                                  {`Siguiente recomendación: ${m.next_recommendation_label}`}
+                                </CText>
+                              )}
+                              {!!Array.isArray(m?.evaluations) && m.evaluations.length > 0 && (
+                                <View style={[styles.mt5]}>
+                                  <View style={[styles.rowSpaceBetween, styles.mb5, {backgroundColor: 'rgba(0,0,0,0.1)', paddingVertical: 4, paddingHorizontal: 6, borderRadius: 6}]}>
+                                    <CText type={'B12'} color={colors.textColor} style={{flex: 1, marginRight: 8}}>
+                                      Fecha
+                                    </CText>
+                                    <CText type={'B12'} color={colors.textColor} style={{minWidth: 80, textAlign: 'right'}}>
+                                      Valor
+                                    </CText>
+                                    <CText type={'B12'} color={colors.textColor} style={{minWidth: 70, textAlign: 'right', marginLeft: 8}}>
+                                      Resultado
+                                    </CText>
+                                  </View>
+                                  {m.evaluations.map((ev: any, evIdx: number) => (
+                                    <View key={`${sessionKey}-m-${i}-ev-${evIdx}`} style={[styles.rowSpaceBetween, styles.mb5]}>
+                                      <CText type={'R12'} color={colors.textColor} style={{flex: 1, marginRight: 8}}>
+                                        {formatLocalDateShort(ev?.created_at)}
+                                      </CText>
+                                      <CText type={'R12'} color={colors.textColor} style={{minWidth: 80, textAlign: 'right'}}>
+                                        {valueToLabel(Number(ev?.value ?? 0))}
+                                      </CText>
+                                      <CText type={'R12'} color={colors.textColor} style={{minWidth: 70, textAlign: 'right', marginLeft: 8}}>
+                                        {toCapitalized(ev?.resultado)}
+                                      </CText>
+                                    </View>
+                                  ))}
+                                </View>
+                              )}
                             </View>
-                          </View>
-                        ))
-                      ) : (
+                          ))}
+                        </View>
+                      )}
+                      {!!emotions.length && (
+                        <View style={styles.mb10}>
+                          <CText type={'S14'} style={styles.mb5}>
+                            Emociones
+                          </CText>
+                          {sortByIntensity(emotions).map((e: any, i: number) => (
+                            <View key={`${sessionKey}-e-${i}`} style={[styles.mb10, {padding: 10, borderRadius: 10, backgroundColor: colors.inputBg}]}>
+                              <View style={[styles.rowSpaceBetween, styles.mb5]}>
+                                <CText type={'S12'} style={{flex: 1, marginRight: 8}}>
+                                  {e?.titulo || e?.label || e?.name || 'Emoción'}
+                                </CText>
+                                {(() => {
+                                  const {initialValue, currentValue} = getEvalStats(e?.evaluations || [], Number(e?.intensity_value || 0));
+                                  return (
+                                    <View style={[styles.rowEnd, styles.g5]}>
+                                      <View style={{backgroundColor: getIntensityColor(initialValue), paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10}}>
+                                        <CText type={'S12'} color={colors.white}>
+                                          {valueToLabel(initialValue)}
+                                        </CText>
+                                      </View>
+                                      <CText type={'S12'} color={colors.labelColor}>
+                                        →
+                                      </CText>
+                                      <View style={{backgroundColor: getIntensityColor(currentValue), paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10}}>
+                                        <CText type={'S12'} color={colors.white}>
+                                          {valueToLabel(currentValue)}
+                                        </CText>
+                                      </View>
+                                    </View>
+                                  );
+                                })()}
+                              </View>
+                              {!!e?.next_recommendation_label && (
+                                <CText type={'R12'} color={colors.labelColor}>
+                                  {`Siguiente recomendación: ${e.next_recommendation_label}`}
+                                </CText>
+                              )}
+                              {!!Array.isArray(e?.evaluations) && e.evaluations.length > 0 && (
+                                <View style={[styles.mt5]}>
+                                  <View style={[styles.rowSpaceBetween, styles.mb5, {backgroundColor: 'rgba(0,0,0,0.1)', paddingVertical: 4, paddingHorizontal: 6, borderRadius: 6}]}>
+                                    <CText type={'B12'} color={colors.textColor} style={{flex: 1, marginRight: 8}}>
+                                      Fecha
+                                    </CText>
+                                    <CText type={'B12'} color={colors.textColor} style={{minWidth: 80, textAlign: 'right'}}>
+                                      Valor
+                                    </CText>
+                                    <CText type={'B12'} color={colors.textColor} style={{minWidth: 70, textAlign: 'right', marginLeft: 8}}>
+                                      Resultado
+                                    </CText>
+                                  </View>
+                                  {e.evaluations.map((ev: any, evIdx: number) => (
+                                    <View key={`${sessionKey}-e-${i}-ev-${evIdx}`} style={[styles.rowSpaceBetween, styles.mb5]}>
+                                      <CText type={'R12'} color={colors.textColor} style={{flex: 1, marginRight: 8}}>
+                                        {formatLocalDateShort(ev?.created_at)}
+                                      </CText>
+                                      <CText type={'R12'} color={colors.textColor} style={{minWidth: 80, textAlign: 'right'}}>
+                                        {valueToLabel(Number(ev?.value ?? 0))}
+                                      </CText>
+                                      <CText type={'R12'} color={colors.textColor} style={{minWidth: 70, textAlign: 'right', marginLeft: 8}}>
+                                        {toCapitalized(ev?.resultado)}
+                                      </CText>
+                                    </View>
+                                  ))}
+                                </View>
+                              )}
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                      {!motivos.length && !emotions.length && (
                         <CText type={'S12'} color={colors.labelColor}>
                           Sin datos para mostrar.
                         </CText>
@@ -295,15 +390,24 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
                       <View style={[styles.rowSpaceBetween, styles.mt10]}>
                         <TouchableOpacity
                           style={{paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8, backgroundColor: colors.primary}}
-                          onPress={() => navigation.navigate('DiagnosticoHistoryDetail', {groupItems: item?.items || []})}
+                          onPress={() => navigation.navigate('DiagnosticoHistoryDetail', {groupItems})}
                         >
                           <CText type={'S12'} color={colors.white}>Ver resultados</CText>
                         </TouchableOpacity>
                         <TouchableOpacity
-                          disabled
-                          style={{paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8, backgroundColor: colors.primary, opacity: 0.5}}
+                          disabled={!groupId || startingId === String(groupId)}
+                          onPress={() => groupId && onStartTherapy(Number(groupId))}
+                          style={{
+                            paddingVertical: 6,
+                            paddingHorizontal: 10,
+                            borderRadius: 8,
+                            backgroundColor: colors.primary,
+                            opacity: !groupId || startingId === String(groupId) ? 0.5 : 1,
+                          }}
                         >
-                          <CText type={'S12'} color={colors.white}>Iniciar terapia</CText>
+                          <CText type={'S12'} color={colors.white}>
+                            {startingId === String(groupId) ? 'Cargando...' : 'Iniciar terapia'}
+                          </CText>
                         </TouchableOpacity>
                       </View>
                     </View>

@@ -32,6 +32,8 @@ export default function Register({navigation}) {
   const [apellidoError, setApellidoError] = useState('');
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [emailConfirm, setEmailConfirm] = useState('');
+  const [emailConfirmError, setEmailConfirmError] = useState('');
   const [emailCode, setEmailCode] = useState('');
   const [emailCodeError, setEmailCodeError] = useState('');
   const [emailCodeSent, setEmailCodeSent] = useState(false);
@@ -109,14 +111,16 @@ export default function Register({navigation}) {
     const normalized = val.replace(/\s+/g, ' ');
     const trimmed = normalized.trim();
     const {msg} = validName(trimmed, strings.enterValidName);
-    setNombre(normalized.replace(/^\s+/, ''));
+    const withCaps = normalized.replace(/^\s+/, '').replace(/(^|\s)([a-zA-ZÁÉÍÓÚÜÑáéíóúüñ])/g, (_, p1, p2) => `${p1}${p2.toUpperCase()}`);
+    setNombre(withCaps);
     setNombreError(msg);
   };
   const onChangeApellido = val => {
     const normalized = val.replace(/\s+/g, ' ');
     const trimmed = normalized.trim();
     const {msg} = validName(trimmed, strings.enterValidLastName);
-    setApellido(normalized.replace(/^\s+/, ''));
+    const withCaps = normalized.replace(/^\s+/, '').replace(/(^|\s)([a-zA-ZÁÉÍÓÚÜÑáéíóúüñ])/g, (_, p1, p2) => `${p1}${p2.toUpperCase()}`);
+    setApellido(withCaps);
     setApellidoError(msg);
   };
 
@@ -125,6 +129,11 @@ export default function Register({navigation}) {
     const v = val.trim();
     setEmail(v);
     setEmailError(msg);
+    if (emailConfirm && v !== emailConfirm) {
+      setEmailConfirmError(strings.emailConfirmMismatch);
+    } else {
+      setEmailConfirmError('');
+    }
     setEmailVerified(false);
     setEmailVerifiedMessage('');
     setEmailCodeSent(false);
@@ -135,6 +144,20 @@ export default function Register({navigation}) {
     setEmailCodeRemaining(0);
     if (emailExpiryTimer) clearInterval(emailExpiryTimer);
     setEmailExpiryTimer(null);
+  };
+
+  const onChangeEmailConfirm = val => {
+    const v = val.trim();
+    setEmailConfirm(v);
+    if (!v) {
+      setEmailConfirmError(strings.thisFieldIsMandatory);
+      return;
+    }
+    if (email && v !== email) {
+      setEmailConfirmError(strings.emailConfirmMismatch);
+      return;
+    }
+    setEmailConfirmError('');
   };
   const onChangedPassword = val => {
     const {msg} = validPassword(val.trim());
@@ -568,6 +591,7 @@ export default function Register({navigation}) {
     if (!nombre) setNombreError(strings.enterValidName);
     if (!apellido) setApellidoError(strings.enterValidLastName);
     if (!email) setEmailError(strings.thisFieldIsMandatory);
+    if (!emailConfirm) setEmailConfirmError(strings.thisFieldIsMandatory);
     if (!password) setPasswordError(strings.plsEnterPassword);
     if (!fechaNac) setBirthDateError(strings.thisFieldIsMandatory);
     if (!telefono) setTelefonoError(strings.thisFieldIsMandatory);
@@ -586,6 +610,7 @@ export default function Register({navigation}) {
       nombreError ||
       apellidoError ||
       emailError ||
+      emailConfirmError ||
       passwordError ||
       confirmPasswordError ||
       telefonoError ||
@@ -596,6 +621,7 @@ export default function Register({navigation}) {
       !nombre ||
       !apellido ||
       !email ||
+      !emailConfirm ||
       !password ||
       !confirmPassword ||
       !telefono ||
@@ -604,6 +630,10 @@ export default function Register({navigation}) {
       !termsAccepted ||
       !fechaNac
     ) {
+      return false;
+    }
+    if (emailConfirm !== email) {
+      setEmailConfirmError(strings.emailConfirmMismatch);
       return false;
     }
     if (isMinor) {
@@ -892,6 +922,16 @@ export default function Register({navigation}) {
             _errorText={emailError}
             autoCapitalize={'none'}
             toGetTextFieldValue={onChangeEmail}
+            required
+          />
+          <CInput
+            label={strings.confirmEmail}
+            placeHolder={strings.confirmYourEmail}
+            keyBoardType={'default'}
+            _value={emailConfirm}
+            _errorText={emailConfirmError}
+            autoCapitalize={'none'}
+            toGetTextFieldValue={onChangeEmailConfirm}
             required
           />
           <CInput

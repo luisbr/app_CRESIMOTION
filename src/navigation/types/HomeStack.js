@@ -12,6 +12,7 @@ import TherapyFlowRouter from '../../screens/therapy/TherapyFlowRouter';
 import SessionIntroScreen from '../../screens/therapy/SessionIntroScreen';
 import FocusSelectScreen from '../../screens/therapy/FocusSelectScreen';
 import FocusContentScreen from '../../screens/therapy/FocusContentScreen';
+import FocusMotivoEvalScreen from '../../screens/therapy/FocusMotivoEvalScreen';
 import HealingSelectEmotionScreen from '../../screens/therapy/HealingSelectEmotionScreen';
 import HealingIntroScreen from '../../screens/therapy/HealingIntroScreen';
 import HealingPlaybackScreen from '../../screens/therapy/HealingPlaybackScreen';
@@ -54,6 +55,7 @@ export default function HomeStack() {
       <Stack.Screen name="TherapySessionIntro" component={SessionIntroScreen} />
       <Stack.Screen name="TherapyFocusSelect" component={FocusSelectScreen} />
       <Stack.Screen name="TherapyFocusContent" component={FocusContentScreen} />
+      <Stack.Screen name="TherapyFocusMotivoEval" component={FocusMotivoEvalScreen} />
       <Stack.Screen name="TherapyHealingSelectEmotion" component={HealingSelectEmotionScreen} />
       <Stack.Screen name="TherapyHealingIntro" component={HealingIntroScreen} />
       <Stack.Screen name="TherapyHealingPlayback" component={HealingPlaybackScreen} />

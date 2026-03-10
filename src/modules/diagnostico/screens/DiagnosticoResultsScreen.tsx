@@ -539,6 +539,7 @@ function wrapLabel(text: string, maxChars = 8, maxLines = 2) {
   return trimmed;
 }
 
+
 const localStyles = {
   modalOverlay: {
     flex: 1,

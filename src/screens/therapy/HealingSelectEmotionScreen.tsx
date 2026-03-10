@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -10,6 +10,7 @@ import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { selectHealingEmotion } from '../../api/sesionTerapeutica';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { postPostWorkEmotion, getPostWork } from '../../modules/diagnostico/api/sessionsApi';
 import {
   extractEmotions,
   getEmotionId,
@@ -25,11 +26,36 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
+  const postWork = route?.params?.postWork || false;
+  const postWorkGroupId = route?.params?.groupId || null;
+  const postWorkEmotions = Array.isArray(route?.params?.emotions) ? route.params.emotions : [];
   const { sessionId, data } = normalizeTherapyNext(nextPayload);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
 
+  const [postWorkItems, setPostWorkItems] = useState<any[]>(postWorkEmotions);
+
+  useEffect(() => {
+    if (!postWork || postWorkItems.length || !postWorkGroupId) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const resp = await getPostWork(Number(postWorkGroupId));
+        if (!mounted) return;
+        const list = Array.isArray(resp?.emotions) ? resp.emotions : [];
+        console.log('[POST_WORK] getPostWork emotions', list);
+        setPostWorkItems(list);
+      } catch (e) {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [postWork, postWorkGroupId, postWorkItems.length]);
+
   const items = useMemo(() => {
-    const raw = extractEmotions(data);
+    const raw = postWork ? postWorkItems : extractEmotions(data);
+    console.log('[POST_WORK] healing select items raw', raw);
     const normalized = raw
       .map((item: any) => {
         const label = getEmotionLabel(item);
@@ -52,13 +78,30 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   }, [data]);
 
   const otherOptions = useMemo(() => {
+    if (postWork) return [];
     const list = data?.other_options || data?.otras_opciones || [];
     return Array.isArray(list) ? list : [];
-  }, [data]);
+  }, [data, postWork]);
 
   const onContinue = async () => {
     try {
-      if (!sessionId || selectedId == null) return;
+      if (selectedId == null) return;
+      if (postWork) {
+        if (!postWorkGroupId) return;
+        const next = await postPostWorkEmotion(Number(postWorkGroupId), {
+          emocion_id: Number(selectedId),
+        });
+        navigation.replace('TherapyHealingPlayback', {
+          postWork: true,
+          groupId: postWorkGroupId,
+          emocionId: Number(selectedId),
+          emotionLabel: items.find(i => i.id === selectedId)?.label || '',
+          next,
+          entrypoint: 'post_work',
+        });
+        return;
+      }
+      if (!sessionId) return;
       const next = await selectHealingEmotion({
         sessionId,
         emocionId: selectedId,
@@ -180,7 +223,23 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
           elevation: 6,
         }}
       >
-        <CButton title={'Siguiente'} disabled={selectedId == null} onPress={onContinue} />
+        {postWork ? (
+          <View style={[styles.rowSpaceBetween]}>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <CButton
+                title={'Más tarde'}
+                bgColor={colors.inputBg}
+                color={colors.primary}
+                onPress={() => navigation.navigate('DiagnosticoHistory')}
+              />
+            </View>
+            <View style={{ flex: 1, marginLeft: 8 }}>
+              <CButton title={'Siguiente'} disabled={selectedId == null} onPress={onContinue} />
+            </View>
+          </View>
+        ) : (
+          <CButton title={'Siguiente'} disabled={selectedId == null} onPress={onContinue} />
+        )}
       </View>
       <ScreenTooltip />
     </CSafeAreaView>

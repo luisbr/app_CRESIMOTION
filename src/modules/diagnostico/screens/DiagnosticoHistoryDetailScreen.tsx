@@ -71,7 +71,8 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
           ? intensityValueMap[intensityKey]
           : numericValue;
         const isExtreme = groupKey === 'pensamiento_extremo';
-        return {label, intensityLabel, value, intensityKey, isExtreme, groupKey};
+        const evaluations = Array.isArray(it?.evaluations) ? it.evaluations : [];
+        return {label, intensityLabel, value, intensityKey, isExtreme, groupKey, evaluations};
       })
       .filter(Boolean)
       .sort((a: any, b: any) => b.value - a.value);
@@ -260,21 +261,29 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
                     textColor={colors.textColor}
                   />
                 )}
-                <View style={[styles.rowStart, styles.wrap, styles.mt10]}>
+                <View style={[styles.mt10]}>
                   {mainItems.map((d, idx) => (
-                    <View key={String(idx)} style={[styles.rowStart, styles.mr10, styles.mb5]}>
-                      <View
-                        style={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: 5,
-                          backgroundColor: legendColors[d.label],
-                          marginRight: 6,
-                        }}
-                      />
-                      <CText type={'S12'} color={colors.labelColor}>
-                        {`${idx + 1}. ${d.label}`}
-                      </CText>
+                    <View key={String(idx)} style={[styles.rowSpaceBetween, styles.mb8]}>
+                      <View style={[styles.rowStart, styles.flex]}>
+                        <View
+                          style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: 5,
+                            backgroundColor: legendColors[d.label],
+                            marginRight: 6,
+                          }}
+                        />
+                        <CText type={'S12'} color={colors.labelColor} style={{flex: 1}}>
+                          {`${idx + 1}. ${d.label}`}
+                        </CText>
+                      </View>
+                      {!!d.evaluations?.length && (
+                        <MiniSparkline
+                          values={d.evaluations.map((ev: any) => Number(ev?.value ?? ev?.intensity_value ?? 0))}
+                          color={legendColors[d.label]}
+                        />
+                      )}
                     </View>
                   ))}
                 </View>
@@ -317,21 +326,29 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
                         textColor={colors.textColor}
                       />
                     )}
-                    <View style={[styles.rowStart, styles.wrap, styles.mt10]}>
+                    <View style={[styles.mt10]}>
                       {extremeItems.map((d, idx) => (
-                        <View key={`ext-${idx}`} style={[styles.rowStart, styles.mr10, styles.mb5]}>
-                          <View
-                            style={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: 5,
-                              backgroundColor: legendColors[d.label],
-                              marginRight: 6,
-                            }}
-                          />
-                          <CText type={'S12'} color={colors.labelColor}>
-                            {`${idx + 1}. ${d.label}`}
-                          </CText>
+                        <View key={`ext-${idx}`} style={[styles.rowSpaceBetween, styles.mb8]}>
+                          <View style={[styles.rowStart, styles.flex]}>
+                            <View
+                              style={{
+                                width: 10,
+                                height: 10,
+                                borderRadius: 5,
+                                backgroundColor: legendColors[d.label],
+                                marginRight: 6,
+                              }}
+                            />
+                            <CText type={'S12'} color={colors.labelColor} style={{flex: 1}}>
+                              {`${idx + 1}. ${d.label}`}
+                            </CText>
+                          </View>
+                          {!!d.evaluations?.length && (
+                            <MiniSparkline
+                              values={d.evaluations.map((ev: any) => Number(ev?.value ?? ev?.intensity_value ?? 0))}
+                              color={legendColors[d.label]}
+                            />
+                          )}
                         </View>
                       ))}
                     </View>
@@ -476,6 +493,40 @@ function wrapLabel(text: string, maxChars = 8, maxLines = 2) {
     trimmed[maxLines - 1] = `${trimmed[maxLines - 1]}…`;
   }
   return trimmed;
+}
+
+function MiniSparkline({
+  values,
+  width = 90,
+  height = 24,
+  color = '#10B981',
+}: {
+  values: number[];
+  width?: number;
+  height?: number;
+  color?: string;
+}) {
+  if (!values || values.length === 0) return null;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = Math.max(1, max - min);
+  const padding = 2;
+  const points = values.map((v, i) => {
+    const x = padding + (i / Math.max(1, values.length - 1)) * (width - padding * 2);
+    const y = padding + ((max - v) / range) * (height - padding * 2);
+    return {x, y};
+  });
+  const d = points
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+    .join(' ');
+  return (
+    <Svg width={width} height={height}>
+      <Path d={d} stroke={color} strokeWidth={2} fill="none" />
+      {points.map((p, i) => (
+        <Circle key={`pt-${i}`} cx={p.x} cy={p.y} r={2} fill={color} />
+      ))}
+    </Svg>
+  );
 }
 
 function PieChartSVG({data, colors, textColor}: any) {

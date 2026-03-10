@@ -23,11 +23,18 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
+  const postWork = route?.params?.postWork || false;
+  const postWorkGroupId = route?.params?.groupId || null;
+  const postWorkMotivoId = route?.params?.motivoId || null;
+  const postWorkMotivoLabel = route?.params?.motivoLabel || '';
+  const postWorkEmotions = Array.isArray(route?.params?.emotions) ? route.params.emotions : [];
   const { sessionId, data } = normalizeTherapyNext(nextPayload);
-  const title = data?.title || 'Sanación emocional';
+  const title = postWork ? (data?.title || 'Recomendaciones para aprovechar el enfoque positivo') : (data?.title || 'Sanación emocional');
   const required = Array.isArray(data?.checkboxes_required) ? data.checkboxes_required : [];
   const optional = data?.checkbox_optional || null;
-  const introText = data?.text || data?.texto || DEFAULT_TEXT;
+  const introText = postWork
+    ? 'Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:'
+    : (data?.text || data?.texto || DEFAULT_TEXT);
   const isDefaultIntro = introText === DEFAULT_TEXT;
   const audioUrl = getAudioUrl(data?.audio || data);
   const audioTitle = getAudioTitle(data?.audio || data);
@@ -153,6 +160,21 @@ export default function HealingIntroScreen({ navigation, route }: any) {
 
   const onContinue = async () => {
     try {
+      if (postWork) {
+        if (!postWorkGroupId || !postWorkMotivoId) {
+          throw new Error('Falta información para continuar.');
+        }
+        navigation.replace('TherapyFocusContent', {
+          postWork: true,
+          groupId: postWorkGroupId,
+          motivoId: postWorkMotivoId,
+          motivoLabel: postWorkMotivoLabel,
+          emotions: postWorkEmotions,
+          next: nextPayload,
+          entrypoint: 'post_work',
+        });
+        return;
+      }
       if (!sessionId) throw new Error('No se encontró la sesión.');
       if (nextResponse) {
         navigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint });
@@ -188,18 +210,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
             introText
           )}
         </CText>
-        {!!audioUrl && (
-          <View style={styles.mt20}>
-            {!!audioTitle && (
-              <CText type={'B16'}>{audioTitle}</CText>
-            )}
-            <CButton
-              title={playing ? 'Pausar xx' : 'Reproducir 22'}
-              onPress={onPlayAudio}
-              style={styles.mt10}
-            />
-          </View>
-        )}
+        
         <View style={styles.mt20}>
           {required.map((opt: any, idx: number) => {
             const key = opt?.key || String(idx);

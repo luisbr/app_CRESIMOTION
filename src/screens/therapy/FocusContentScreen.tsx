@@ -9,8 +9,7 @@ import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
-import { completeTherapyStep } from '../../api/sesionTerapeutica';
-import { canSkipAudio, getAudioTitle, getAudioUrl, getSkipLabel, normalizeTherapyNext } from './therapyUtils';
+import { canSkipAudio, getAudioTitle, getAudioUrl, getMotivoId, getMotivoLabel, getSkipLabel, normalizeTherapyNext } from './therapyUtils';
 import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL } from '../../api/config';
 
@@ -19,9 +18,16 @@ export default function FocusContentScreen({ navigation, route }: any) {
   const dispatch = useDispatch();
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
+  const postWork = route?.params?.postWork || false;
+  const postWorkGroupId = route?.params?.groupId || null;
+  const postWorkMotivoId = route?.params?.motivoId || null;
+  const postWorkMotivoLabel = route?.params?.motivoLabel || '';
+  const postWorkEmotions = Array.isArray(route?.params?.emotions) ? route.params.emotions : [];
   const { sessionId, data } = normalizeTherapyNext(nextPayload);
   const audioUrl = getAudioUrl(data);
-  const title = getAudioTitle(data) || 'Enfoque positivo';
+  const title = (postWork ? data?.motivo_title : getAudioTitle(data)) || 'Enfoque positivo';
+  const motivoId = postWorkMotivoId || getMotivoId(data?.focus || data);
+  const motivoLabel = postWorkMotivoLabel || getMotivoLabel(data?.focus || data);
   const contentText = data?.text || data?.texto || data?.contenido_texto || '';
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -100,6 +106,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
   };
 
   const onPlay = async () => {
+    console.log('[THERAPY] focus audio url raw', audioUrl);
+    console.log('[THERAPY] focus audio url abs', ensureAbsoluteUrl(audioUrl));
     if (!audioUrl) return;
     if (loadingAudio) return;
 
@@ -107,7 +115,7 @@ export default function FocusContentScreen({ navigation, route }: any) {
     
 
 
-    console.log('[THERAPY] focus audio url', ensureAbsoluteUrl(audioUrl));
+    
     try {
       await ensureAudioMode();
       setLoadingAudio(true);
@@ -253,14 +261,34 @@ export default function FocusContentScreen({ navigation, route }: any) {
     }
   };
 
-  const goNext = async (action: 'NEXT' | 'SKIP') => {
-    try {
-      if (!sessionId) throw new Error('No se encontró la sesión.');
-      const next = await completeTherapyStep({ sessionId, action });
-      navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
-    } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+  const goNext = () => {
+    if (postWork) {
+      if (!postWorkGroupId || !motivoId) {
+        Alert.alert('Error', 'Falta información para continuar.');
+        return;
+      }
+      navigation.replace('TherapyFocusMotivoEval', {
+        postWork: true,
+        groupId: postWorkGroupId,
+        motivoId,
+        motivoLabel,
+        emotions: postWorkEmotions,
+        next: nextPayload,
+        entrypoint: 'post_work',
+      });
+      return;
     }
+    if (!sessionId) {
+      Alert.alert('Error', 'No se encontró la sesión.');
+      return;
+    }
+    navigation.replace('TherapyFocusMotivoEval', {
+      sessionId,
+      motivoId,
+      motivoLabel,
+      next: nextPayload,
+      entrypoint,
+    });
   };
 
   return (
@@ -321,11 +349,11 @@ export default function FocusContentScreen({ navigation, route }: any) {
               bgColor={colors.inputBg}
               color={colors.primary}
               disabled={playing}
-              onPress={() => goNext('SKIP')}
+              onPress={goNext}
             />
           </View>
         )}
-        <CButton title={'Siguiente'} disabled={!audioUrl || !ended || playing} onPress={() => goNext('NEXT')} />
+        <CButton title={'Siguiente'} disabled={!audioUrl || !ended || playing} onPress={goNext} />
       </View>
       <ScreenTooltip />
     </CSafeAreaView>

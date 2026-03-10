@@ -47,6 +47,7 @@ export const extractEmotions = (data: any) => {
 export const getEmotionLabel = (item: any) => {
   if (!item) return '';
   if (typeof item?.label === 'string') return item.label;
+  if (typeof item?.titulo === 'string') return item.titulo;
   if (typeof item?.emocion === 'string') return item.emocion;
   if (typeof item?.nombre === 'string') return item.nombre;
   if (typeof item?.title === 'string') return item.title;
@@ -55,7 +56,11 @@ export const getEmotionLabel = (item: any) => {
 };
 
 export const getEmotionId = (item: any) => {
-  return item?.id ?? item?.emocion_id ?? item?.emotion_id ?? null;
+  return item?.id ?? item?.emocion_id ?? item?.emotion_id ?? item?.item_id ?? null;
+};
+
+export const getMotivoId = (item: any) => {
+  return item?.id ?? item?.motivo_id ?? item?.motivo?.id ?? item?.motivoId ?? null;
 };
 
 export const getIntensityRank = (value?: string | number | null) => {
@@ -72,6 +77,7 @@ export const getMotivoLabel = (item: any) => {
   if (!item) return '';
   if (typeof item?.motivo === 'string') return item.motivo;
   if (typeof item?.nombre === 'string') return item.nombre;
+  if (typeof item?.titulo === 'string') return item.titulo;
   if (typeof item?.title === 'string') return item.title;
   if (typeof item?.name === 'string') return item.name;
   if (typeof item?.label === 'string') return item.label;
@@ -85,7 +91,12 @@ export const getMotivoLabel = (item: any) => {
 
 export const getAudioUrl = (data: any) => {
   if (!data) return '';
-  const direct = data?.audio_url || data?.audioUrl || data?.audio?.url || data?.audio?.audio_url;
+  const direct =
+    data?.audio_url ||
+    data?.audioUrl ||
+    data?.url ||
+    data?.audio?.url ||
+    data?.audio?.audio_url;
   if (direct) return String(direct);
   const enfoque = data?.enfoque || data?.focus || null;
   return enfoque?.audio_url || enfoque?.audioUrl || '';

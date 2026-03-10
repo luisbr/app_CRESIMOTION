@@ -40,11 +40,20 @@ const waitForDuration = async (sound: Audio.Sound) => {
 };
 
 export default function HealingPlaybackScreen({ navigation, route }: any) {
+  console.log('[THERAPY] playback route params', route?.params || {});
   const colors = useSelector((s: any) => s.theme.theme);
   const dispatch = useDispatch();
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
+  const postWork = route?.params?.postWork || false;
+  const postWorkGroupId = route?.params?.groupId || null;
+  const postWorkEmotionId = route?.params?.emocionId || null;
+  const postWorkEmotionLabel = route?.params?.emotionLabel || '';
   const { sessionId, data } = normalizeTherapyNext(nextPayload);
+  const inferredPostWork = postWork || Boolean(nextPayload?.group_id);
+  const resolvedGroupId = postWorkGroupId ?? nextPayload?.group_id ?? null;
+  const resolvedEmotionId = postWorkEmotionId ?? data?.emotion?.id ?? data?.emotion_id ?? null;
+  const resolvedEmotionLabel = postWorkEmotionLabel || data?.emotion?.label || '';
   const title = data?.title || 'Sanación emocional';
   const audioUrl1 = data?.audio?.url || data?.audio_url || null;
   const audioUrl2 = data?.audio_url2 || data?.audio2?.url || null;
@@ -109,6 +118,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       label: '01SE_induccion.mp3',
     });
     if (audioUrl1) {
+      console.log('[THERAPY] playback audio_url resolved', ensureAbsoluteUrl(audioUrl1));
       list.push({
         type: 'remote',
         source: ensureAbsoluteUrl(audioUrl1),
@@ -121,6 +131,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       label: '03SE_induccion.mp3',
     });
     if (audioUrl2) {
+      console.log('[THERAPY] playback audio_url2 resolved', ensureAbsoluteUrl(audioUrl2));
       list.push({
         type: 'remote',
         source: ensureAbsoluteUrl(audioUrl2),
@@ -373,6 +384,26 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
 
   const onContinue = async () => {
     try {
+      if (inferredPostWork) {
+        if (!resolvedGroupId || !resolvedEmotionId) {
+          throw new Error('Falta información para continuar.');
+        }
+        console.log('[POST_WORK] playback -> behavior intro', {
+          groupId: resolvedGroupId,
+          emocionId: resolvedEmotionId,
+          emotionLabel: resolvedEmotionLabel,
+        });
+        navigation.replace('TherapyBehaviorIntro', {
+          postWork: true,
+          groupId: resolvedGroupId,
+          emocionId: resolvedEmotionId,
+          emotionLabel: resolvedEmotionLabel,
+          next: nextPayload,
+          group_id: resolvedGroupId,
+          entrypoint: 'post_work',
+        });
+        return;
+      }
       if (!sessionId) throw new Error('No se encontró la sesión.');
       const actionKey = data?.actions?.primary?.key || 'CONTINUE';
       const next = await completeTherapyStep({ sessionId, action: actionKey });

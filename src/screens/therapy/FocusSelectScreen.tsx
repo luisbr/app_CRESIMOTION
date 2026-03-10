@@ -9,6 +9,7 @@ import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { selectTherapyFocus } from '../../api/sesionTerapeutica';
+import { postPostWorkMotivoIntro } from '../../modules/diagnostico/api/sessionsApi';
 import { extractMotivos, getMotivoLabel, normalizeTherapyNext } from './therapyUtils';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -16,12 +17,48 @@ export default function FocusSelectScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
+  const postWork = route?.params?.postWork || false;
+  const postWorkGroupId = route?.params?.groupId || null;
+  const postWorkMotivos = Array.isArray(route?.params?.motivos) ? route.params.motivos : [];
+  const postWorkEmotions = Array.isArray(route?.params?.emotions) ? route.params.emotions : [];
   const { sessionId, data } = normalizeTherapyNext(nextPayload);
-  const motivos = useMemo(() => extractMotivos(data), [data]);
+  const motivos = useMemo(() => (postWork ? postWorkMotivos : extractMotivos(data)), [data, postWork, postWorkMotivos]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [skipFocus, setSkipFocus] = useState(false);
 
   const onContinue = async () => {
     try {
+      if (postWork) {
+        if (skipFocus) {
+          navigation.replace('TherapyHealingSelectEmotion', {
+            postWork: true,
+            groupId: postWorkGroupId,
+            emotions: postWorkEmotions,
+            entrypoint: 'post_work',
+          });
+          return;
+        }
+        if (!postWorkGroupId || !selectedId) return;
+        const selectedMotivo = motivos.find((m: any) => String(m?.id ?? m?.motivo_id ?? m?.item_id ?? '') === selectedId);
+        console.log('[POST_WORK] motivo-intro payload', {
+          groupId: postWorkGroupId,
+          motivo_id: Number(selectedId),
+        });
+        const intro = await postPostWorkMotivoIntro(Number(postWorkGroupId), {
+          motivo_id: Number(selectedId),
+        });
+        console.log('[POST_WORK] motivo-intro response', intro);
+        navigation.replace('TherapyHealingIntro', {
+          postWork: true,
+          groupId: postWorkGroupId,
+          motivoId: Number(selectedId),
+          motivoLabel: getMotivoLabel(selectedMotivo),
+          emotions: postWorkEmotions,
+          next: intro,
+          entrypoint: 'post_work',
+        });
+        return;
+      }
       if (!sessionId || !selectedId) return;
       const next = await selectTherapyFocus({ sessionId, motivoId: selectedId });
       navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
@@ -73,14 +110,20 @@ export default function FocusSelectScreen({ navigation, route }: any) {
           >
             <FlatList
               data={motivos}
-              keyExtractor={(item: any, idx: number) => String(item?.id ?? item?.motivo_id ?? idx)}
+              keyExtractor={(item: any, idx: number) => String(item?.id ?? item?.motivo_id ?? item?.item_id ?? idx)}
               renderItem={({ item, index }: any) => {
-                const id = String(item?.id ?? item?.motivo_id ?? '');
+                const id = String(item?.id ?? item?.motivo_id ?? item?.item_id ?? '');
                 const label = getMotivoLabel(item);
                 const isOn = selectedId === id;
                 return (
                   <View style={{ borderBottomWidth: index === motivos.length - 1 ? 0 : 1, borderColor: colors.grayScale2 }}>
-                    <TouchableOpacity onPress={() => setSelectedId(isOn ? null : id)} style={[styles.rowSpaceBetween, styles.pv15, { paddingHorizontal: 16 }]}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSkipFocus(false);
+                        setSelectedId(isOn ? null : id);
+                      }}
+                      style={[styles.rowSpaceBetween, styles.pv15, { paddingHorizontal: 16 }]}
+                    >
                       <View style={[styles.rowStart, { flex: 1 }]}>
                         <Ionicons
                           name={isOn ? 'checkbox' : 'square-outline'}
@@ -103,6 +146,7 @@ export default function FocusSelectScreen({ navigation, route }: any) {
             />
           </View>
         )}
+        {postWork && null}
       </View>
       <View
         style={{
@@ -123,7 +167,30 @@ export default function FocusSelectScreen({ navigation, route }: any) {
           elevation: 6,
         }}
       >
-        <CButton title={'Siguiente'} disabled={!selectedId} onPress={onContinue} />
+        {postWork ? (
+          <View style={[styles.rowSpaceBetween]}>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <CButton
+                title={'Más tarde'}
+                bgColor={colors.inputBg}
+                color={colors.primary}
+                onPress={() =>
+                  navigation.replace('TherapyHealingSelectEmotion', {
+                    postWork: true,
+                    groupId: postWorkGroupId,
+                    emotions: postWorkEmotions,
+                    entrypoint: 'post_work',
+                  })
+                }
+              />
+            </View>
+            <View style={{ flex: 1, marginLeft: 8 }}>
+              <CButton title={'Siguiente'} disabled={!selectedId} onPress={onContinue} />
+            </View>
+          </View>
+        ) : (
+          <CButton title={'Siguiente'} disabled={!selectedId} onPress={onContinue} />
+        )}
       </View>
       <ScreenTooltip />
     </CSafeAreaView>
