@@ -29,7 +29,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
   const moduleTitleMap: Record<ModuleKey, string> = {
     motivos: 'Motivos de tu estado emocional',
-    sintomas_fisicos: 'Sintomatología física.',
+    sintomas_fisicos: 'Sintomatología física',
     sintomas_emocionales: 'Sintomatología emocional',
   };
   const moduleTitle = therapyNext ? 'Sesión terapéutica' : (moduleTitleMap[nextModuleKey] || moduleTitleMap.motivos);

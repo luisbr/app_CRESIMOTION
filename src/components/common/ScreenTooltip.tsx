@@ -1,7 +1,6 @@
 import React from 'react';
 import {TouchableOpacity} from 'react-native';
 import {useRoute} from '@react-navigation/native';
-import * as Clipboard from 'expo-clipboard';
 import {SHOW_SCREEN_TOOLTIP} from '../../config/debug';
 import CText from './CText';
 
@@ -16,7 +15,6 @@ export default function ScreenTooltip({name}: Props) {
   return (
     <TouchableOpacity
       style={styles.tooltip}
-      onPress={() => Clipboard.setStringAsync(label)}
       activeOpacity={0.8}
     >
       <CText type={'S12'} color={'#fff'}>

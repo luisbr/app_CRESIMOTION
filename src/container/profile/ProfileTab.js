@@ -1,5 +1,6 @@
 import {
   Image,
+  Modal,
   SectionList,
   StyleSheet,
   TouchableOpacity,
@@ -25,10 +26,14 @@ import {changeThemeAction} from '../../redux/action/themeAction';
 import {colors} from '../../theme/colors';
 import {StackNav} from '../../navigation/NavigationKey';
 import LogOutModel from '../../components/model/LogOutModel';
-import {getSession, getProfile} from '../../api/auth';
+import {getSession, getProfile, updateProfile, updateProfilePassword} from '../../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AUTH_ALIAS, AUTH_HASH, AUTH_ID, AUTH_NAME, AUTH_TOKEN, AUTH_UUID, ACCESS_TOKEN, DEVICE_UUID} from '../../common/constants';
 import { clearSession } from '../../session/storage';
+import CInput from '../../components/common/CInput';
+import CButton from '../../components/common/CButton';
+import {validateEmail, validPassword, validateConfirmPassword} from '../../utils/Validation';
+import CDropdown from '../../components/common/CDropdown';
 
 export default function ProfileTab({navigation}) {
   const color = useSelector(state => state.theme.theme);
@@ -49,6 +54,32 @@ export default function ProfileTab({navigation}) {
   const [tutorDob, setTutorDob] = useState('');
   const [tutorPhone, setTutorPhone] = useState('');
   const [tutorEmail, setTutorEmail] = useState('');
+  const [rawDob, setRawDob] = useState('');
+
+  const [editMode, setEditMode] = useState(false);
+  const [editFirstName, setEditFirstName] = useState('');
+  const [editLastName, setEditLastName] = useState('');
+  const [editAlias, setEditAlias] = useState('');
+  const [editDob, setEditDob] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editCountryCode, setEditCountryCode] = useState('+52');
+  const [editBirthDay, setEditBirthDay] = useState('');
+  const [editBirthMonth, setEditBirthMonth] = useState('');
+  const [editBirthYear, setEditBirthYear] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState('');
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [currentPasswordError, setCurrentPasswordError] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newPasswordError, setNewPasswordError] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordSaveError, setPasswordSaveError] = useState('');
+  const [passwordSaveSuccess, setPasswordSaveSuccess] = useState('');
 
   const dispatch = useDispatch();
 
@@ -92,6 +123,7 @@ export default function ProfileTab({navigation}) {
           };
 
           setDob(formatDob(fecha_nacimiento));
+          setRawDob(fecha_nacimiento || '');
           setGender(genero || '');
           setEmail(correo || '');
           setPhone(telefono || '');
@@ -103,6 +135,33 @@ export default function ProfileTab({navigation}) {
           setTutorDob(formatDob(tutor_fecha_nacimiento));
           setTutorPhone(tutor_telefono || '');
           setTutorEmail(tutor_correo || '');
+
+          setEditFirstName(nombre || '');
+          setEditLastName(apellido || '');
+          setEditAlias(alias || '');
+          setEditDob(fecha_nacimiento || '');
+          setEditPhone(telefono || '');
+          setEditEmail(correo || '');
+          if (fecha_nacimiento) {
+            const parts = fecha_nacimiento.split('-');
+            if (parts.length === 3) {
+              setEditBirthYear(parts[0]);
+              setEditBirthMonth(String(Number(parts[1])));
+              setEditBirthDay(String(Number(parts[2])));
+            }
+          }
+          if (telefono) {
+            const phoneVal = String(telefono);
+            const countryOptions = ['+52', '+1', '+57', '+54', '+56', '+51', '+34', '+502', '+593', '+58', '+598', '+595', '+506', '+507', '+504', '+503', '+505'];
+            const matched = countryOptions.find(code => phoneVal.startsWith(code));
+            if (matched) {
+              setEditCountryCode(matched);
+              setEditPhone(phoneVal.replace(matched, '').replace(/\D/g, ''));
+            } else {
+              setEditCountryCode('+52');
+              setEditPhone(phoneVal.replace(/\D/g, ''));
+            }
+          }
         }
       } catch (err) {
         console.log('Failed to fetch profile', err);
@@ -132,6 +191,16 @@ export default function ProfileTab({navigation}) {
   const onPressItem = item => {
     if (!!item.route) {
       navigation.navigate(item.route);
+    } else if (item.title === strings.changePassword) {
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setCurrentPasswordError('');
+      setNewPasswordError('');
+      setConfirmPasswordError('');
+      setPasswordSaveError('');
+      setPasswordSaveSuccess('');
+      setPasswordModalVisible(true);
     }
   };
 
@@ -156,7 +225,162 @@ export default function ProfileTab({navigation}) {
   };
 
   const onPressEditIcon = () => {
-    navigation.navigate(StackNav.Appointment, {title: strings.edit});
+    setSaveError('');
+    setSaveSuccess('');
+    setEditFirstName(firstName || '');
+    setEditLastName(lastName || '');
+    setEditAlias(alias || '');
+    setEditDob(rawDob || '');
+    setEditPhone(phone || '');
+    setEditEmail(email || '');
+    if (rawDob) {
+      const parts = rawDob.split('-');
+      if (parts.length === 3) {
+        setEditBirthYear(parts[0]);
+        setEditBirthMonth(String(Number(parts[1])));
+        setEditBirthDay(String(Number(parts[2])));
+      }
+    }
+    setEditMode(true);
+  };
+
+  const onCancelEdit = () => {
+    setSaveError('');
+    setSaveSuccess('');
+    setEditFirstName(firstName || '');
+    setEditLastName(lastName || '');
+    setEditAlias(alias || '');
+    setEditDob(rawDob || '');
+    setEditPhone(phone || '');
+    setEditEmail(email || '');
+    if (rawDob) {
+      const parts = rawDob.split('-');
+      if (parts.length === 3) {
+        setEditBirthYear(parts[0]);
+        setEditBirthMonth(String(Number(parts[1])));
+        setEditBirthDay(String(Number(parts[2])));
+      }
+    }
+    setEditMode(false);
+  };
+
+  const isValidDate = (y, m, d) => {
+    if (!y || !m || !d) return false;
+    const yyyy = Number(y);
+    const mm = Number(m);
+    const dd = Number(d);
+    const date = new Date(yyyy, mm - 1, dd);
+    return (
+      date.getFullYear() === yyyy &&
+      date.getMonth() === mm - 1 &&
+      date.getDate() === dd
+    );
+  };
+
+  const syncEditBirthDate = (y, m, d) => {
+    if (!y || !m || !d) {
+      setEditDob('');
+      return;
+    }
+    if (!isValidDate(y, m, d)) {
+      setEditDob('');
+      return;
+    }
+    const mm = String(m).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    setEditDob(`${y}-${mm}-${dd}`);
+  };
+
+  const onSaveProfile = async () => {
+    setSaveError('');
+    setSaveSuccess('');
+    const emailTrimmed = (editEmail || '').trim();
+    const {msg} = validateEmail(emailTrimmed);
+    if (msg) {
+      setSaveError(msg);
+      return;
+    }
+    if (!editFirstName.trim() || !editLastName.trim()) {
+      setSaveError('Nombre y apellido son obligatorios');
+      return;
+    }
+    setSaving(true);
+    try {
+      const phoneWithCode = editPhone ? `${editCountryCode}${String(editPhone).replace(/\D/g, '')}` : '';
+      const payload = {
+        nombre: editFirstName.trim(),
+        apellido: editLastName.trim(),
+        correo: emailTrimmed,
+        fecha_nacimiento: (editDob || '').trim(),
+        alias: (editAlias || '').trim(),
+        telefono: phoneWithCode,
+      };
+      const resp = await updateProfile(payload);
+      if (resp && resp.success === true) {
+        setFirstName(payload.nombre);
+        setLastName(payload.apellido);
+        setAlias(payload.alias);
+        setEmail(payload.correo);
+        setPhone(payload.telefono);
+        setRawDob(payload.fecha_nacimiento);
+        const formatDob = (dateString) => {
+          if (!dateString) return '';
+          const parts = dateString.split('-');
+          if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+          }
+          return dateString;
+        };
+        setDob(formatDob(payload.fecha_nacimiento));
+        setName(`${payload.nombre} ${payload.apellido}`.trim());
+        await AsyncStorage.multiSet([
+          [AUTH_NAME, JSON.stringify(payload.nombre || null)],
+          [AUTH_ALIAS, JSON.stringify(payload.alias || null)],
+        ]);
+        setSaveSuccess(resp.message || 'Perfil actualizado correctamente');
+        setEditMode(false);
+      } else {
+        setSaveError((resp && resp.message) || 'No se pudo actualizar el perfil');
+      }
+    } catch (e) {
+      setSaveError(e?.body?.message || e?.message || 'Error de red');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onClosePasswordModal = () => {
+    if (passwordSaving) return;
+    setPasswordModalVisible(false);
+  };
+
+  const onSavePassword = async () => {
+    setPasswordSaveError('');
+    setPasswordSaveSuccess('');
+    const {msg: currentMsg} = validPassword(currentPassword.trim());
+    const {msg: newMsg} = validPassword(newPassword.trim());
+    const {msg: confirmMsg} = validateConfirmPassword(confirmPassword.trim(), newPassword.trim());
+    setCurrentPasswordError(currentMsg);
+    setNewPasswordError(newMsg);
+    setConfirmPasswordError(confirmMsg);
+    if (currentMsg || newMsg || confirmMsg) return;
+    setPasswordSaving(true);
+    try {
+      const resp = await updateProfilePassword({
+        current_password: currentPassword.trim(),
+        new_password: newPassword.trim(),
+      });
+      if (resp && resp.success === true) {
+        setPasswordSaveSuccess(resp.message || 'Contraseña actualizada correctamente');
+        setPasswordModalVisible(false);
+      } else {
+        setPasswordSaveError((resp && resp.message) || 'No se pudo actualizar la contraseña');
+      }
+    } catch (e) {
+      setPasswordSaveError(e?.body?.message || e?.message || 'Error de red');
+    } finally {
+      setPasswordSaving(false);
+    }
   };
   const ProfileInfoCard = ({ title, iconName, data }) => {
     return (
@@ -204,7 +428,7 @@ export default function ProfileTab({navigation}) {
               </CText>
             </View>
             <TouchableOpacity
-              
+              onPress={onPressEditIcon}
               style={[
                 localStyles.editContainer,
                 {
@@ -221,18 +445,187 @@ export default function ProfileTab({navigation}) {
             </TouchableOpacity>
           </View>
         </View>
-        <ProfileInfoCard 
-          data={[
-            {title: 'Nombre', value: firstName || '-'},
-            {title: 'Apellido', value: lastName || '-'},
-            {title: 'Alias', value: alias || '-'},
-            {title: 'Fecha de nacimiento', value: dob || '-'},
-            {title: 'Teléfono', value: phone || '-'},
-            {title: 'Género', value: gender || '-'},
-            {title: 'Idioma', value: language || '-'},
-            {title: 'Correo', value: email || '-', isFullWidth: true},
-          ]} 
-        />
+        {!editMode ? (
+          <ProfileInfoCard 
+            data={[
+              {title: 'Nombre', value: firstName || '-'},
+              {title: 'Apellido', value: lastName || '-'},
+              {title: 'Alias', value: alias || '-'},
+              {title: 'Fecha de nacimiento', value: dob || '-'},
+              {title: 'Teléfono', value: phone || '-'},
+              {title: 'Género', value: gender || '-'},
+              {title: 'Idioma', value: language || '-'},
+              {title: 'Correo', value: email || '-', isFullWidth: true},
+            ]} 
+          />
+        ) : (
+          <View style={[
+            localStyles.infoCard,
+            {
+              backgroundColor: color.dark ? color.indicatorColor : color.white,
+              borderColor: color.dark ? color.dividerColor : color.grayScale2,
+              borderWidth: color.dark ? 1 : 1,
+              shadowColor: color.dark ? 'transparent' : color.shadowColor,
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: color.dark ? 0 : 0.1,
+              shadowRadius: color.dark ? 0 : 8,
+              elevation: color.dark ? 0 : 2,
+            }
+          ]}>
+            <CInput
+              label="Nombre"
+              placeHolder="Nombre"
+              keyBoardType={'default'}
+              _value={editFirstName}
+              autoCapitalize={'words'}
+              toGetTextFieldValue={setEditFirstName}
+            />
+            <CInput
+              label="Apellido"
+              placeHolder="Apellido"
+              keyBoardType={'default'}
+              _value={editLastName}
+              autoCapitalize={'words'}
+              toGetTextFieldValue={setEditLastName}
+            />
+            <CInput
+              label="Alias"
+              placeHolder="Alias"
+              keyBoardType={'default'}
+              _value={editAlias}
+              autoCapitalize={'none'}
+              toGetTextFieldValue={setEditAlias}
+            />
+            <CText type={'M14'} color={color.labelColor} style={styles.mt20}>
+              Fecha de nacimiento
+            </CText>
+            <View style={localStyles.birthRow}>
+              <View style={[localStyles.birthFieldWrapper, localStyles.birthFieldSpacer]}>
+                <CDropdown
+                  label="Día"
+                  placeholder="Día"
+                  value={editBirthDay}
+                  data={Array.from({length: 31}, (_, i) => ({
+                    label: String(i + 1),
+                    value: String(i + 1),
+                  }))}
+                  onChange={(item) => {
+                    setEditBirthDay(item?.value || '');
+                    syncEditBirthDate(editBirthYear, editBirthMonth, item?.value);
+                  }}
+                  style={localStyles.birthDropdown}
+                />
+              </View>
+              <View style={[localStyles.birthFieldWrapper, localStyles.birthFieldSpacer]}>
+                <CDropdown
+                  label="Mes"
+                  placeholder="Mes"
+                  value={editBirthMonth}
+                  data={[
+                    {label: 'Ene', value: '1'},
+                    {label: 'Feb', value: '2'},
+                    {label: 'Mar', value: '3'},
+                    {label: 'Abr', value: '4'},
+                    {label: 'May', value: '5'},
+                    {label: 'Jun', value: '6'},
+                    {label: 'Jul', value: '7'},
+                    {label: 'Ago', value: '8'},
+                    {label: 'Sep', value: '9'},
+                    {label: 'Oct', value: '10'},
+                    {label: 'Nov', value: '11'},
+                    {label: 'Dic', value: '12'},
+                  ]}
+                  onChange={(item) => {
+                    setEditBirthMonth(item?.value || '');
+                    syncEditBirthDate(editBirthYear, item?.value, editBirthDay);
+                  }}
+                  style={localStyles.birthDropdown}
+                />
+              </View>
+              <View style={localStyles.birthFieldWrapper}>
+                <CInput
+                  label="Año"
+                  placeHolder="Año"
+                  keyBoardType={'number-pad'}
+                  _value={editBirthYear}
+                  autoCapitalize={'none'}
+                  toGetTextFieldValue={(val) => {
+                    const v = val.replace(/\D/g, '').slice(0, 4);
+                    setEditBirthYear(v);
+                    syncEditBirthDate(v, editBirthMonth, editBirthDay);
+                  }}
+                  _maxLength={4}
+                  inputContainerStyle={localStyles.birthYearInputContainer}
+                  inputBoxStyle={localStyles.birthYearInputBox}
+                />
+              </View>
+            </View>
+            <View style={localStyles.phoneRow}>
+              <View style={localStyles.phoneCode}>
+                <CDropdown
+                  label="País"
+                  placeholder="País"
+                  value={editCountryCode}
+                  data={[
+                    {label: 'MX +52', value: '+52'},
+                    {label: 'US +1', value: '+1'},
+                    {label: 'CO +57', value: '+57'},
+                    {label: 'AR +54', value: '+54'},
+                    {label: 'CL +56', value: '+56'},
+                    {label: 'PE +51', value: '+51'},
+                    {label: 'ES +34', value: '+34'},
+                    {label: 'GT +502', value: '+502'},
+                    {label: 'EC +593', value: '+593'},
+                    {label: 'VE +58', value: '+58'},
+                    {label: 'UY +598', value: '+598'},
+                    {label: 'PY +595', value: '+595'},
+                    {label: 'CR +506', value: '+506'},
+                    {label: 'PA +507', value: '+507'},
+                    {label: 'DO +1', value: '+1'},
+                    {label: 'HN +504', value: '+504'},
+                    {label: 'SV +503', value: '+503'},
+                    {label: 'NI +505', value: '+505'},
+                  ]}
+                  onChange={(item) => setEditCountryCode(item?.value || '+52')}
+                  style={localStyles.phoneDropdown}
+                />
+              </View>
+              <View style={localStyles.phoneInput}>
+                <CInput
+                  label="Teléfono"
+                  placeHolder="Teléfono"
+                  keyBoardType={'number-pad'}
+                  _value={editPhone}
+                  autoCapitalize={'none'}
+                  toGetTextFieldValue={(val) => setEditPhone(val.replace(/\D/g, ''))}
+                  maxLength={15}
+                />
+              </View>
+            </View>
+            <CInput
+              label="Correo"
+              placeHolder="Correo"
+              keyBoardType={'default'}
+              _value={editEmail}
+              autoCapitalize={'none'}
+              toGetTextFieldValue={setEditEmail}
+            />
+            {!!saveError && (
+              <CText type={'S12'} color={color.redAlert} style={styles.mt10}>
+                {saveError}
+              </CText>
+            )}
+            {!!saveSuccess && (
+              <CText type={'S12'} color={color.primary} style={styles.mt10}>
+                {saveSuccess}
+              </CText>
+            )}
+            <View style={localStyles.editActions}>
+              <CButton title="Guardar" onPress={onSaveProfile} disabled={saving} />
+              <CButton title="Cancelar" onPress={onCancelEdit} />
+            </View>
+          </View>
+        )}
         
         {isMinor && (
           <ProfileInfoCard 
@@ -315,6 +708,60 @@ export default function ProfileTab({navigation}) {
         onPressCancel={onPressCancel}
         onPressLOut={onPressLOut}
       />
+      <Modal animationType="slide" transparent={true} visible={passwordModalVisible}>
+        <View style={localStyles.modalOverlay}>
+          <View style={[
+            localStyles.modalCard,
+            {backgroundColor: color.dark ? color.indicatorColor : color.white},
+          ]}>
+            <CText type={'B18'} style={styles.mb10}>Cambiar contraseña</CText>
+            <CInput
+              label="Contraseña actual"
+              placeHolder="Contraseña actual"
+              keyBoardType={'default'}
+              _value={currentPassword}
+              _errorText={currentPasswordError}
+              autoCapitalize={'none'}
+              toGetTextFieldValue={setCurrentPassword}
+              isSecure
+            />
+            <CInput
+              label="Nueva contraseña"
+              placeHolder="Nueva contraseña"
+              keyBoardType={'default'}
+              _value={newPassword}
+              _errorText={newPasswordError}
+              autoCapitalize={'none'}
+              toGetTextFieldValue={setNewPassword}
+              isSecure
+            />
+            <CInput
+              label="Confirmar nueva contraseña"
+              placeHolder="Confirmar nueva contraseña"
+              keyBoardType={'default'}
+              _value={confirmPassword}
+              _errorText={confirmPasswordError}
+              autoCapitalize={'none'}
+              toGetTextFieldValue={setConfirmPassword}
+              isSecure
+            />
+            {!!passwordSaveError && (
+              <CText type={'S12'} color={color.redAlert} style={styles.mt10}>
+                {passwordSaveError}
+              </CText>
+            )}
+            {!!passwordSaveSuccess && (
+              <CText type={'S12'} color={color.primary} style={styles.mt10}>
+                {passwordSaveSuccess}
+              </CText>
+            )}
+            <View style={localStyles.editActions}>
+              <CButton title="Guardar" onPress={onSavePassword} disabled={passwordSaving} />
+              <CButton title="Cancelar" onPress={onClosePasswordModal} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </CSafeAreaView>
   );
 }
@@ -369,5 +816,64 @@ const localStyles = StyleSheet.create({
   },
   mainContainer: {
     ...styles.p20,
+  },
+  editActions: {
+    ...styles.mt10,
+    ...styles.g10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    padding: moderateScale(20),
+  },
+  modalCard: {
+    borderRadius: moderateScale(16),
+    padding: moderateScale(16),
+  },
+  birthRow: {
+    ...styles.rowStart,
+    ...styles.mt10,
+    ...styles.mb5,
+    ...styles.itemsStart,
+  },
+  birthFieldWrapper: {
+    flex: 1,
+  },
+  birthFieldSpacer: {
+    marginRight: moderateScale(8),
+  },
+  birthDropdown: {
+    width: '100%',
+  },
+  birthYearInputContainer: {
+    width: '100%',
+    height: moderateScale(48),
+    borderRadius: moderateScale(24),
+    ...styles.mt5,
+    ...styles.selfCenter,
+    ...styles.rowStart,
+    ...styles.justifyBetween,
+    ...styles.ph10,
+  },
+  birthYearInputBox: {
+    ...styles.ph10,
+    width: '100%',
+    height: moderateScale(44),
+  },
+  phoneRow: {
+    ...styles.rowSpaceBetween,
+    ...styles.itemsStart,
+  },
+  phoneCode: {
+    width: '35%',
+    marginRight: moderateScale(8),
+    ...styles.mt10,
+  },
+  phoneInput: {
+    flex: 1,
+  },
+  phoneDropdown: {
+    width: '100%',
   },
 });

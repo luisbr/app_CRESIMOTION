@@ -26,13 +26,22 @@ const getTodayDefaults = () => {
   const today = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
   const format = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const addMonths = (d: Date, months: number) => {
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const day = d.getDate();
+    const next = new Date(year, month + months, 1);
+    const max = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
+    next.setDate(Math.min(day, max));
+    return next;
+  };
   return {
     frequency: 'semanal',
     times_per_day: '1',
     time: '21:30',
     duration_minutes: '10',
     start_date: format(today),
-    end_date: format(today),
+    end_date: format(addMonths(today, 1)),
     day_of_month: String(today.getDate()),
     days_of_week: ['mon', 'tue', 'wed', 'thu', 'fri'],
   };

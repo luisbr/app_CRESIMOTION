@@ -29,6 +29,8 @@ export const ENDPOINTS = {
   REGISTER_REQUEST_CODE: '/api/ws/registro/solicitudCodigo',
   REGISTER_VERIFY_CODE: '/api/ws/registro/validarCodigo',
   PROFILE: '/api/ws/perfil',
+  PROFILE_UPDATE: '/api/v1/profile/update',
+  PROFILE_PASSWORD: '/api/v1/profile/password',
   MEMBRESIAS: '/api/ws/membresias',
   SUSCRIPCION_ACTUAL: '/api/ws/obtenerSuscripcion',
   SUSCRIPCION_INTENT: '/api/ws/suscripcion/intent',

@@ -118,7 +118,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
   const availableViews = allowRadar ? (['bar', 'pie', 'radar'] as const) : (['bar', 'pie'] as const);
   const moduleTitleMap: Record<ModuleKey, string> = {
     motivos: 'Motivos de tu estado emocional',
-    sintomas_fisicos: 'Sintomatología física.',
+    sintomas_fisicos: 'Sintomatología física',
     sintomas_emocionales: 'Sintomatología emocional',
   };
   const moduleTitle = moduleTitleMap[moduleKey] || moduleTitleMap.motivos;

@@ -111,7 +111,7 @@ function DrawerMenu() {
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigation.navigate(TabNav.ProfileTab)}>
-          <Ionicons name={'person-outline'} size={20} color={colors.white} /><CText>Perfil</CText>
+          <Ionicons name={'person-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
             <CText type={'S16'} color={colors.white}>Perfil</CText>
           </View>
