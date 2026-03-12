@@ -26,7 +26,7 @@ import {changeThemeAction} from '../../redux/action/themeAction';
 import {colors} from '../../theme/colors';
 import {StackNav} from '../../navigation/NavigationKey';
 import LogOutModel from '../../components/model/LogOutModel';
-import {getSession, getProfile, updateProfile, updateProfilePassword} from '../../api/auth';
+import {getSession, getProfile, updateProfile} from '../../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AUTH_ALIAS, AUTH_HASH, AUTH_ID, AUTH_NAME, AUTH_TOKEN, AUTH_UUID, ACCESS_TOKEN, DEVICE_UUID} from '../../common/constants';
 import * as ImagePicker from 'expo-image-picker';
@@ -72,16 +72,6 @@ export default function ProfileTab({navigation}) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
-  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [currentPasswordError, setCurrentPasswordError] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [newPasswordError, setNewPasswordError] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
-  const [passwordSaving, setPasswordSaving] = useState(false);
-  const [passwordSaveError, setPasswordSaveError] = useState('');
-  const [passwordSaveSuccess, setPasswordSaveSuccess] = useState('');
 
   const dispatch = useDispatch();
 
@@ -200,16 +190,6 @@ export default function ProfileTab({navigation}) {
   const onPressItem = item => {
     if (!!item.route) {
       navigation.navigate(item.route);
-    } else if (item.title === strings.changePassword) {
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setCurrentPasswordError('');
-      setNewPasswordError('');
-      setConfirmPasswordError('');
-      setPasswordSaveError('');
-      setPasswordSaveSuccess('');
-      setPasswordModalVisible(true);
     }
   };
 
@@ -773,60 +753,6 @@ export default function ProfileTab({navigation}) {
         onPressCancel={onPressCancel}
         onPressLOut={onPressLOut}
       />
-      <Modal animationType="slide" transparent={true} visible={passwordModalVisible}>
-        <View style={localStyles.modalOverlay}>
-          <View style={[
-            localStyles.modalCard,
-            {backgroundColor: color.dark ? color.indicatorColor : color.white},
-          ]}>
-            <CText type={'B18'} style={styles.mb10}>Cambiar contraseña</CText>
-            <CInput
-              label="Contraseña actual"
-              placeHolder="Contraseña actual"
-              keyBoardType={'default'}
-              _value={currentPassword}
-              _errorText={currentPasswordError}
-              autoCapitalize={'none'}
-              toGetTextFieldValue={setCurrentPassword}
-              isSecure
-            />
-            <CInput
-              label="Nueva contraseña"
-              placeHolder="Nueva contraseña"
-              keyBoardType={'default'}
-              _value={newPassword}
-              _errorText={newPasswordError}
-              autoCapitalize={'none'}
-              toGetTextFieldValue={setNewPassword}
-              isSecure
-            />
-            <CInput
-              label="Confirmar nueva contraseña"
-              placeHolder="Confirmar nueva contraseña"
-              keyBoardType={'default'}
-              _value={confirmPassword}
-              _errorText={confirmPasswordError}
-              autoCapitalize={'none'}
-              toGetTextFieldValue={setConfirmPassword}
-              isSecure
-            />
-            {!!passwordSaveError && (
-              <CText type={'S12'} color={color.redAlert} style={styles.mt10}>
-                {passwordSaveError}
-              </CText>
-            )}
-            {!!passwordSaveSuccess && (
-              <CText type={'S12'} color={color.primary} style={styles.mt10}>
-                {passwordSaveSuccess}
-              </CText>
-            )}
-            <View style={localStyles.editActions}>
-              <CButton title="Guardar" onPress={onSavePassword} disabled={passwordSaving} />
-              <CButton title="Cancelar" onPress={onClosePasswordModal} />
-            </View>
-          </View>
-        </View>
-      </Modal>
     </CSafeAreaView>
   );
 }

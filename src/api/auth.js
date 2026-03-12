@@ -284,6 +284,14 @@ export const updateProfilePassword = async ({current_password, new_password}) =>
   return authPostWithHeaders(ENDPOINTS.PROFILE_PASSWORD, {current_password, new_password});
 };
 
+export const suspendAccount = async () => {
+  return authPostWithHeaders(ENDPOINTS.PROFILE_SUSPEND, {});
+};
+
+export const deleteAccount = async () => {
+  return authPostWithHeaders(ENDPOINTS.PROFILE_DELETE, {});
+};
+
 export const getMembresias = async () => {
   const url = `${API_BASE_URL}${ENDPOINTS.MEMBRESIAS}`;
   const res = await fetch(url);

@@ -74,6 +74,10 @@ export default function StackNavigation() {
         component={StackRoute.Subscription}
       />
       <Stack.Screen
+        name={StackNav.Configuration}
+        component={StackRoute.Configuration}
+      />
+      <Stack.Screen
         name={StackNav.HelpAndSupport}
         component={StackRoute.HelpAndSupport}
       />

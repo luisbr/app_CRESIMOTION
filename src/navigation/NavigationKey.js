@@ -16,6 +16,7 @@ export const StackNav = {
   MyPayment: 'MyPayment',
   AddNewCard: 'AddNewCard',
   HelpAndSupport: 'HelpAndSupport',
+  Configuration: 'Configuration',
   Languages: 'Languages',
   FormsStack: 'FormsStack',
   Subscription: 'Subscription',

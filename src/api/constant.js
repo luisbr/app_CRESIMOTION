@@ -333,46 +333,21 @@ export const ProfileData = [
     ],
   },
   {
-    header: strings.security,
+    header: strings.general,
     data: [
       {
-        id: 3,
-        darkIcon: <ChangePassDarkIcon />,
-        lightIcon: <ChangePassLightIcon />,
-        title: strings.changePassword,
+        id: 100,
+        darkIcon: <MoreIcon width={moderateScale(24)} height={moderateScale(24)} />,
+        lightIcon: <MoreIcon width={moderateScale(24)} height={moderateScale(24)} />,
+        title: 'Configuraciones',
+        route: StackNav.Configuration,
       },
-      
       {
         id: 5,
         darkIcon: <DarkModeDarkIcon />,
         lightIcon: <DarkModeLightIcon />,
         title: strings.darkMode,
         switch: true,
-      },
-    ],
-  },
-  {
-    header: strings.general,
-    data: [
-      {
-        id: 6,
-        darkIcon: <NotificationDarkIcon />,
-        lightIcon: <NotificationLightIcon />,
-        title: strings.notification,
-      },
-      {
-        id: 7,
-        darkIcon: <LanguageDarkIcon />,
-        lightIcon: <LanguageLightIcon />,
-        title: strings.languages,
-        route: StackNav.Languages,
-      },
-      {
-        id: 8,
-        darkIcon: <HelpSupportDarkIcon />,
-        lightIcon: <HelpSupportLightIcon />,
-        title: strings.helpAndSupport,
-        route: StackNav.HelpAndSupport,
       },
     ],
   },

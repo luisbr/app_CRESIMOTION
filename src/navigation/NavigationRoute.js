@@ -26,6 +26,7 @@ import AddNewCard from '../container/profile/AddNewCard';
 import HelpAndSupport from '../container/profile/HelpAndSupport';
 import Languages from '../container/profile/Languages';
 import SubscriptionScreen from '../container/profile/SubscriptionScreen';
+import ConfigurationScreen from '../container/profile/ConfigurationScreen';
 // forms flow
 import ReasonsListScreen from '../screens/forms/ReasonsListScreen';
 import IntensityWizardScreen from '../screens/forms/IntensityWizardScreen';
@@ -74,6 +75,7 @@ export const StackRoute = {
   AddNewCard,
   HelpAndSupport,
   Languages,
+  Configuration: ConfigurationScreen,
   Subscription: SubscriptionScreen,
   // forms
   ReasonsListScreen,
