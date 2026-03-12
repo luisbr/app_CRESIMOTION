@@ -49,6 +49,7 @@ import AgendaSetupScreen from '../screens/therapy/AgendaSetupScreen';
 import TasksScreen from '../screens/agenda/TasksScreen';
 import TaskDetailScreen from '../screens/agenda/TaskDetailScreen';
 import WelcomeEmotionScreen from '../screens/home/WelcomeEmotionScreen';
+import WellnessNetworkScreen from '../screens/home/WellnessNetworkScreen';
 
 // tab screens
 import HomeTab from '../container/home/HomeTab';
@@ -99,6 +100,7 @@ export const StackRoute = {
   TasksScreen,
   TaskDetailScreen,
   WelcomeEmotion: WelcomeEmotionScreen,
+  WellnessNetwork: WellnessNetworkScreen,
 };
 
 export const AuthRoute = {

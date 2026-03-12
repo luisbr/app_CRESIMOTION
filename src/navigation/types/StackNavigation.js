@@ -89,6 +89,10 @@ export default function StackNavigation() {
         name={StackNav.WelcomeEmotion}
         component={StackRoute.WelcomeEmotion}
       />
+      <Stack.Screen
+        name={StackNav.WellnessNetwork}
+        component={StackRoute.WellnessNetwork}
+      />
     </Stack.Navigator>
   );
 }

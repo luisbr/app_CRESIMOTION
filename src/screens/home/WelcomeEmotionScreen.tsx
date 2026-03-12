@@ -148,6 +148,12 @@ export default function WelcomeEmotionScreen() {
       <View style={localStyles.rightHeaderIcons}>
         <TouchableOpacity 
           style={localStyles.iconButtonRight}
+          onPress={() => isLoggedIn && navigation.navigate(StackNav.WellnessNetwork)}
+        >
+          <Ionicons name="call-outline" size={28} color={colors.primary} />
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.Configuration)}
         >
           <Ionicons name="settings-outline" size={28} color={colors.primary} />

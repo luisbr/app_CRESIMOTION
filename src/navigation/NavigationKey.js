@@ -21,6 +21,7 @@ export const StackNav = {
   FormsStack: 'FormsStack',
   Subscription: 'Subscription',
   WelcomeEmotion: 'WelcomeEmotion',
+  WellnessNetwork: 'WellnessNetwork',
 };
 
 export const AuthNav = {
