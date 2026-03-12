@@ -126,15 +126,17 @@ export default function WelcomeEmotionScreen() {
 
   const renderHeader = () => (
     <View style={localStyles.headerContainer}>
+      {/* Left side fixed width */}
       <View style={localStyles.leftHeader}>
         <TouchableOpacity
           style={localStyles.iconButton}
           onPress={() => isLoggedIn && handleResponder()}
         >
-          <Ionicons name="home" size={28} color={colors.textColor} />
+          <Ionicons name="home" size={26} color={colors.textColor} />
         </TouchableOpacity>
       </View>
 
+      {/* Center side auto flex */}
       <View style={localStyles.centerHeader}>
         <TouchableOpacity onPress={() => isLoggedIn && navigation.navigate(StackNav.Subscription)}>
           <Image
@@ -145,38 +147,43 @@ export default function WelcomeEmotionScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Right side fixed width */}
       <View style={localStyles.rightHeaderIcons}>
         <TouchableOpacity 
           style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.WellnessNetwork)}
         >
-          <Ionicons name="call-outline" size={28} color={colors.primary} />
+          <Ionicons name="call-outline" size={26} color={colors.primary} />
         </TouchableOpacity>
+        
         <TouchableOpacity 
           style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.Configuration)}
         >
-          <Ionicons name="settings-outline" size={28} color={colors.primary} />
+          <Ionicons name="settings-outline" size={26} color={colors.primary} />
         </TouchableOpacity>
+        
         <TouchableOpacity 
           style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.Notification)}
         >
-          <Ionicons name="notifications-outline" size={28} color={colors.primary} />
+          <Ionicons name="notifications-outline" size={26} color={colors.primary} />
           {hasNewNotifs && (
-            <View style={localStyles.notifBadge} />
+             <View style={localStyles.notifBadge} />
           )}
         </TouchableOpacity>
+        
         <TouchableOpacity 
           style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.TabNavigation, { screen: TabNav.ProfileTab })}
         >
-          <Ionicons name="person-circle-outline" size={28} color={colors.primary} />
+          <Ionicons name="person-circle-outline" size={26} color={colors.primary} />
         </TouchableOpacity>
+        
         {!isLoggedIn && (
           <TouchableOpacity onPress={handleLoginLogout} style={localStyles.loginBtn}>
             <CText type="S12" color={colors.primary}>
-              Iniciar{'\n'}sesión
+               Iniciar{'\n'}sesión
             </CText>
           </TouchableOpacity>
         )}
@@ -317,27 +324,30 @@ export default function WelcomeEmotionScreen() {
 
 const localStyles = StyleSheet.create({
   headerContainer: {
-    ...styles.flexRow,
-    ...styles.alignCenter,
-    ...styles.ph20,
-    ...styles.pv10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: moderateScale(15),
+    paddingVertical: moderateScale(10),
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E7EB',
+    justifyContent: 'space-between',
   },
   leftHeader: {
     flex: 1,
     alignItems: 'flex-start',
   },
   centerHeader: {
-    flex: 1,
+    // Allows logo to size naturally without shrinking too much
     alignItems: 'center',
+    justifyContent: 'center',
   },
   rightHeaderIcons: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    gap: moderateScale(5), // Keep icons naturally separated
   },
   iconButton: {
     padding: moderateScale(5),
@@ -345,7 +355,6 @@ const localStyles = StyleSheet.create({
   },
   iconButtonRight: {
     padding: moderateScale(5),
-    marginLeft: moderateScale(8),
   },
   notifBadge: {
     position: 'absolute',
