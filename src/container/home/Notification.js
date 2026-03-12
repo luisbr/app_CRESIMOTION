@@ -140,3 +140,18 @@ const localStyles = StyleSheet.create({
     paddingHorizontal: moderateScale(20),
     paddingBottom: moderateScale(20),
   },
+  itemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: moderateScale(8),
+    paddingHorizontal: moderateScale(10),
+  },
+  actionsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+  },
+  actionBtn: {
+      marginLeft: moderateScale(10),
+  },
+});
