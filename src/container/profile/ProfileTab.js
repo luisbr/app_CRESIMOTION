@@ -29,6 +29,7 @@ import LogOutModel from '../../components/model/LogOutModel';
 import {getSession, getProfile, updateProfile, updateProfilePassword} from '../../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AUTH_ALIAS, AUTH_HASH, AUTH_ID, AUTH_NAME, AUTH_TOKEN, AUTH_UUID, ACCESS_TOKEN, DEVICE_UUID} from '../../common/constants';
+import * as ImagePicker from 'expo-image-picker';
 import { clearSession } from '../../session/storage';
 import CInput from '../../components/common/CInput';
 import CButton from '../../components/common/CButton';
@@ -67,6 +68,7 @@ export default function ProfileTab({navigation}) {
   const [editBirthMonth, setEditBirthMonth] = useState('');
   const [editBirthYear, setEditBirthYear] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [profileImage, setProfileImage] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
@@ -88,6 +90,13 @@ export default function ProfileTab({navigation}) {
       const s = await getSession();
       setName(s?.nombre || '');
       setAlias(s?.alias || '');
+
+      try {
+        const storedImage = await AsyncStorage.getItem(`profile_image_${s?.id}`);
+        if (storedImage) setProfileImage(storedImage);
+      } catch (e) {
+        console.log('Error loading local profile image', e);
+      }
 
       try {
         const resp = await getProfile();
@@ -291,6 +300,28 @@ export default function ProfileTab({navigation}) {
     setEditDob(`${y}-${mm}-${dd}`);
   };
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setProfileImage(uri);
+      try {
+        const s = await getSession();
+        if (s?.id) {
+          await AsyncStorage.setItem(`profile_image_${s.id}`, uri);
+        }
+      } catch (e) {
+        console.log('Error saving image locally', e);
+      }
+    }
+  };
+
   const onSaveProfile = async () => {
     setSaveError('');
     setSaveSuccess('');
@@ -314,6 +345,8 @@ export default function ProfileTab({navigation}) {
         fecha_nacimiento: (editDob || '').trim(),
         alias: (editAlias || '').trim(),
         telefono: phoneWithCode,
+        genero: (gender || '').trim(),
+        idioma: (language || '').trim(),
       };
       const resp = await updateProfile(payload);
       if (resp && resp.success === true) {
@@ -322,6 +355,8 @@ export default function ProfileTab({navigation}) {
         setAlias(payload.alias);
         setEmail(payload.correo);
         setPhone(payload.telefono);
+        setGender(payload.genero);
+        setLanguage(payload.idioma);
         setRawDob(payload.fecha_nacimiento);
         const formatDob = (dateString) => {
           if (!dateString) return '';
@@ -427,6 +462,13 @@ export default function ProfileTab({navigation}) {
                 {alias ? `@${alias}` : ''}
               </CText>
             </View>
+            <TouchableOpacity onPress={pickImage} style={[localStyles.editContainer, {borderColor: color.dark ? color.dividerColor : color.grayScale2}]}>
+              {profileImage ? (
+                <Image source={{uri: profileImage}} style={localStyles.profileImage} />
+              ) : (
+                <Feather name="camera" color={color.textColor} size={moderateScale(24)} />
+              )}
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={onPressEditIcon}
               style={[
@@ -435,6 +477,7 @@ export default function ProfileTab({navigation}) {
                   borderColor: color.dark
                     ? color.dividerColor
                     : color.grayScale2,
+                  marginLeft: moderateScale(10)
                 },
               ]}>
               <Feather
@@ -602,15 +645,37 @@ export default function ProfileTab({navigation}) {
                 />
               </View>
             </View>
-            <CInput
-              label="Correo"
-              placeHolder="Correo"
-              keyBoardType={'default'}
-              _value={editEmail}
-              autoCapitalize={'none'}
-              toGetTextFieldValue={setEditEmail}
-            />
-            {!!saveError && (
+              <CInput
+                label="Correo"
+                placeHolder="Correo"
+                keyBoardType={'default'}
+                _value={editEmail}
+                autoCapitalize={'none'}
+                toGetTextFieldValue={setEditEmail}
+              />
+              <CDropdown
+                label="Género"
+                placeholder="Seleccionar"
+                value={gender}
+                data={[
+                  {label: 'Masculino', value: 'Masculino'},
+                  {label: 'Femenino', value: 'Femenino'},
+                  {label: 'No binario', value: 'No binario'},
+                  {label: 'Prefiero no decirlo', value: 'Prefiero no decirlo'}
+                ]}
+                onChange={(item) => setGender(item?.value || '')}
+              />
+              <CDropdown
+                label="Idioma preferido"
+                placeholder="Seleccionar"
+                value={language}
+                data={[
+                  {label: 'Español', value: 'Español'},
+                  {label: 'Inglés', value: 'Inglés'}
+                ]}
+                onChange={(item) => setLanguage(item?.value || '')}
+              />
+              {!!saveError && (
               <CText type={'S12'} color={color.redAlert} style={styles.mt10}>
                 {saveError}
               </CText>

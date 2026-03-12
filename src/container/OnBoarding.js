@@ -33,7 +33,7 @@ export default function OnBoarding() {
       await setOnBoarding(true);
       navigation.reset({
         index: 0,
-        routes: [{name: StackNav.AuthNavigation}],
+        routes: [{name: StackNav.WelcomeEmotion}],
       });
     } else {
       slideRef.current._listRef._scrollRef.scrollTo({

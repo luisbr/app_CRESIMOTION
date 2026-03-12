@@ -36,11 +36,11 @@ export default function Splash({ navigation }) {
         const navigateNext = () => {
           try {
             if (!!accessTokenValue) {
-              console.log('Splash navigating to TabNavigation');
-              navigation.reset({ index: 0, routes: [{ name: StackNav.TabNavigation }] });
+              console.log('Splash navigating to WelcomeEmotion');
+              navigation.reset({ index: 0, routes: [{ name: StackNav.WelcomeEmotion }] });
             } else if (!!onBoardingValue) {
-              console.log('Splash navigating to AuthNavigation');
-              navigation.reset({ index: 0, routes: [{ name: StackNav.AuthNavigation }] });
+              console.log('Splash navigating to WelcomeEmotion');
+              navigation.reset({ index: 0, routes: [{ name: StackNav.WelcomeEmotion }] });
             } else {
               console.log('Splash navigating to OnBoarding');
               navigation.reset({ index: 0, routes: [{ name: StackNav.OnBoarding }] });

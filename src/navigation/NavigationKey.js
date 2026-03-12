@@ -19,6 +19,7 @@ export const StackNav = {
   Languages: 'Languages',
   FormsStack: 'FormsStack',
   Subscription: 'Subscription',
+  WelcomeEmotion: 'WelcomeEmotion',
 };
 
 export const AuthNav = {

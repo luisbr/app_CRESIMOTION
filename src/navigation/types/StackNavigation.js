@@ -81,6 +81,10 @@ export default function StackNavigation() {
       <Stack.Screen name={"ReasonsList"} component={ReasonsListScreen} />
       <Stack.Screen name={"IntensityWizard"} component={IntensityWizardScreen} />
       <Stack.Screen name={"Summary"} component={SummaryScreen} />
+      <Stack.Screen
+        name={StackNav.WelcomeEmotion}
+        component={StackRoute.WelcomeEmotion}
+      />
     </Stack.Navigator>
   );
 }
