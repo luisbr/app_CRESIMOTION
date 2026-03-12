@@ -18,6 +18,7 @@ import {styles} from '../../theme';
 import {getHeight, getWidth, moderateScale} from '../../common/constants';
 import {getSession} from '../../api/auth';
 import {StackNav, TabNav} from '../../navigation/NavigationKey';
+import {getStoredNotifications} from '../../utils/notificationStorage';
 
 const EMOTIONS = [
   {id: 1, emoji: '😄', label: 'Muy feliz'},
@@ -43,6 +44,7 @@ export default function WelcomeEmotionScreen() {
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedEmotion, setSelectedEmotion] = useState<number | null>(null);
+  const [hasNewNotifs, setHasNewNotifs] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -54,6 +56,10 @@ export default function WelcomeEmotionScreen() {
             if (session?.token) {
               setIsLoggedIn(true);
               setUserName(session.nombre || session.alias || 'Usuario');
+              
+              const notifs = await getStoredNotifications();
+              const hasNew = notifs.some(n => n.isNew && !n.isDeleted && !n.isArchived);
+              setHasNewNotifs(hasNew);
             } else {
               setIsLoggedIn(false);
               setUserName(null);
@@ -138,8 +144,14 @@ export default function WelcomeEmotionScreen() {
         <TouchableOpacity style={localStyles.iconButton}>
           <Ionicons name="settings-outline" size={24} color={colors.primary} />
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.iconButton}>
+        <TouchableOpacity 
+          style={localStyles.iconButton}
+          onPress={() => isLoggedIn && navigation.navigate(StackNav.Notification)}
+        >
           <Ionicons name="notifications-outline" size={24} color={colors.primary} />
+          {hasNewNotifs && (
+            <View style={{position: 'absolute', right: 4, top: 4, width: 10, height: 10, borderRadius: 5, backgroundColor: 'red'}} />
+          )}
         </TouchableOpacity>
         <TouchableOpacity 
           style={localStyles.iconButton}

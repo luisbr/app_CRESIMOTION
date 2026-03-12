@@ -4,6 +4,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { addNotification } from '../utils/notificationStorage';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -73,8 +74,18 @@ export const usePushNotifications = (): PushNotificationState => {
         }
     });
 
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+    notificationListener.current = Notifications.addNotificationReceivedListener(async (notification) => {
       setNotification(notification);
+      // Save locally if it has title/body
+      const content = notification.request.content;
+      if (content && content.title && content.body) {
+        await addNotification({
+           titulo: content.title,
+           mensaje: content.body,
+           tipo: content.data?.tipo || 'promocion',
+           data: content.data,
+        });
+      }
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {

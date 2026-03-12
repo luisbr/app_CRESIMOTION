@@ -4,11 +4,13 @@ import {useSelector} from 'react-redux';
 import AppNavigator from './navigation';
 import {styles} from './theme';
 import {usePushNotifications} from './hooks/usePushNotifications';
+import {useAgendaNotifications} from './hooks/useAgendaNotifications';
 import {savePushToken, getSession} from './api/auth';
 
 const App = () => {
   const colors = useSelector(state => state.theme.theme);
   const { expoPushToken } = usePushNotifications();
+  useAgendaNotifications(); // sync local notifications from agenda
 
   React.useEffect(() => {
     const sendToken = async () => {
