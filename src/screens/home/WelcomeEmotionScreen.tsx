@@ -133,11 +133,13 @@ export default function WelcomeEmotionScreen() {
         <Ionicons name="home" size={24} color={colors.textColor} />
       </TouchableOpacity>
 
-      <Image
-        source={require('../../../assets/logo.png')}
-        style={localStyles.logo}
-        resizeMode="contain"
-      />
+      <TouchableOpacity onPress={() => isLoggedIn && navigation.navigate(StackNav.Subscription)}>
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={localStyles.logo}
+          resizeMode="contain"
+        />
+      </TouchableOpacity>
 
       <View style={localStyles.rightHeaderIcons}>
         {/* Some placeholder icons from the design */}
@@ -159,11 +161,13 @@ export default function WelcomeEmotionScreen() {
         >
           <Ionicons name="person-circle-outline" size={28} color={colors.primary} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleLoginLogout} style={localStyles.loginBtn}>
-          <CText type="S12" color={colors.primary}>
-            {isLoggedIn ? 'Cerrar\nsesión' : 'Iniciar\nsesión'}
-          </CText>
-        </TouchableOpacity>
+        {!isLoggedIn && (
+          <TouchableOpacity onPress={handleLoginLogout} style={localStyles.loginBtn}>
+            <CText type="S12" color={colors.primary}>
+              Iniciar{'\n'}sesión
+            </CText>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

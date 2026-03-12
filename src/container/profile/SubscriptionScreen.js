@@ -13,7 +13,10 @@ import {
   getSuscripcionActual,
   createSuscripcionIntent,
   confirmarSuscripcion,
-  cancelarSuscripcion
+  cancelarSuscripcion,
+  getPaymentMethod,
+  getPaymentHistory,
+  createSetupIntent
 } from '../../api/auth';
 
 export default function SubscriptionScreen({navigation}) {
@@ -21,6 +24,8 @@ export default function SubscriptionScreen({navigation}) {
   const [packages, setPackages] = useState([]);
   const [currentSub, setCurrentSub] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState(null);
+  const [paymentHistory, setPaymentHistory] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -43,11 +48,12 @@ export default function SubscriptionScreen({navigation}) {
       const parsedUrl = Linking.parse(url);
       const { queryParams } = parsedUrl;
       const membresia_id = queryParams?.membresia_id;
+      const session_id = queryParams?.session_id;
       
       if (membresia_id) {
         try {
           setLoading(true);
-          const confirm = await confirmarSuscripcion(membresia_id);
+          const confirm = await confirmarSuscripcion(membresia_id, session_id);
           if (confirm.success) {
             Alert.alert('¡Éxito!', 'Pago realizado y suscripción actualizada correctamente.');
             loadData();
@@ -62,6 +68,11 @@ export default function SubscriptionScreen({navigation}) {
       }
     } else if (url.includes('stripe/cancel')) {
       Alert.alert('Cancelado', 'El proceso de pago fue cancelado.');
+    } else if (url.includes('stripe/setup_success')) {
+      Alert.alert('¡Éxito!', 'Método de pago actualizado correctamente.');
+      loadData();
+    } else if (url.includes('stripe/setup_cancel')) {
+      Alert.alert('Cancelado', 'El cambio de método de pago fue cancelado.');
     }
   };
 
@@ -96,9 +107,49 @@ export default function SubscriptionScreen({navigation}) {
           }
         }
       }
+
+      const resPM = await getPaymentMethod();
+      if (resPM && resPM.success && resPM.metodo_pago) {
+        setPaymentMethod(resPM.metodo_pago);
+      } else {
+        setPaymentMethod(null);
+      }
+
+      const resHistory = await getPaymentHistory();
+      if (resHistory && resHistory.success && resHistory.historial) {
+        setPaymentHistory(resHistory.historial);
+      } else {
+        setPaymentHistory([]);
+      }
+
     } catch (e) {
       console.log(e);
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePaymentMethod = async () => {
+    try {
+      setLoading(true);
+      const successUrl = Linking.createURL('stripe/setup_success');
+      const cancelUrl = Linking.createURL('stripe/setup_cancel');
+      
+      const intent = await createSetupIntent(successUrl, cancelUrl);
+      if (intent && intent.success && intent.checkout_url) {
+        Linking.openURL(intent.checkout_url).catch(err => {
+          Alert.alert('Error', 'No se pudo abrir el navegador para actualizar el método de pago.');
+          setLoading(false);
+        });
+        // We do not unset loading here because they leave the app to browser, 
+        // it will be reset on focus or handleDeepLink if they return
+        setTimeout(() => setLoading(false), 2000); 
+      } else {
+        Alert.alert('Error', intent?.message || 'No se pudo iniciar la configuración.');
+        setLoading(false);
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Ocurrió un problema al procesar.');
       setLoading(false);
     }
   };
@@ -298,12 +349,63 @@ export default function SubscriptionScreen({navigation}) {
               return 0;
             }).map(renderPackage)}
 
+            {/* Promociones / Payment Info */}
             {currentSub && (
-              <TouchableOpacity style={localStyles.cancelBtn} onPress={handleCancel} disabled={loading}>
-                <CText type={"B16"} color={colors.redAlert} align="center">
-                  Cancelar Suscripción
-                </CText>
-              </TouchableOpacity>
+              <View style={localStyles.infoSection}>
+                <View style={localStyles.sectionBlock}>
+                  <CText type={"B18"} color={colors.textColor} style={styles.mb10}>
+                    Tus promociones <CText type={"M14"} color={colors.grayScale3}>(paquetes promocionales y ofertas)</CText>
+                  </CText>
+                  <CText type={"M14"} color={colors.grayScale3}>
+                    No tienes promociones activas actualmente. Mantente pendiente de las notificaciones.
+                  </CText>
+                </View>
+
+                <View style={localStyles.sectionBlock}>
+                  <CText type={"B18"} color={colors.textColor} style={styles.mb10}>Método de pago</CText>
+                  {paymentMethod ? (
+                    <View style={localStyles.paymentDetails}>
+                      <CText type={"B14"} color={colors.textColor}>
+                        Tarjeta registrada: <CText type={"M14"} color={colors.grayScale3}>**** {paymentMethod.last4}</CText>
+                      </CText>
+                      <CText type={"B14"} color={colors.textColor}>
+                        Vencimiento: <CText type={"M14"} color={colors.grayScale3}>{String(paymentMethod.exp_month).padStart(2, '0')}/{String(paymentMethod.exp_year).slice(-2)}</CText>
+                      </CText>
+                      <TouchableOpacity onPress={handleChangePaymentMethod} style={styles.mt10}>
+                        <CText type={"M14"} color={colors.primary}>✏️ Cambiar método de pago</CText>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <CText type={"M14"} color={colors.grayScale3}>No hay tarjeta registrada.</CText>
+                  )}
+                </View>
+
+                <View style={localStyles.sectionBlock}>
+                  <CText type={"B18"} color={colors.textColor} style={styles.mb10}>Historial de pagos</CText>
+                  {paymentHistory.length > 0 ? (
+                    paymentHistory.map((item, index) => (
+                      <View key={index} style={localStyles.historyItem}>
+                        <CText type={"M14"} color={colors.textColor}>
+                          • {item.fecha} — ${parseFloat(item.monto).toFixed(2)} {item.moneda} — {item.estado}
+                        </CText>
+                        {item.receipt_url && (
+                          <TouchableOpacity onPress={() => Linking.openURL(item.receipt_url)} style={styles.mt5}>
+                            <CText type={"M14"} color={colors.primary}>🔍 Ver más detalles</CText>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    ))
+                  ) : (
+                    <CText type={"M14"} color={colors.grayScale3}>No hay historial de pagos disponible.</CText>
+                  )}
+                </View>
+
+                <TouchableOpacity style={localStyles.cancelBtn} onPress={handleCancel} disabled={loading}>
+                  <CText type={"B16"} color={colors.redAlert} align="center">
+                    Cancelar Suscripción
+                  </CText>
+                </TouchableOpacity>
+              </View>
             )}
           </>
         )}
@@ -379,8 +481,26 @@ const localStyles = StyleSheet.create({
     borderRadius: moderateScale(25),
     ...styles.center,
   },
+  infoSection: {
+    ...styles.mt10,
+    ...styles.p10,
+    ...styles.mb20,
+  },
+  sectionBlock: {
+    ...styles.mb20,
+    padding: moderateScale(15),
+    backgroundColor: 'rgba(0,0,0,0.02)',
+    borderRadius: moderateScale(15),
+  },
+  paymentDetails: {
+    paddingLeft: moderateScale(10),
+  },
+  historyItem: {
+    ...styles.mb15,
+    paddingLeft: moderateScale(10),
+  },
   cancelBtn: {
-    ...styles.mt20,
+    ...styles.mt10,
     ...styles.p15,
     ...styles.mb30,
     borderRadius: moderateScale(10),
