@@ -126,39 +126,43 @@ export default function WelcomeEmotionScreen() {
 
   const renderHeader = () => (
     <View style={localStyles.headerContainer}>
-      <TouchableOpacity
-        style={localStyles.iconButton}
-        onPress={() => isLoggedIn && handleResponder()} // Just an example if home pressed
-      >
-        <Ionicons name="home" size={24} color={colors.textColor} />
-      </TouchableOpacity>
+      <View style={localStyles.leftHeader}>
+        <TouchableOpacity
+          style={localStyles.iconButton}
+          onPress={() => isLoggedIn && handleResponder()}
+        >
+          <Ionicons name="home" size={28} color={colors.textColor} />
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity onPress={() => isLoggedIn && navigation.navigate(StackNav.Subscription)}>
-        <Image
-          source={require('../../../assets/logo.png')}
-          style={localStyles.logo}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
+      <View style={localStyles.centerHeader}>
+        <TouchableOpacity onPress={() => isLoggedIn && navigation.navigate(StackNav.Subscription)}>
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={localStyles.logo}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View>
 
       <View style={localStyles.rightHeaderIcons}>
         <TouchableOpacity 
-          style={localStyles.iconButton}
+          style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.Configuration)}
         >
-          <Ionicons name="settings-outline" size={24} color={colors.primary} />
+          <Ionicons name="settings-outline" size={28} color={colors.primary} />
         </TouchableOpacity>
         <TouchableOpacity 
-          style={localStyles.iconButton}
+          style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.Notification)}
         >
-          <Ionicons name="notifications-outline" size={24} color={colors.primary} />
+          <Ionicons name="notifications-outline" size={28} color={colors.primary} />
           {hasNewNotifs && (
-            <View style={{position: 'absolute', right: 4, top: 4, width: 10, height: 10, borderRadius: 5, backgroundColor: 'red'}} />
+            <View style={localStyles.notifBadge} />
           )}
         </TouchableOpacity>
         <TouchableOpacity 
-          style={localStyles.iconButton}
+          style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.TabNavigation, { screen: TabNav.ProfileTab })}
         >
           <Ionicons name="person-circle-outline" size={28} color={colors.primary} />
@@ -308,7 +312,6 @@ export default function WelcomeEmotionScreen() {
 const localStyles = StyleSheet.create({
   headerContainer: {
     ...styles.flexRow,
-    ...styles.justifyBetween,
     ...styles.alignCenter,
     ...styles.ph20,
     ...styles.pv10,
@@ -316,16 +319,40 @@ const localStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E2E7EB',
   },
+  leftHeader: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  centerHeader: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  rightHeaderIcons: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
   iconButton: {
     padding: moderateScale(5),
+    marginLeft: moderateScale(-5),
+  },
+  iconButtonRight: {
+    padding: moderateScale(5),
+    marginLeft: moderateScale(8),
+  },
+  notifBadge: {
+    position: 'absolute',
+    right: 2,
+    top: 2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#FF3B30',
   },
   logo: {
     width: getWidth(100),
     height: getHeight(40),
-  },
-  rightHeaderIcons: {
-    ...styles.flexRow,
-    ...styles.alignCenter,
   },
   loginBtn: {
     marginLeft: moderateScale(10),
