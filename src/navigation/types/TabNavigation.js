@@ -60,6 +60,11 @@ function DrawerMenu() {
     });
   };
 
+  const navigateRootScreen = (screenName) => {
+    close();
+    navigation.navigate(screenName);
+  };
+
   const onPressLogout = async () => {
     close();
     try {
@@ -86,6 +91,12 @@ function DrawerMenu() {
       <TouchableOpacity style={localStyles.drawerBackdrop} onPress={close} />
       <View style={[localStyles.drawerPanel, {backgroundColor: '#0aa693'}]}>
         <View style={localStyles.drawerTopSpacer} />
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.WelcomeEmotion)}>
+          <Ionicons name={'happy-outline'} size={20} color={colors.white} />
+          <View style={styles.ml10}>
+            <CText type={'S16'} color={colors.white}>¿Cómo te sientes hoy?</CText>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('DiagnosticoHome')}>
           <Ionicons name={'pulse-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
