@@ -303,8 +303,8 @@ export default function WelcomeEmotionScreen() {
           style={localStyles.bottomIcon}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.TestsGabo)}
         >
-          <Ionicons name="clipboard-outline" size={32} color={colors.primary} />
-          <CText type="S12" align="center" style={[styles.mt5, {color: colors.primary}]}>Autoevaluación</CText>
+          <Ionicons name="clipboard-outline" size={32} color={colors.textColor} />
+          <CText type="S12" align="center" color={colors.textColor} style={[styles.mt5, null]}>Autoevaluación</CText>
         </TouchableOpacity>
       </View>
     );
