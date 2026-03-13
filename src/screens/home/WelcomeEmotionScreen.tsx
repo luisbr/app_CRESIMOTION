@@ -19,6 +19,7 @@ import {getHeight, getWidth, moderateScale} from '../../common/constants';
 import {getSession} from '../../api/auth';
 import {StackNav, TabNav} from '../../navigation/NavigationKey';
 import {getStoredNotifications} from '../../utils/notificationStorage';
+import {useDrawer} from '../../navigation/DrawerContext';
 
 const EMOTIONS = [
   {id: 1, emoji: '😄', label: 'Muy feliz'},
@@ -40,6 +41,7 @@ export default function WelcomeEmotionScreen() {
   const colors = useSelector((state: any) => state.theme.theme);
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
+  const drawer = useDrawer();
   
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -130,9 +132,9 @@ export default function WelcomeEmotionScreen() {
       <View style={localStyles.leftHeader}>
         <TouchableOpacity
           style={localStyles.iconButton}
-          onPress={() => isLoggedIn && handleResponder()}
+          onPress={() => drawer.open()}
         >
-          <Ionicons name="home" size={26} color={colors.textColor} />
+          <Ionicons name="menu-outline" size={26} color={colors.textColor} />
         </TouchableOpacity>
       </View>
 
@@ -182,7 +184,7 @@ export default function WelcomeEmotionScreen() {
         
         {!isLoggedIn && (
           <TouchableOpacity onPress={handleLoginLogout} style={localStyles.loginBtn}>
-            <CText type="S12" color={colors.primary}>
+            <CText type="S12" color={colors.primary} align="center" style={null}>
                Iniciar{'\n'}sesión
             </CText>
           </TouchableOpacity>
@@ -230,7 +232,7 @@ export default function WelcomeEmotionScreen() {
               ]}
               onPress={() => setSelectedEmotion(emo.id)}
             >
-              <CText style={{fontSize: moderateScale(32)}}>{emo.emoji}</CText>
+              <CText type="M14" color={colors.textColor} align="center" style={{fontSize: moderateScale(32)}}>{emo.emoji}</CText>
             </TouchableOpacity>
           );
         })}
@@ -239,6 +241,11 @@ export default function WelcomeEmotionScreen() {
       {selectedEmotion !== null && (
         <CButton
           title="Hacer test"
+          type="S16"
+          color={colors.white}
+          bgColor={null}
+          borderColor={null}
+          style={null}
           disabled={selectedEmotion === null}
           onPress={handleResponder}
           containerStyle={[localStyles.responderBtn, {backgroundColor: '#7CD992', borderColor: '#7CD992'}]}
@@ -248,7 +255,7 @@ export default function WelcomeEmotionScreen() {
 
       {selectedEmotion !== null && (
         <View style={[localStyles.phraseBox, {backgroundColor: '#F3D2ED'}]}>
-          <CText type="M14" color={colors.textColor} style={localStyles.phraseText}>
+          <CText type="M14" color={colors.textColor} align="center" style={localStyles.phraseText}>
             {PHRASES[selectedEmotion]}
           </CText>
         </View>
@@ -287,17 +294,17 @@ export default function WelcomeEmotionScreen() {
 
     return (
       <View style={localStyles.bottomLinksRow}>
-        <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('TherapyPendingSessions')}>
-          <Ionicons name="chatbubbles-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" style={styles.mt5}>Sesiones</CText>
+        <TouchableOpacity style={localStyles.bottomIcon} onPress={() => isLoggedIn && handleResponder()}>
+          <Ionicons name="home-outline" size={32} color={colors.textColor} />
+          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Home</CText>
         </TouchableOpacity>
         <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('Tasks')}>
           <Ionicons name="calendar-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" style={styles.mt5}>Tareas</CText>
+          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Tareas</CText>
         </TouchableOpacity>
         <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('DiagnosticoHome')}>
           <Ionicons name="document-text-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" style={styles.mt5}>Test</CText>
+          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Test</CText>
         </TouchableOpacity>
         <TouchableOpacity
           style={localStyles.bottomIcon}
@@ -306,16 +313,12 @@ export default function WelcomeEmotionScreen() {
           <Ionicons name="clipboard-outline" size={32} color={colors.primary} />
           <CText type="S12" align="center" style={[styles.mt5, {color: colors.primary}]}>Autoevaluación</CText>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.bottomIcon}>
-          <Ionicons name="earth-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" style={styles.mt5}>Comunidad</CText>
-        </TouchableOpacity>
       </View>
     );
   };
 
   return (
-    <CSafeAreaView style={{backgroundColor: '#F3FAFA'}}>
+    <CSafeAreaView style={{backgroundColor: '#F3FAFA'}} color={null}>
       {renderHeader()}
       <ScrollView
         contentContainerStyle={[localStyles.scrollContent, {paddingBottom: insets.bottom + 20}]}
@@ -427,7 +430,7 @@ const localStyles = StyleSheet.create({
   },
   phraseBox: {
     ...styles.flexRow,
-    ...styles.alignCenter,
+    alignItems: 'center',
     padding: moderateScale(15),
     borderRadius: moderateScale(10),
     marginTop: moderateScale(10),

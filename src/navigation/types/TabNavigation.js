@@ -31,123 +31,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {DEVICE_UUID} from '../../common/constants';
 
 const Tab = createBottomTabNavigator();
-function DrawerMenu() {
-  const colors = useSelector(state => state.theme.theme);
-  const navigation = useNavigation();
-  const {isOpen, close} = useDrawer();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const refreshSession = useCallback(async () => {
-    try {
-      const session = await getSession();
-      setIsLoggedIn(!!session?.token);
-    } catch (e) {
-      setIsLoggedIn(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      refreshSession();
-    }
-  }, [isOpen, refreshSession]);
-
-  const navigateHomeScreen = (screenName) => {
-    close();
-    navigation.navigate(StackNav.TabNavigation, {
-      screen: TabNav.HomeTab,
-      params: {screen: screenName},
-    });
-  };
-
-  const navigateRootScreen = (screenName) => {
-    close();
-    navigation.navigate(screenName);
-  };
-
-  const onPressLogout = async () => {
-    close();
-    try {
-      await clearSession();
-      await AsyncStorage.removeItem(DEVICE_UUID);
-    } catch (e) {}
-    navigation.reset({
-      index: 0,
-      routes: [{name: StackNav.AuthNavigation}],
-    });
-  };
-
-  const onPressLogin = () => {
-    close();
-    navigation.reset({
-      index: 0,
-      routes: [{name: StackNav.AuthNavigation}],
-    });
-  };
-
-  if (!isOpen) return null;
-  return (
-    <View style={localStyles.drawerOverlay}>
-      <TouchableOpacity style={localStyles.drawerBackdrop} onPress={close} />
-      <View style={[localStyles.drawerPanel, {backgroundColor: '#0aa693'}]}>
-        <View style={localStyles.drawerTopSpacer} />
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.WelcomeEmotion)}>
-          <Ionicons name={'happy-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>¿Cómo te sientes hoy?</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('DiagnosticoHome')}>
-          <Ionicons name={'pulse-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Diagnostico</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('DiagnosticoHistory')}>
-          <Ionicons name={'list-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Mis autoevaluaciones</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('Tasks')}>
-          <Ionicons name={'calendar-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Tareas</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('TherapyPendingSessions')}>
-          <Ionicons name={'heart-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Sesiones terapeuticas</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigation.navigate(TabNav.ProfileTab)}>
-          <Ionicons name={'person-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Perfil</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={localStyles.drawerItem}
-          onPress={isLoggedIn ? onPressLogout : onPressLogin}
-        >
-          <Ionicons
-            name={isLoggedIn ? 'log-out-outline' : 'log-in-outline'}
-            size={20}
-            color={colors.white}
-          />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>{isLoggedIn ? 'Cerrar sesion' : 'Iniciar sesion'}</CText>
-          </View>
-        </TouchableOpacity>
-        <View style={localStyles.drawerFooter}>
-          <Image source={require('../../../assets/logo.png')} style={localStyles.drawerLogo} resizeMode="contain" />
-        </View>
-      </View>
-    </View>
-  );
-}
-
 function TabNavigation() {
   const colors = useSelector(state => state.theme.theme);
   const audioLocked = useSelector(state => state.ui?.audioLocked);
@@ -157,81 +40,78 @@ function TabNavigation() {
     <View style={localStyles.tabViewContainer}>{IconType}</View>
   ));
   return (
-    <DrawerProvider>
-      <View style={styles.flex}>
-        <Tab.Navigator
-          screenOptions={{
-            tabBarHideOnKeyboard: true,
-            headerShown: false,
-            tabBarStyle: [
-              localStyles.tabBarStyle,
-              {backgroundColor: colors.backgroundColor},
-              audioLocked ? {opacity: 0.5} : null,
-            ],
-            tabBarShowLabel: false,
-            tabBarButton: props => (
-              <TouchableOpacity {...props} disabled={audioLocked} />
+    <View style={styles.flex}>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarHideOnKeyboard: true,
+          headerShown: false,
+          tabBarStyle: [
+            localStyles.tabBarStyle,
+            {backgroundColor: colors.backgroundColor},
+            audioLocked ? {opacity: 0.5} : null,
+          ],
+          tabBarShowLabel: false,
+          tabBarButton: props => (
+            <TouchableOpacity {...props} disabled={audioLocked} />
+          ),
+        }}
+        initialRouteName={TabNav.HomeTab}>
+        <Tab.Screen
+          name={TabNav.HomeTab}
+          component={HomeStack}
+          options={{
+            tabBarIcon: ({focused}) => (
+              <TabText
+                IconType={focused ? <HomeFocusedIcon /> : <HomeUnFocusedIcon />}
+              />
             ),
           }}
-          initialRouteName={TabNav.HomeTab}>
-          <Tab.Screen
-            name={TabNav.HomeTab}
-            component={HomeStack}
-            options={{
-              tabBarIcon: ({focused}) => (
-                <TabText
-                  IconType={focused ? <HomeFocusedIcon /> : <HomeUnFocusedIcon />}
-                />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name={TabNav.CalenderTab}
-            component={TasksScreen}
-            options={{
-              tabBarIcon: ({focused}) => (
-                <TabText
-                  IconType={
-                    focused ? <CalenderFocusedIcon /> : <CalenderUnFocusedIcon />
-                  }
-                />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name={TabNav.EvaluationsTab}
-            component={DiagnosticoHistoryScreen}
-            options={{
-              tabBarIcon: ({focused}) => (
-                <TabText
-                  IconType={
-                    <Ionicons
-                      name={focused ? 'stats-chart' : 'stats-chart-outline'}
-                      size={28}
-                      color={focused ? colors.primary : colors.textColor}
-                    />
-                  }
-                />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name={TabNav.ProfileTab}
-            component={ProfileTab}
-            options={{
-              tabBarIcon: ({focused}) => (
-                <TabText
-                  IconType={
-                    focused ? <ProfileFocusedIcon /> : <ProfileUnFocusedIcon />
-                  }
-                />
-              ),
-            }}
-          />
-        </Tab.Navigator>
-        <DrawerMenu />
-      </View>
-    </DrawerProvider>
+        />
+        <Tab.Screen
+          name={TabNav.CalenderTab}
+          component={TasksScreen}
+          options={{
+            tabBarIcon: ({focused}) => (
+              <TabText
+                IconType={
+                  focused ? <CalenderFocusedIcon /> : <CalenderUnFocusedIcon />
+                }
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name={TabNav.EvaluationsTab}
+          component={DiagnosticoHistoryScreen}
+          options={{
+            tabBarIcon: ({focused}) => (
+              <TabText
+                IconType={
+                  <Ionicons
+                    name={focused ? 'stats-chart' : 'stats-chart-outline'}
+                    size={28}
+                    color={focused ? colors.primary : colors.textColor}
+                  />
+                }
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name={TabNav.ProfileTab}
+          component={ProfileTab}
+          options={{
+            tabBarIcon: ({focused}) => (
+              <TabText
+                IconType={
+                  focused ? <ProfileFocusedIcon /> : <ProfileUnFocusedIcon />
+                }
+              />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </View>
   );
 }
 
