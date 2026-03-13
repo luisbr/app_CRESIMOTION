@@ -52,7 +52,7 @@ function TabNavigation() {
           headerShown: false,
           tabBarStyle: [
             localStyles.tabBarStyle,
-            {backgroundColor: '#FFFFFF', borderTopWidth: 0},
+            {backgroundColor: '#FFFFFF', borderTopWidth: 0, paddingHorizontal: 0},
             audioLocked ? {opacity: 0.5} : null,
           ],
           tabBarShowLabel: false,
@@ -127,9 +127,9 @@ const localStyles = StyleSheet.create({
   },
   tabViewContainer: {
     alignItems: 'center',
-    width: getWidth(80),
+    width: getWidth(95),
     justifyContent: 'flex-start',
-    paddingTop: moderateScale(10),
+    paddingTop: moderateScale(5),
   },
   drawerOverlay: {
     position: 'absolute',
