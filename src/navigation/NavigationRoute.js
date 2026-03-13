@@ -122,5 +122,5 @@ export const TabRoute = {
   HomeTab,
   CalenderTab,
   EvaluationsTab: DiagnosticoHistoryScreen,
-  ProfileTab,
+  TestsTab: TestsListScreen,
 };

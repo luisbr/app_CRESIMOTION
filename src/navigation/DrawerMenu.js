@@ -104,10 +104,10 @@ function DrawerMenu() {
             <CText type={'S16'} color={colors.white}>Sesiones terapeuticas</CText>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigation.navigate(TabNav.ProfileTab)}>
-          <Ionicons name={'person-outline'} size={20} color={colors.white} />
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigation.navigate(TabNav.TestsTab)}>
+          <Ionicons name={'clipboard-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Perfil</CText>
+            <CText type={'S16'} color={colors.white}>Test</CText>
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.Configuration)}>

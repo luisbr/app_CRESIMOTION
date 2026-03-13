@@ -9,20 +9,11 @@ import {styles} from '../../theme';
 import CText from '../../components/common/CText';
 import {getHeight, getWidth} from '../../common/constants';
 import {StackNav, TabNav} from '../NavigationKey';
-import {
-  CalenderFocusedIcon,
-  CalenderUnFocusedIcon,
-  HomeFocusedIcon,
-  HomeUnFocusedIcon,
-  ProfileFocusedIcon,
-  ProfileUnFocusedIcon,
-} from '../../assets/svg';
 import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryScreen';
 // Break require cycle: import screens directly instead of NavigationRoute
 import HomeStack from './HomeStack';
 import TasksScreen from '../../screens/agenda/TasksScreen';
-import ChatTab from '../../container/Message/ChatTab';
-import ProfileTab from '../../container/profile/ProfileTab';
+import TestsListScreen from '../../screens/tests/TestsListScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {DrawerProvider, useDrawer} from '../DrawerContext';
 import {getSession} from '../../api/auth';
@@ -31,14 +22,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {DEVICE_UUID} from '../../common/constants';
 
 const Tab = createBottomTabNavigator();
+
 function TabNavigation() {
   const colors = useSelector(state => state.theme.theme);
   const audioLocked = useSelector(state => state.ui?.audioLocked);
-  //console.log('TabNavigation mounted');
 
-  const TabText = memo(({IconType}) => (
-    <View style={localStyles.tabViewContainer}>{IconType}</View>
+  const TabText = memo(({iconName, label, focused}) => (
+    <View style={localStyles.tabViewContainer}>
+      <Ionicons
+        name={iconName}
+        size={32}
+        color={colors.textColor}
+      />
+      <CText
+        type="S12"
+        align="center"
+        color={colors.textColor}
+        style={styles.mt5}>
+        {label}
+      </CText>
+    </View>
   ));
+
   return (
     <View style={styles.flex}>
       <Tab.Navigator
@@ -47,7 +52,7 @@ function TabNavigation() {
           headerShown: false,
           tabBarStyle: [
             localStyles.tabBarStyle,
-            {backgroundColor: colors.backgroundColor},
+            {backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E2E7EB'},
             audioLocked ? {opacity: 0.5} : null,
           ],
           tabBarShowLabel: false,
@@ -62,7 +67,9 @@ function TabNavigation() {
           options={{
             tabBarIcon: ({focused}) => (
               <TabText
-                IconType={focused ? <HomeFocusedIcon /> : <HomeUnFocusedIcon />}
+                iconName="home-outline"
+                label="Home"
+                focused={focused}
               />
             ),
           }}
@@ -73,9 +80,9 @@ function TabNavigation() {
           options={{
             tabBarIcon: ({focused}) => (
               <TabText
-                IconType={
-                  focused ? <CalenderFocusedIcon /> : <CalenderUnFocusedIcon />
-                }
+                iconName="calendar-outline"
+                label="Tareas"
+                focused={focused}
               />
             ),
           }}
@@ -86,26 +93,22 @@ function TabNavigation() {
           options={{
             tabBarIcon: ({focused}) => (
               <TabText
-                IconType={
-                  <Ionicons
-                    name={focused ? 'stats-chart' : 'stats-chart-outline'}
-                    size={28}
-                    color={focused ? colors.primary : colors.textColor}
-                  />
-                }
+                iconName="document-text-outline"
+                label="Mis evaluaciones"
+                focused={focused}
               />
             ),
           }}
         />
         <Tab.Screen
-          name={TabNav.ProfileTab}
-          component={ProfileTab}
+          name={TabNav.TestsTab}
+          component={TestsListScreen}
           options={{
             tabBarIcon: ({focused}) => (
               <TabText
-                IconType={
-                  focused ? <ProfileFocusedIcon /> : <ProfileUnFocusedIcon />
-                }
+                iconName="clipboard-outline"
+                label="Test"
+                focused={focused}
               />
             ),
           }}
@@ -124,7 +127,7 @@ const localStyles = StyleSheet.create({
   },
   tabViewContainer: {
     ...styles.center,
-    width: getWidth(65),
+    width: getWidth(75),
   },
   drawerOverlay: {
     position: 'absolute',

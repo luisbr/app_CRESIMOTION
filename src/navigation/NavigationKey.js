@@ -40,5 +40,5 @@ export const TabNav = {
   HomeTab: 'HomeTab',
   CalenderTab: 'CalenderTab',
   EvaluationsTab: 'EvaluationsTab',
-  ProfileTab: 'ProfileTab',
+  TestsTab: 'TestsTab',
 };

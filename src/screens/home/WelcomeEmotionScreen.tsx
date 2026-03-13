@@ -172,7 +172,7 @@ export default function WelcomeEmotionScreen() {
           style={localStyles.iconButtonRight}
           onPress={() => {
             if (isLoggedIn) {
-              navigation.navigate(StackNav.TabNavigation, { screen: TabNav.ProfileTab });
+              navigation.navigate(StackNav.TabNavigation, { screen: TabNav.TestsTab });
             } else {
               handleLoginLogout();
             }
