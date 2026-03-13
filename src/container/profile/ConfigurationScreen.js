@@ -252,8 +252,8 @@ export default function ConfigurationScreen({navigation}) {
           <CText type="B16" style={localStyles.sectionTitle}>Cuenta</CText>
           <View style={[localStyles.card, {backgroundColor: currentTheme.backgroundColor}]}>
             {renderArrowOption("Contraseña", onPressChangePassword, "Cambiar o recuperar")}  
-            <CDivider style={localStyles.divider} />
-            {renderArrowOption("Preferencias de idioma", () => navigation.navigate(StackNav.Languages), preferences.idioma === 'en' ? 'Inglés' : 'Español')}
+            {/* <CDivider style={localStyles.divider} /> */}
+            {/* {renderArrowOption("Preferencias de idioma", () => navigation.navigate(StackNav.Languages), preferences.idioma === 'en' ? 'Inglés' : 'Español')} */}
           </View>
 
           {/* Accesibilidad Section */}

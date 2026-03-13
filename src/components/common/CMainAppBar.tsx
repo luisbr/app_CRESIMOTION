@@ -93,7 +93,7 @@ const CMainAppBar: React.FC<CMainAppBarProps> = ({
   return (
     <View style={[localStyles.headerContainer, containerStyle]}>
       {/* Left side */}
-      <View style={localStyles.leftHeader}>
+      <View style={[localStyles.leftHeader, { flex: mode === 'main' ? 1 : 0 }]}>
         {mode === 'main' ? (
           <TouchableOpacity
             style={localStyles.iconButton}
@@ -108,7 +108,10 @@ const CMainAppBar: React.FC<CMainAppBarProps> = ({
       </View>
 
       {/* Center side */}
-      <View style={localStyles.centerHeader}>
+      <View style={[localStyles.centerHeader, { 
+        flex: mode === 'main' ? 2 : 1,
+        alignItems: mode === 'main' ? 'center' : 'flex-start' 
+      }]}>
         {mode === 'main' ? (
           <TouchableOpacity
             onPress={() => isLoggedIn && navigation.navigate(StackNav.Subscription)}>
@@ -119,14 +122,14 @@ const CMainAppBar: React.FC<CMainAppBarProps> = ({
             />
           </TouchableOpacity>
         ) : (
-          <CText type="B18" color={colors.textColor} numberOfLines={1} style={null} align="center">
+          <CText type="B18" color={colors.textColor} numberOfLines={1} style={null} align="left">
             {title}
           </CText>
         )}
       </View>
 
       {/* Right side icons */}
-      <View style={localStyles.rightHeaderIcons}>
+      <View style={[localStyles.rightHeaderIcons, { flex: mode === 'main' ? 1 : 0 }]}>
         <TouchableOpacity
           style={localStyles.iconButtonRight}
           onPress={() =>
@@ -176,16 +179,15 @@ const localStyles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   leftHeader: {
-    flex: 1,
     alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   centerHeader: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
-    flex: 2,
+    flex: 1,
   },
   rightHeaderIcons: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',

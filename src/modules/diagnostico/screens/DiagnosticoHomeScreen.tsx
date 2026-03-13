@@ -4,14 +4,13 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
-import CHeader from '../../../components/common/CHeader';
+
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import {styles} from '../../../theme';
 import {clearLastRoute, getLastRoute, saveGroupId} from '../utils';
 import {getOpenSession} from '../api/sessionsApi';
 import type {ModuleKey} from '../types';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
 import {getTherapyNext} from '../../../api/sesionTerapeutica';
@@ -334,20 +333,6 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
 }
 
 const localStyles: any = {
-  headerRight: {
-    ...styles.rowStart,
-    ...styles.g10,
-  },
-  iconButton: {
-    width: moderateScale(36),
-    height: moderateScale(36),
-    borderRadius: moderateScale(18),
-    ...styles.center,
-  },
-  logo: {
-    width: moderateScale(110),
-    height: moderateScale(50),
-  },
   evalButton: {
     flexDirection: 'column',
     height: moderateScale(62),
@@ -364,17 +349,5 @@ const localStyles: any = {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-  },
-  iconButtonRight: {
-    padding: moderateScale(5),
-  },
-  notifBadge: {
-    position: 'absolute',
-    right: 2,
-    top: 2,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#FF3B30',
   },
 };
