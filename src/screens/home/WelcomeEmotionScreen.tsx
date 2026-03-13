@@ -231,22 +231,22 @@ export default function WelcomeEmotionScreen() {
       <View style={localStyles.bottomLinksRow}>
         <TouchableOpacity style={localStyles.bottomIcon} onPress={() => isLoggedIn && handleResponder()}>
           <Ionicons name="home-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Home</CText>
+          <CText type="S12" align="center" color={colors.textColor} style={localStyles.bottomIconLabel}>Home</CText>
         </TouchableOpacity>
         <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('Tasks')}>
           <Ionicons name="calendar-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Tareas</CText>
+          <CText type="S12" align="center" color={colors.textColor} style={localStyles.bottomIconLabel}>Tareas</CText>
         </TouchableOpacity>
         <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('DiagnosticoHistory')}>
           <Ionicons name="document-text-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Mis evaluaciones</CText>
+          <CText type="S12" align="center" color={colors.textColor} style={localStyles.bottomIconLabel}>Mis evaluaciones</CText>
         </TouchableOpacity>
         <TouchableOpacity
           style={localStyles.bottomIcon}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.TestsGabo)}
         >
           <Ionicons name="clipboard-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={[styles.mt5, null]}>Test</CText>
+          <CText type="S12" align="center" color={colors.textColor} style={localStyles.bottomIconLabel}>Test</CText>
         </TouchableOpacity>
       </View>
     );
@@ -383,4 +383,11 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
     width: getWidth(70),
   },
+  bottomIconLabel: {
+    ...styles.mt5,
+    fontSize: moderateScale(10),
+    lineHeight: moderateScale(12),
+    textAlign: 'center',
+  },
 });
+https://com.luis.buendiagmail.com.crestimotion//stripe/success?membresia_id=2&session_id=cs_test_a1iwmZBBqtVLR3ZwgOfvFBNOJ5bLRWsGVAZPbAXmG7leBsll7VGMHvzmpJ

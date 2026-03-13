@@ -86,7 +86,7 @@ export default function FocusContentScreen({ navigation, route }: any) {
     const normalized = u.normalize('NFC');
     if (/^https?:\/\//i.test(normalized)) return encodeURI(normalized);
     const base = API_BASE_URL || '';
-    //const base = "http://192.168.1.105"
+    
     return encodeURI(`${base}${normalized.startsWith('/') ? '' : '/'}${normalized}`);
   };
 
