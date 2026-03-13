@@ -110,6 +110,12 @@ function DrawerMenu() {
             <CText type={'S16'} color={colors.white}>Perfil</CText>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.Configuration)}>
+          <Ionicons name={'settings-outline'} size={20} color={colors.white} />
+          <View style={styles.ml10}>
+            <CText type={'S16'} color={colors.white}>Configuraciones</CText>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity
           style={localStyles.drawerItem}
           onPress={isLoggedIn ? onPressLogout : onPressLogin}

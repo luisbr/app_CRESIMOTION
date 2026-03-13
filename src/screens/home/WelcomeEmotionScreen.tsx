@@ -160,13 +160,6 @@ export default function WelcomeEmotionScreen() {
         
         <TouchableOpacity 
           style={localStyles.iconButtonRight}
-          onPress={() => isLoggedIn && navigation.navigate(StackNav.Configuration)}
-        >
-          <Ionicons name="settings-outline" size={26} color={colors.primary} />
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={localStyles.iconButtonRight}
           onPress={() => isLoggedIn && navigation.navigate(StackNav.Notification)}
         >
           <Ionicons name="notifications-outline" size={26} color={colors.primary} />
