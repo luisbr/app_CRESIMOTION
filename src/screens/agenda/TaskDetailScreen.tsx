@@ -102,6 +102,11 @@ export default function TaskDetailScreen({ navigation, route }: any) {
                 {item.custom_title}
               </CText>
             )}
+            {(item.descripcion || item.detalle || item.description) && (
+              <CText type={'R14'} color={colors.textColor} style={styles.mt10}>
+                {item.descripcion || item.detalle || item.description}
+              </CText>
+            )}
             <View style={[styles.rowSpaceBetween, styles.mt15]}>
               <View>
                 <CText type={'S12'} color={colors.labelColor}>Hora</CText>
