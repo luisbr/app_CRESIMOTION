@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, Image, TouchableOpacity, View} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
@@ -16,6 +17,8 @@ import {useDrawer} from '../../../navigation/DrawerContext';
 import {getTherapyNext} from '../../../api/sesionTerapeutica';
 import {isTherapyRoute, normalizeTherapyNext} from '../../../screens/therapy/therapyUtils';
 import {getSession} from '../../../api/auth';
+import {getStoredNotifications} from '../../../utils/notificationStorage';
+import {StackNav, TabNav} from '../../../navigation/NavigationKey';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 
 export default function DiagnosticoHomeScreen({navigation}: any) {
@@ -24,6 +27,8 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   const [loading, setLoading] = useState(false);
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
   const [therapyNext, setTherapyNext] = useState<any | null>(null);
+  const [hasNewNotifs, setHasNewNotifs] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isCheckingRef = useRef(false);
   const nextModuleKey: ModuleKey =
     (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
@@ -142,6 +147,35 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     }
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      const checkSessionAndNotifs = async () => {
+        try {
+          const session = await getSession();
+          if (isActive) {
+            if (session?.token) {
+              setIsLoggedIn(true);
+              const notifs = await getStoredNotifications();
+              const hasNew = notifs.some(n => n.isNew && !n.isDeleted && !n.isArchived);
+              setHasNewNotifs(hasNew);
+            } else {
+              setIsLoggedIn(false);
+            }
+          }
+        } catch (e) {
+          if (isActive) {
+            setIsLoggedIn(false);
+          }
+        }
+      };
+      checkSessionAndNotifs();
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       checkResume();
@@ -204,11 +238,34 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         }
         rightAccessory={
           <View style={localStyles.headerRight}>
-            <TouchableOpacity style={localStyles.iconButton}>
-              <Ionicons name={'call-outline'} size={moderateScale(22)} color={colors.textColor} />
+            <TouchableOpacity 
+              style={localStyles.iconButtonRight}
+              onPress={() => isLoggedIn && navigation.navigate(StackNav.WellnessNetwork)}
+            >
+              <Ionicons name="call-outline" size={moderateScale(26)} color={colors.primary} />
             </TouchableOpacity>
-            <TouchableOpacity style={localStyles.iconButton}>
-              <Ionicons name={'notifications-outline'} size={moderateScale(22)} color={colors.textColor} />
+            
+            <TouchableOpacity 
+              style={localStyles.iconButtonRight}
+              onPress={() => isLoggedIn && navigation.navigate(StackNav.Notification)}
+            >
+              <Ionicons name="notifications-outline" size={moderateScale(26)} color={colors.primary} />
+              {hasNewNotifs && (
+                 <View style={localStyles.notifBadge} />
+              )}
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={localStyles.iconButtonRight}
+              onPress={() => {
+                if (isLoggedIn) {
+                  navigation.navigate(StackNav.Profile);
+                } else {
+                  navigation.navigate(StackNav.AuthNavigation);
+                }
+              }}
+            >
+              <Ionicons name="person-circle-outline" size={moderateScale(26)} color={colors.primary} />
             </TouchableOpacity>
           </View>
         }
@@ -221,12 +278,12 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         />
       </View>
       <View style={[styles.p20, { paddingTop: 16 }]}>
-        <CText type={'S20'} align={'center'} style={styles.mb10}>
+        <CText type={'S20'} align={'center'} color={colors.textColor} style={styles.mb10}>
           {moduleTitle}
         </CText>
         <CText type={'S12'} align={'center'} color={colors.labelColor} style={styles.mb15}>
           {moduleBodyPrefix}
-          <CText type={'S12'} color={colors.textColor}>
+          <CText type={'S12'} color={colors.textColor} align="center" style={null}>
             {moduleTitleInline}
           </CText>
           {moduleBodySuffix}
@@ -235,53 +292,85 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
           <View style={styles.mb10}>
             <CButton
               title={'Reset intro (debug)'}
+              type="B16"
               onPress={onPressResetHealingIntro}
               bgColor={colors.inputBg}
               color={colors.primary}
+              containerStyle={null}
+              style={null}
+              textStyle={null}
+              borderColor={null}
             />
           </View>
         )}
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : therapyNext ? (
-          <CButton title={therapyNext?.payload?.title || 'Continuar sesión terapéutica'} onPress={onPressTherapy} />
+          <CButton 
+            title={therapyNext?.payload?.title || 'Continuar sesión terapéutica'} 
+            type="B16"
+            color={colors.white}
+            containerStyle={null}
+            style={null}
+            textStyle={null}
+            bgColor={null}
+            borderColor={null}
+            onPress={onPressTherapy} 
+          />
         ) : resumeTarget ? (
           <CButton
             title={''}
+            type="B14"
+            color={colors.white}
             onPress={onPressContinue}
             containerStyle={localStyles.evalButton}
+            style={null}
+            textStyle={null}
+            bgColor={null}
+            borderColor={null}
           >
-            <CText type={'M12'} color={colors.white} align={'center'}>
+            <CText type={'M12'} color={colors.white} align={'center'} style={null}>
               Autoevaluación:
             </CText>
-            <CText type={'B14'} color={colors.white} align={'center'}>
+            <CText type={'B14'} color={colors.white} align={'center'} style={null}>
               {moduleTitle}
             </CText>
           </CButton>
         ) : (
           <CButton
             title={''}
+            type="B14"
+            color={colors.white}
             onPress={onPressStart}
             containerStyle={localStyles.evalButton}
+            style={null}
+            textStyle={null}
+            bgColor={null}
+            borderColor={null}
           >
-            <CText type={'M12'} color={colors.white} align={'center'}>
+            <CText type={'M12'} color={colors.white} align={'center'} style={null}>
               Autoevaluación:
             </CText>
-            <CText type={'B14'} color={colors.white} align={'center'}>
+            <CText type={'B14'} color={colors.white} align={'center'} style={null}>
               {moduleTitle}
             </CText>
           </CButton>
         )}
         <CButton
           title={'Mis autoevaluaciones'}
+          type="B16"
           onPress={onPressHistory}
           bgColor={colors.inputBg}
           color={colors.primary}
+          containerStyle={null}
+          style={null}
+          textStyle={null}
+          borderColor={null}
         />
       </View>
       {SHOW_SCREEN_TOOLTIP && (
         <View style={localStyles.screenTooltip} pointerEvents="none">
-          <CText type={'S12'} color={'#fff'}>
+          <CText type={'S12'} color={'#fff'} align="left" style={null}>
             DiagnosticoHomeScreen
           </CText>
         </View>
@@ -290,7 +379,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   );
 }
 
-const localStyles = {
+const localStyles: any = {
   headerRight: {
     ...styles.rowStart,
     ...styles.g10,
@@ -321,5 +410,17 @@ const localStyles = {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
+  },
+  iconButtonRight: {
+    padding: moderateScale(5),
+  },
+  notifBadge: {
+    position: 'absolute',
+    right: 2,
+    top: 2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#FF3B30',
   },
 };

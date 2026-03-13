@@ -105,6 +105,10 @@ export default function StackNavigation() {
         name={StackNav.TestResult}
         component={StackRoute.TestResult}
       />
+      <Stack.Screen
+        name={StackNav.Profile}
+        component={StackRoute.Profile}
+      />
     </Stack.Navigator>
   );
 }

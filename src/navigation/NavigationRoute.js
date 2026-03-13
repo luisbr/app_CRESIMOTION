@@ -107,6 +107,7 @@ export const StackRoute = {
   TestsGabo: TestsListScreen,
   TestDetail: TestDetailScreen,
   TestResult: TestResultScreen,
+  Profile: ProfileTab,
 };
 
 export const AuthRoute = {
