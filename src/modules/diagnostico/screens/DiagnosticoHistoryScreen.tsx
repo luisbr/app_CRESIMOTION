@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, Image, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
-import CHeader from '../../../components/common/CHeader';
 import CText from '../../../components/common/CText';
 import {styles} from '../../../theme';
 import type {ModuleKey} from '../types';
@@ -169,11 +168,8 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
 
   return (
     <CSafeAreaView>
-      <CMainAppBar mode="main" />
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={styles.p20}>
-        <CText type={'S24'} style={styles.mb10}>
-          Mis autoevaluaciones
-        </CText>
+      <CMainAppBar mode="sub" title="Mis autoevaluaciones" />
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={[styles.p20, {paddingTop: moderateScale(10)}]}>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : error ? (

@@ -176,7 +176,7 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
 
   return (
     <CSafeAreaView>
-      <CMainAppBar mode="sub" title="Resultados" />
+      <CMainAppBar mode="sub" title={moduleTitle} />
       <View style={[styles.p20, styles.flex]}>
 
         <CText type={'S12'} align={'center'}>
@@ -224,9 +224,6 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
                     </TouchableOpacity>
                   ))}
                 </View>
-                <CText type={'S16'} align={'center'} style={styles.mb10}>
-                  {moduleTitle}
-                </CText>
                 {view === 'bar' ? (
                   <BarChartSVG
                     data={mainItems.map((d, idx) => ({

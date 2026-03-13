@@ -174,17 +174,19 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
 
   return (
     <CSafeAreaView>
-      <CMainAppBar mode="main" />
-      <View style={[styles.flex, styles.p20, {position: 'relative'}]}>
-        <CText type={'S24'} align={'center'} style={styles.mb10}>
-          {moduleKey === 'motivos'
+      <CMainAppBar 
+        mode="sub" 
+        title={
+          moduleKey === 'motivos'
             ? 'Motivos de tu estado emocional'
             : moduleKey === 'sintomas_fisicos'
             ? 'Sintomatología física'
             : moduleKey === 'sintomas_emocionales'
             ? 'Sintomatología emocional'
-            : capitalizeSentence(moduleKey.replace('_', ' '))}
-        </CText>
+            : capitalizeSentence(moduleKey.replace('_', ' '))
+        } 
+      />
+      <View style={[styles.flex, styles.p20, {position: 'relative', paddingTop: moderateScale(10)}]}>
         <View
           style={{
             backgroundColor: colors.inputBg,

@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
-import CHeader from '../../../components/common/CHeader';
+import CMainAppBar from '../../../components/common/CMainAppBar';
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import CInput from '../../../components/common/CInput';
@@ -329,21 +329,12 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
 
   return (
     <CSafeAreaView>
-      <CHeader
-        isHideBack
-        isLeftIcon={
-          <TouchableOpacity
-            onPress={onPressBack}
-            style={{padding: 6, marginLeft: -8}}
-          >
-            <Ionicons name={'arrow-back'} size={moderateScale(24)} color={colors.textColor} />
-          </TouchableOpacity>
-        }
+      <CMainAppBar
+        mode="sub"
+        title={currentItem ? currentItem.titulo : 'Completando autoevaluación'}
+        onPressBack={onPressBack}
       />
-      <View style={[styles.p20, {paddingBottom: 120}]}>
-        <CText type={'S20'} style={styles.mb10}>
-          {currentItem ? currentItem.titulo : 'Completando autoevaluación'}
-        </CText>
+      <View style={[styles.p20, {paddingBottom: 120, paddingTop: moderateScale(10)}]}>
         {!!currentItem && totalItems > 0 && (
           <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
             {moduleKey === 'motivos'
