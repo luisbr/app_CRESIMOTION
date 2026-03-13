@@ -20,6 +20,7 @@ import {getSession} from '../../../api/auth';
 import {getStoredNotifications} from '../../../utils/notificationStorage';
 import {StackNav, TabNav} from '../../../navigation/NavigationKey';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
+import CMainAppBar from '../../../components/common/CMainAppBar';
 
 export default function DiagnosticoHomeScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -222,54 +223,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
 
   return (
     <CSafeAreaView>
-      <CHeader
-        centerAccessory={
-          <Image
-            source={require('../../../../assets/logo.png')}
-            style={localStyles.logo}
-            resizeMode="contain"
-          />
-        }
-        isHideBack
-        isLeftIcon={
-          <TouchableOpacity style={[localStyles.iconButton, { marginLeft: -8 }]} onPress={drawer.open}>
-            <Ionicons name={'menu-outline'} size={moderateScale(24)} color={colors.textColor} />
-          </TouchableOpacity>
-        }
-        rightAccessory={
-          <View style={localStyles.headerRight}>
-            <TouchableOpacity 
-              style={localStyles.iconButtonRight}
-              onPress={() => isLoggedIn && navigation.navigate(StackNav.WellnessNetwork)}
-            >
-              <Ionicons name="call-outline" size={moderateScale(26)} color={colors.primary} />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={localStyles.iconButtonRight}
-              onPress={() => isLoggedIn && navigation.navigate(StackNav.Notification)}
-            >
-              <Ionicons name="notifications-outline" size={moderateScale(26)} color={colors.primary} />
-              {hasNewNotifs && (
-                 <View style={localStyles.notifBadge} />
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={localStyles.iconButtonRight}
-              onPress={() => {
-                if (isLoggedIn) {
-                  navigation.navigate(StackNav.Profile);
-                } else {
-                  navigation.navigate(StackNav.AuthNavigation);
-                }
-              }}
-            >
-              <Ionicons name="person-circle-outline" size={moderateScale(26)} color={colors.primary} />
-            </TouchableOpacity>
-          </View>
-        }
-      />
+      <CMainAppBar mode="main" />
       <View>
         <Image
           source={require('../../../assets/images/home.png')}

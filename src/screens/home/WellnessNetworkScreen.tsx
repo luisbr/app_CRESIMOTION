@@ -19,7 +19,8 @@ import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import { styles } from '../../theme';
 import { getHeight, getWidth, moderateScale } from '../../common/constants';
-import { getEmergencyContacts } from '../../api/emergency';
+import {getEmergencyContacts} from '../../api/emergency';
+import CMainAppBar from '../../components/common/CMainAppBar';
 
 export default function WellnessNetworkScreen() {
   const colors = useSelector((state: any) => state.theme.theme);
@@ -62,26 +63,6 @@ export default function WellnessNetworkScreen() {
       .catch((err) => console.error('An error occurred', err));
   };
 
-  const renderHeader = () => (
-    <View style={localStyles.headerContainer}>
-      <View style={localStyles.leftHeader}>
-        <TouchableOpacity
-          style={localStyles.iconButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={28} color={colors.textColor} />
-        </TouchableOpacity>
-      </View>
-      <View style={localStyles.centerHeader}>
-        <CText type="B20" color={colors.primary} align="center" style={{}} numberOfLines={1}>
-          Tu red de bienestar
-        </CText>
-      </View>
-      <View style={localStyles.rightHeader}>
-        <Ionicons name="call" size={28} color="#E4A2A2" />
-      </View>
-    </View>
-  );
 
   const renderWarningSection = () => (
     <View style={localStyles.warningSection}>
@@ -191,7 +172,7 @@ export default function WellnessNetworkScreen() {
 
   return (
     <CSafeAreaView color="#F0F5EE" style={{ backgroundColor: '#F0F5EE' }}>
-      {renderHeader()}
+      <CMainAppBar mode="sub" title="Tu red de bienestar" />
       <ScrollView
         contentContainerStyle={[localStyles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
         showsVerticalScrollIndicator={false}

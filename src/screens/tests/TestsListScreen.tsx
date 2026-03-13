@@ -12,6 +12,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CText from '../../components/common/CText';
 import {styles} from '../../theme';
+import CMainAppBar from '../../components/common/CMainAppBar';
 import {moderateScale} from '../../common/constants';
 import {StackNav} from '../../navigation/NavigationKey';
 import {getCustomTests} from '../../api/customTests';
@@ -66,15 +67,7 @@ export default function TestsListScreen() {
   return (
     <CSafeAreaView>
       {/* Header */}
-      <View style={[localStyles.header, {backgroundColor: colors.primary}]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={localStyles.backBtn}>
-          <Ionicons name="arrow-back" size={moderateScale(24)} color="#fff" />
-        </TouchableOpacity>
-        <View style={styles.flex}>
-          <CText type="B20" color="#fff" align="left" style={{}}>Tests de Bienestar</CText>
-          <CText type="R13" color="#ffffff99" align="left" style={{}}>Autoevaluaciones emocionales</CText>
-        </View>
-      </View>
+      <CMainAppBar mode="sub" title="Tests" />
 
       {loading ? (
         <View style={styles.flex}>

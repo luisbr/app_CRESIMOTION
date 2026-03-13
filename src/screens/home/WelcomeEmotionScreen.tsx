@@ -20,6 +20,7 @@ import {getSession} from '../../api/auth';
 import {StackNav, TabNav} from '../../navigation/NavigationKey';
 import {getStoredNotifications} from '../../utils/notificationStorage';
 import {useDrawer} from '../../navigation/DrawerContext';
+import CMainAppBar from '../../components/common/CMainAppBar';
 
 const EMOTIONS = [
   {id: 1, emoji: '😄', label: 'Muy feliz'},
@@ -126,63 +127,6 @@ export default function WelcomeEmotionScreen() {
     }
   };
 
-  const renderHeader = () => (
-    <View style={localStyles.headerContainer}>
-      {/* Left side fixed width */}
-      <View style={localStyles.leftHeader}>
-        <TouchableOpacity
-          style={localStyles.iconButton}
-          onPress={() => drawer.open()}
-        >
-          <Ionicons name="menu-outline" size={26} color={colors.textColor} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Center side auto flex */}
-      <View style={localStyles.centerHeader}>
-        <TouchableOpacity onPress={() => isLoggedIn && navigation.navigate(StackNav.Subscription)}>
-          <Image
-            source={require('../../../assets/logo.png')}
-            style={localStyles.logo}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* Right side fixed width */}
-      <View style={localStyles.rightHeaderIcons}>
-        <TouchableOpacity 
-          style={localStyles.iconButtonRight}
-          onPress={() => isLoggedIn && navigation.navigate(StackNav.WellnessNetwork)}
-        >
-          <Ionicons name="call-outline" size={26} color={colors.primary} />
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={localStyles.iconButtonRight}
-          onPress={() => isLoggedIn && navigation.navigate(StackNav.Notification)}
-        >
-          <Ionicons name="notifications-outline" size={26} color={colors.primary} />
-          {hasNewNotifs && (
-             <View style={localStyles.notifBadge} />
-          )}
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={localStyles.iconButtonRight}
-          onPress={() => {
-            if (isLoggedIn) {
-              navigation.navigate(StackNav.Profile);
-            } else {
-              handleLoginLogout();
-            }
-          }}
-        >
-          <Ionicons name="person-circle-outline" size={26} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
 
   const renderWelcomeSection = () => (
     <View style={localStyles.welcomeSection}>
@@ -310,7 +254,7 @@ export default function WelcomeEmotionScreen() {
 
   return (
     <CSafeAreaView style={{backgroundColor: '#F3FAFA'}} color={null}>
-      {renderHeader()}
+      <CMainAppBar mode="main" />
       <ScrollView
         contentContainerStyle={[localStyles.scrollContent, {paddingBottom: insets.bottom + 20}]}
         showsVerticalScrollIndicator={false}
