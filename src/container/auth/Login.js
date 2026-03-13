@@ -62,7 +62,7 @@ export default function Login({navigation}) {
     try {
       const resp = await apiLogin({correo: email, contrasena: password});
       if (resp && (resp.success === true || resp.status === true)) {
-        navigation.reset({index: 0, routes: [{name: StackNav.TabNavigation}]});
+        navigation.reset({index: 0, routes: [{name: StackNav.WelcomeEmotion}]});
       } else {
         setSubmitError((resp && (resp.success_message || resp.message)) || 'Error al iniciar sesión');
       }

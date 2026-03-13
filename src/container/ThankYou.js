@@ -12,7 +12,7 @@ import {StackNav} from '../navigation/NavigationKey';
 export default function ThankYou({navigation}) {
   const colors = useSelector(state => state.theme.theme);
   const onNext = () => {
-    navigation.reset({index: 0, routes: [{name: StackNav.TabNavigation}]});
+    navigation.reset({index: 0, routes: [{name: StackNav.WelcomeEmotion}]});
   };
   return (
     <CSafeAreaView>
