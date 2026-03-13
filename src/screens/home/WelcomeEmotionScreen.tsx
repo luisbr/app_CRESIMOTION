@@ -295,9 +295,9 @@ export default function WelcomeEmotionScreen() {
           <Ionicons name="calendar-outline" size={32} color={colors.textColor} />
           <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Tareas</CText>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('DiagnosticoHome')}>
+        <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('DiagnosticoHistory')}>
           <Ionicons name="document-text-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Test</CText>
+          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Mis evaluaciones</CText>
         </TouchableOpacity>
         <TouchableOpacity
           style={localStyles.bottomIcon}
