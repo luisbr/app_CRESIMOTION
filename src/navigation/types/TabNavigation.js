@@ -7,7 +7,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {styles} from '../../theme';
 import CText from '../../components/common/CText';
-import {getHeight, getWidth} from '../../common/constants';
+import {getHeight, getWidth, moderateScale} from '../../common/constants';
 import {StackNav, TabNav} from '../NavigationKey';
 import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryScreen';
 // Break require cycle: import screens directly instead of NavigationRoute
@@ -52,7 +52,7 @@ function TabNavigation() {
           headerShown: false,
           tabBarStyle: [
             localStyles.tabBarStyle,
-            {backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E2E7EB'},
+            {backgroundColor: '#FFFFFF', borderTopWidth: 0},
             audioLocked ? {opacity: 0.5} : null,
           ],
           tabBarShowLabel: false,
@@ -126,8 +126,10 @@ const localStyles = StyleSheet.create({
     ...styles.pt10,
   },
   tabViewContainer: {
-    ...styles.center,
-    width: getWidth(75),
+    alignItems: 'center',
+    width: getWidth(80),
+    justifyContent: 'flex-start',
+    paddingTop: moderateScale(10),
   },
   drawerOverlay: {
     position: 'absolute',
