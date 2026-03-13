@@ -299,6 +299,13 @@ export default function WelcomeEmotionScreen() {
           <Ionicons name="document-text-outline" size={32} color={colors.textColor} />
           <CText type="S12" align="center" style={styles.mt5}>Test</CText>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={localStyles.bottomIcon}
+          onPress={() => isLoggedIn && navigation.navigate(StackNav.TestsGabo)}
+        >
+          <Ionicons name="clipboard-outline" size={32} color={colors.primary} />
+          <CText type="S12" align="center" style={[styles.mt5, {color: colors.primary}]}>Autoevaluación</CText>
+        </TouchableOpacity>
         <TouchableOpacity style={localStyles.bottomIcon}>
           <Ionicons name="earth-outline" size={32} color={colors.textColor} />
           <CText type="S12" align="center" style={styles.mt5}>Comunidad</CText>

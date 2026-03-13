@@ -93,6 +93,18 @@ export default function StackNavigation() {
         name={StackNav.WellnessNetwork}
         component={StackRoute.WellnessNetwork}
       />
+      <Stack.Screen
+        name={StackNav.TestsGabo}
+        component={StackRoute.TestsGabo}
+      />
+      <Stack.Screen
+        name={StackNav.TestDetail}
+        component={StackRoute.TestDetail}
+      />
+      <Stack.Screen
+        name={StackNav.TestResult}
+        component={StackRoute.TestResult}
+      />
     </Stack.Navigator>
   );
 }

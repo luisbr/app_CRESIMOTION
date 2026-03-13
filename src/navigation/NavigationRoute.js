@@ -50,6 +50,9 @@ import TasksScreen from '../screens/agenda/TasksScreen';
 import TaskDetailScreen from '../screens/agenda/TaskDetailScreen';
 import WelcomeEmotionScreen from '../screens/home/WelcomeEmotionScreen';
 import WellnessNetworkScreen from '../screens/home/WellnessNetworkScreen';
+import TestsListScreen from '../screens/tests/TestsListScreen';
+import TestDetailScreen from '../screens/tests/TestDetailScreen';
+import TestResultScreen from '../screens/tests/TestResultScreen';
 
 // tab screens
 import HomeTab from '../container/home/HomeTab';
@@ -101,6 +104,9 @@ export const StackRoute = {
   TaskDetailScreen,
   WelcomeEmotion: WelcomeEmotionScreen,
   WellnessNetwork: WellnessNetworkScreen,
+  TestsGabo: TestsListScreen,
+  TestDetail: TestDetailScreen,
+  TestResult: TestResultScreen,
 };
 
 export const AuthRoute = {

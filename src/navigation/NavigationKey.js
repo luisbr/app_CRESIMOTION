@@ -22,6 +22,9 @@ export const StackNav = {
   Subscription: 'Subscription',
   WelcomeEmotion: 'WelcomeEmotion',
   WellnessNetwork: 'WellnessNetwork',
+  TestsGabo: 'TestsGabo',
+  TestDetail: 'TestDetail',
+  TestResult: 'TestResult',
 };
 
 export const AuthNav = {
