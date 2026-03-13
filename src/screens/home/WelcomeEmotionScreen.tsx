@@ -170,18 +170,16 @@ export default function WelcomeEmotionScreen() {
         
         <TouchableOpacity 
           style={localStyles.iconButtonRight}
-          onPress={() => isLoggedIn && navigation.navigate(StackNav.TabNavigation, { screen: TabNav.ProfileTab })}
+          onPress={() => {
+            if (isLoggedIn) {
+              navigation.navigate(StackNav.TabNavigation, { screen: TabNav.ProfileTab });
+            } else {
+              handleLoginLogout();
+            }
+          }}
         >
           <Ionicons name="person-circle-outline" size={26} color={colors.primary} />
         </TouchableOpacity>
-        
-        {!isLoggedIn && (
-          <TouchableOpacity onPress={handleLoginLogout} style={localStyles.loginBtn}>
-            <CText type="S12" color={colors.primary} align="center" style={null}>
-               Iniciar{'\n'}sesión
-            </CText>
-          </TouchableOpacity>
-        )}
       </View>
     </View>
   );
@@ -304,7 +302,7 @@ export default function WelcomeEmotionScreen() {
           onPress={() => isLoggedIn && navigation.navigate(StackNav.TestsGabo)}
         >
           <Ionicons name="clipboard-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={[styles.mt5, null]}>Autoevaluación</CText>
+          <CText type="S12" align="center" color={colors.textColor} style={[styles.mt5, null]}>Test</CText>
         </TouchableOpacity>
       </View>
     );
