@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -13,8 +14,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {styles as globalStyles} from '../../theme';
 import CText from '../../components/common/CText';
 import CMainAppBar from '../../components/common/CMainAppBar';
-import {obtenerFormularioApoyo, solicitarApoyoFinanciero} from '../../api/apoyoFinanciero';
+import {obtenerFormularioApoyo, obtenerEstadoApoyo, solicitarApoyoFinanciero} from '../../api/apoyoFinanciero';
+import {getSession} from '../../api/auth';
 import {StackNav} from '../../navigation/NavigationKey';
+
+const STORAGE_KEY = '@apoyo_financiero_respuestas';
 
 interface Opcion {
   id: number;
@@ -39,8 +43,10 @@ export default function ApoyoFinancieroScreen() {
   const navigation = useNavigation<any>();
 
   const [cargando, setCargando] = useState(true);
+  const [verificandoEstado, setVerificandoEstado] = useState(true);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [estadoSolicitud, setEstadoSolicitud] = useState<any>(null);
   const [config, setConfig] = useState<Record<string, string>>({});
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
   const [respuestas, setRespuestas] = useState<Record<number, number>>({});
@@ -53,6 +59,16 @@ export default function ApoyoFinancieroScreen() {
       if (data.success) {
         setConfig(data.config);
         setPreguntas(data.preguntas);
+        
+        // Cargar respuestas guardadas en AsyncStorage
+        try {
+          const respuestasGuardadas = await AsyncStorage.getItem(STORAGE_KEY);
+          if (respuestasGuardadas) {
+            setRespuestas(JSON.parse(respuestasGuardadas));
+          }
+        } catch (e) {
+          console.log('Error cargando respuestas guardadas:', e);
+        }
       }
     } catch (e) {
       setError('No se pudo cargar el formulario. Intenta de nuevo.');
@@ -61,25 +77,98 @@ export default function ApoyoFinancieroScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    cargarFormulario();
-  }, [cargarFormulario]);
+  const verificarEstadoSolicitud = useCallback(async () => {
+    try {
+      setVerificandoEstado(true);
+      const estado = await obtenerEstadoApoyo();
+      if (estado.success && estado.tiene_solicitud) {
+        setEstadoSolicitud(estado);
+        // Si ya tiene solicitud activa (pendiente o aprobada), redirigir a la pantalla de resultado
+        if (estado.estatus === 'pendiente' || estado.estatus === 'aprobada') {
+          navigation.replace(StackNav.ApoyoAceptado, {solicitudData: estado});
+          return;
+        }
+      }
+    } catch (e) {
+      console.log('Error verificando estado:', e);
+    } finally {
+      setVerificandoEstado(false);
+    }
+  }, [navigation]);
 
-  const seleccionarOpcion = (preguntaId: number, opcionId: number) => {
-    setRespuestas(prev => ({...prev, [preguntaId]: opcionId}));
+  useEffect(() => {
+    verificarEstadoSolicitud();
+  }, [verificarEstadoSolicitud]);
+
+  useEffect(() => {
+    if (!verificandoEstado) {
+      cargarFormulario();
+    }
+  }, [verificandoEstado, cargarFormulario]);
+
+  const seleccionarOpcion = async (preguntaId: number, opcionId: number) => {
+    const nuevasRespuestas = {...respuestas, [preguntaId]: opcionId};
+    setRespuestas(nuevasRespuestas);
+    
+    // Guardar en AsyncStorage para persistencia
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nuevasRespuestas));
+    } catch (e) {
+      console.log('Error guardando respuestas:', e);
+    }
   };
 
   const todosRespondidos = preguntas.length > 0 && preguntas.every(p => respuestas[p.id]);
 
   const onSiguiente = async () => {
     if (!todosRespondidos) return;
+    
+    // Obtener el estado actual de respuestas directamente del callback
+    const respuestasActuales = Object.entries(respuestas).map(([pregunta_id, opcion_id]) => ({
+      pregunta_id: parseInt(pregunta_id, 10),
+      opcion_id,
+    }));
+
+    // Validar que hay respuestas antes de enviar
+    if (!respuestasActuales.length || respuestasActuales.length === 0) {
+      setError('Por favor, responde todas las preguntas.');
+      return;
+    }
+    
     try {
       setEnviando(true);
-      const payload = Object.entries(respuestas).map(([pregunta_id, opcion_id]) => ({
-        pregunta_id: parseInt(pregunta_id, 10),
-        opcion_id,
-      }));
-      const res = await solicitarApoyoFinanciero(payload);
+      setError(null);
+
+      // Obtener sesión con reintento
+      let session = await getSession();
+      if (!session?.id) {
+        // Reintentar después de un pequeño delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        session = await getSession();
+      }
+      
+      if (!session?.id) {
+        setError('Tu sesión expiró. Por favor, inicia sesión de nuevo.');
+        setEnviando(false);
+        return;
+      }
+      
+      const res = await solicitarApoyoFinanciero(respuestasActuales);
+      
+      // Verificar respuesta del backend
+      if (!res.success) {
+        setError(res.message || 'Error al enviar tu solicitud.');
+        setEnviando(false);
+        return;
+      }
+      
+      // Limpiar respuestas guardadas al enviar
+      try {
+        await AsyncStorage.removeItem(STORAGE_KEY);
+      } catch (e) {
+        console.log('Error limpiando respuestas:', e);
+      }
+      
       navigation.navigate(StackNav.ApoyoAceptado, {solicitudData: res});
     } catch (e) {
       setError('Error al enviar tu solicitud. Intenta de nuevo.');
@@ -87,6 +176,18 @@ export default function ApoyoFinancieroScreen() {
       setEnviando(false);
     }
   };
+
+  //pantalla de carga mientras verifica el estado
+  if (verificandoEstado) {
+    return (
+      <View style={localStyles.container}>
+        <CMainAppBar mode="sub" title="Apoyo financiero" />
+        <View style={localStyles.center}>
+          <ActivityIndicator size="large" color="#0aa693" />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={localStyles.container}>

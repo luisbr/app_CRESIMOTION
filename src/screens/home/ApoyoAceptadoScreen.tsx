@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import CText from '../../components/common/CText';
 import CMainAppBar from '../../components/common/CMainAppBar';
 import {validarCodigoApoyo} from '../../api/apoyoFinanciero';
-import {StackNav} from '../../navigation/NavigationKey';
+import {StackNav, TabNav} from '../../navigation/NavigationKey';
 
 export default function ApoyoAceptadoScreen() {
   const navigation = useNavigation<any>();
@@ -29,11 +30,31 @@ export default function ApoyoAceptadoScreen() {
   const [codigoInput, setCodigoInput] = useState('');
   const [validando, setValidando] = useState(false);
   const [resultado, setResultado] = useState<{success: boolean; message?: string} | null>(null);
+  const [copiado, setCopiado] = useState(false);
+  const [diasRestantes, setDiasRestantes] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (fechaExp) {
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const exp = new Date(fechaExp + 'T00:00:00');
+      const diff = Math.ceil((exp.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+      setDiasRestantes(diff > 0 ? diff : 0);
+    }
+  }, [fechaExp]);
 
   const formatFecha = (dateStr: string | null) => {
     if (!dateStr) return '';
     const d = new Date(dateStr + 'T00:00:00');
     return d.toLocaleDateString('es-MX', {day: '2-digit', month: 'long', year: 'numeric'});
+  };
+
+  const copiarCodigo = async () => {
+    if (codigoInfo?.codigo) {
+      await Clipboard.setStringAsync(codigoInfo.codigo);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    }
   };
 
   const onValidarCodigo = async () => {
@@ -56,8 +77,46 @@ export default function ApoyoAceptadoScreen() {
   };
 
   const onContinuar = () => {
-    navigation.navigate(StackNav.WelcomeEmotion);
+    navigation.reset({
+      index: 0,
+      routes: [{ 
+        name: StackNav.TabNavigation, 
+        state: { 
+          routes: [{ name: TabNav.HomeTab }] 
+        } 
+      }]
+    });
   };
+
+  const onNuevaSolicitud = () => {
+    navigation.navigate(StackNav.ApoyoFinanciero);
+  };
+
+  const estaRechazado = solicitudData?.estatus === 'rechazada';
+
+  // Si la solicitud está rechazada
+  if (estaRechazado) {
+    return (
+      <View style={localStyles.container}>
+        <CMainAppBar mode="sub" title="Apoyo financiero" />
+        <View style={localStyles.center}>
+          <View style={[localStyles.iconWrap, {backgroundColor: '#ffebee'}]}>
+            <Ionicons name="close-circle-outline" size={48} color="#c62828" />
+          </View>
+          <CText type="B22" style={localStyles.pendingTitle}>Solicitud rechazada</CText>
+          <CText type="R15" style={localStyles.pendingDesc}>
+            Tu solicitud de apoyo financiero fue rechazada. Puedes intentar nuevamente cuando tu situación cambie.
+          </CText>
+          <TouchableOpacity style={localStyles.btnPrimario} onPress={onNuevaSolicitud}>
+            <CText type="S16" color="#fff">Nueva solicitud</CText>
+          </TouchableOpacity>
+          <TouchableOpacity style={localStyles.btnSecundario} onPress={onContinuar}>
+            <CText type="S16" color="#0aa693">Continuar con el plan actual</CText>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   // Si la solicitud está pendiente (aún no aprobada por el admin)
   if (!yaAprobado) {
@@ -127,44 +186,45 @@ export default function ApoyoAceptadoScreen() {
           </View>
         )}
 
-        {/* Campo código promocional */}
+        {/* Card de cupón mejorado */}
         {codigoInfo && !codigoInfo.usado && (
-          <View style={localStyles.codigoCard}>
-            <CText type="S15" style={localStyles.codigoLabel}>
-              Introduce el código de promoción enviado para acceder al descuento al pagar
-            </CText>
-            <View style={localStyles.codigoInputRow}>
-              <TextInput
-                style={localStyles.codigoInput}
-                value={codigoInput}
-                onChangeText={t => setCodigoInput(t.toUpperCase())}
-                placeholder="Código promo"
-                placeholderTextColor="#aaa"
-                autoCapitalize="characters"
-              />
-              <TouchableOpacity
-                style={localStyles.btnValidar}
-                onPress={onValidarCodigo}
-                disabled={validando || !codigoInput.trim()}>
-                {validando ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <CText type="S14" color="#fff">Validar</CText>
-                )}
-              </TouchableOpacity>
-            </View>
-            {resultado && (
-              <View style={[localStyles.resultadoBox, {backgroundColor: resultado.success ? '#e0f5f3' : '#ffebee'}]}>
-                <Ionicons
-                  name={resultado.success ? 'checkmark-circle-outline' : 'close-circle-outline'}
-                  size={18}
-                  color={resultado.success ? '#0aa693' : '#c62828'}
-                />
-                <CText type="R14" color={resultado.success ? '#0aa693' : '#c62828'} style={{marginLeft: 6}}>
-                  {resultado.success ? '¡Código validado exitosamente!' : (resultado.message || 'Código inválido.')}
-                </CText>
+          <View style={localStyles.couponCard}>
+            <View style={localStyles.couponHeader}>
+              <View style={localStyles.couponBadge}>
+                <CText type="B12" color="#fff">{descuento}% DESC</CText>
               </View>
-            )}
+              {diasRestantes !== null && diasRestantes > 0 && (
+                <View style={localStyles.diasBadge}>
+                  <Ionicons name="time-outline" size={14} color="#f59e0b" />
+                  <CText type="M12" color="#f59e0b" style={{marginLeft: 4}}>
+                    {diasRestantes} día{diasRestantes !== 1 ? 's' : ''} restantes
+                  </CText>
+                </View>
+              )}
+            </View>
+            
+            <View style={localStyles.couponBody}>
+              <CText type="R13" style={{color: '#666'}}>Tu código de descuento</CText>
+              <View style={localStyles.codigoDisplay}>
+                <CText type="B24" style={localStyles.codigoTexto}>{codigoInfo.codigo}</CText>
+                <TouchableOpacity onPress={copiarCodigo} style={localStyles.btnCopiar}>
+                  {copiado ? (
+                    <Ionicons name="checkmark" size={20} color="#0aa693" />
+                  ) : (
+                    <Ionicons name="copy-outline" size={20} color="#0aa693" />
+                  )}
+                </TouchableOpacity>
+              </View>
+              {copiado && (
+                <CText type="R12" color="#0aa693" style={{marginTop: 4}}>¡Código copiado!</CText>
+              )}
+            </View>
+            
+            <View style={localStyles.couponFooter}>
+              <CText type="R12" style={{color: '#888', textAlign: 'center'}}>
+                Este código se aplicará automáticamente al suscribirte
+              </CText>
+            </View>
           </View>
         )}
 
@@ -231,7 +291,68 @@ const localStyles = StyleSheet.create({
   expWrap: {flexDirection: 'row', alignItems: 'center', marginTop: 4},
   expText: {color: '#666', marginLeft: 6},
 
-  // Código card
+  // Coupon card mejorado
+  couponCard: {
+    backgroundColor: '#fff', 
+    borderRadius: 20, 
+    marginBottom: 16,
+    overflow: 'hidden',
+    shadowColor: '#0aa693',
+    shadowOpacity: 0.15, 
+    shadowRadius: 12, 
+    elevation: 5,
+    borderWidth: 2,
+    borderColor: '#0aa693',
+  },
+  couponHeader: {
+    backgroundColor: '#0aa693',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  couponBadge: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  diasBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  couponBody: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  codigoDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+  },
+  codigoTexto: {
+    color: '#1a1a2e',
+    letterSpacing: 3,
+    fontFamily: 'monospace',
+  },
+  btnCopiar: {
+    marginLeft: 12,
+    padding: 8,
+  },
+  couponFooter: {
+    backgroundColor: '#f9f9f9',
+    padding: 12,
+  },
+  
+  // Old code card (kept for reference)
   codigoCard: {
     backgroundColor: '#fff', borderRadius: 16, padding: 20, marginBottom: 16,
     shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 8, elevation: 3,
@@ -259,11 +380,13 @@ const localStyles = StyleSheet.create({
   // Botones
   btnPrimario: {
     backgroundColor: '#0aa693', borderRadius: 30, paddingVertical: 16,
-    alignItems: 'center', marginBottom: 14,
+    paddingHorizontal: 24, alignItems: 'center', marginBottom: 14,
+    marginHorizontal: 20,
     shadowColor: '#0aa693', shadowOpacity: 0.35, shadowRadius: 10, elevation: 5,
   },
   btnSecundario: {
     borderWidth: 2, borderColor: '#0aa693', borderRadius: 30,
-    paddingVertical: 14, alignItems: 'center',
+    paddingVertical: 14, paddingHorizontal: 24, alignItems: 'center',
+    marginHorizontal: 20,
   },
 });

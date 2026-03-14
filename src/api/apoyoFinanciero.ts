@@ -20,6 +20,7 @@ export const obtenerFormularioApoyo = async () => {
  */
 export const solicitarApoyoFinanciero = async (respuestas) => {
   const session = await getSession();
+  
   const res = await fetch(`${BASE}/solicitar`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -28,8 +29,18 @@ export const solicitarApoyoFinanciero = async (respuestas) => {
       respuestas,
     }),
   });
-  if (!res.ok) throw new Error('Error al enviar la solicitud.');
-  return res.json();
+
+  if (!res.ok) {
+    throw new Error(`Error del servidor (HTTP ${res.status})`);
+  }
+
+  const data = await res.json();
+  
+  if (!data.success) {
+    throw new Error(data.message || 'Error al enviar la solicitud.');
+  }
+  
+  return data;
 };
 
 /**
