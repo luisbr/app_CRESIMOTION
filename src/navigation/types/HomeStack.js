@@ -31,6 +31,7 @@ import DiagnosticoWizardScreen from '../../modules/diagnostico/screens/Diagnosti
 import DiagnosticoResultsScreen from '../../modules/diagnostico/screens/DiagnosticoResultsScreen';
 import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryScreen';
 import DiagnosticoHistoryDetailScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryDetailScreen';
+import TestResultsHistoryScreen from '../../modules/diagnostico/screens/TestResultsHistoryScreen';
 import SupportResourcesScreen from '../../modules/diagnostico/screens/SupportResourcesScreen';
 
 const Stack = createStackNavigator();
@@ -46,6 +47,7 @@ export default function HomeStack() {
       <Stack.Screen name="DiagnosticoResults" component={DiagnosticoResultsScreen} />
       <Stack.Screen name="DiagnosticoHistory" component={DiagnosticoHistoryScreen} />
       <Stack.Screen name="DiagnosticoHistoryDetail" component={DiagnosticoHistoryDetailScreen} />
+      <Stack.Screen name="TestResultsHistory" component={TestResultsHistoryScreen} />
       <Stack.Screen name="SupportResources" component={SupportResourcesScreen} />
       <Stack.Screen name="ReasonsList" component={ReasonsListScreen} />
       <Stack.Screen name="IntensityWizard" component={IntensityWizardScreen} />

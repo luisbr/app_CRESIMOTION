@@ -123,6 +123,12 @@ function DrawerMenu() {
             <CText type={'S16'} color={colors.white}>Test</CText>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.TestResultsHistory)}>
+          <Ionicons name={'stats-chart-outline'} size={20} color={colors.white} />
+          <View style={styles.ml10}>
+            <CText type={'S16'} color={colors.white}>Mis resultados de tests</CText>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.Configuration)}>
           <Ionicons name={'settings-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>

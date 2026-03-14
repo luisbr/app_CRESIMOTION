@@ -25,6 +25,7 @@ export const StackNav = {
   TestsGabo: 'TestsGabo',
   TestDetail: 'TestDetail',
   TestResult: 'TestResult',
+  TestResultsHistory: 'TestResultsHistory',
   Profile: 'Profile',
 };
 

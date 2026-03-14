@@ -59,6 +59,7 @@ import HomeTab from '../container/home/HomeTab';
 import CalenderTab from '../container/Calender/CalenderTab';
 import ProfileTab from '../container/profile/ProfileTab';
 import DiagnosticoHistoryScreen from '../modules/diagnostico/screens/DiagnosticoHistoryScreen';
+import TestResultsHistoryScreen from '../modules/diagnostico/screens/TestResultsHistoryScreen';
 
 export const StackRoute = {
   Splash,
@@ -107,6 +108,7 @@ export const StackRoute = {
   TestsGabo: TestsListScreen,
   TestDetail: TestDetailScreen,
   TestResult: TestResultScreen,
+  TestResultsHistory: TestResultsHistoryScreen,
   Profile: ProfileTab,
 };
 
