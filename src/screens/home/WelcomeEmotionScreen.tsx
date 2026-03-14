@@ -100,24 +100,9 @@ export default function WelcomeEmotionScreen() {
 
   const handleResponder = () => {
     if (isLoggedIn) {
-      // Go to Diagnostico Home Screen
       navigation.reset({
         index: 0,
-        routes: [
-          {
-            name: StackNav.TabNavigation,
-            state: {
-              routes: [
-                {
-                  name: TabNav.HomeTab,
-                  state: {
-                    routes: [{name: 'DiagnosticoHome'}],
-                  },
-                },
-              ],
-            },
-          },
-        ],
+        routes: [{name: StackNav.WelcomeEmotion}],
       });
     } else {
       navigation.reset({
@@ -390,4 +375,4 @@ const localStyles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-https://com.luis.buendiagmail.com.crestimotion//stripe/success?membresia_id=2&session_id=cs_test_a1iwmZBBqtVLR3ZwgOfvFBNOJ5bLRWsGVAZPbAXmG7leBsll7VGMHvzmpJ
+// https://com.luis.buendiagmail.com.crestimotion//stripe/success?membresia_id=2&session_id=cs_test_a1iwmZBBqtVLR3ZwgOfvFBNOJ5bLRWsGVAZPbAXmG7leBsll7VGMHvzmpJ

@@ -21,6 +21,8 @@ export default function TestResultScreen() {
   const route = useRoute<any>();
   const {testName, puntaje, result} = route.params ?? {};
 
+  console.log('[TestResultScreen] Params:', {testName, puntaje, result});
+
   const rango = result?.rango ?? null;
 
   // resultado_texto is the label in the actual DB schema

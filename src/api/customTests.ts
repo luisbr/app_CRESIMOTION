@@ -45,6 +45,7 @@ export async function submitCustomTestResult(
       body: JSON.stringify({ puntaje, usuario_id: usuarioId }),
     });
     const json = await res.json();
+    console.log('[CustomTests] API Response:', JSON.stringify(json, null, 2));
     return json;
   } catch (e) {
     console.log('[CustomTests][ERROR] submitCustomTestResult', e);
