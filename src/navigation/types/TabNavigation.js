@@ -95,7 +95,7 @@ function TabNavigation() {
             tabBarIcon: ({focused}) => (
               <TabText
                 iconName="document-text-outline"
-                label="Mis evaluaciones"
+                label="Mis autoevaluaciones"
                 focused={focused}
               />
             ),

@@ -10,6 +10,7 @@ import CButton from '../../components/common/CButton';
 import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { canSkipAudio, getAudioTitle, getAudioUrl, getMotivoId, getMotivoLabel, getSkipLabel, normalizeTherapyNext } from './therapyUtils';
+import { completeTherapyStep } from '../../api/sesionTerapeutica';
 import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL } from '../../api/config';
 
@@ -282,13 +283,13 @@ export default function FocusContentScreen({ navigation, route }: any) {
       Alert.alert('Error', 'No se encontró la sesión.');
       return;
     }
-    navigation.replace('TherapyFocusMotivoEval', {
-      sessionId,
-      motivoId,
-      motivoLabel,
-      next: nextPayload,
-      entrypoint,
-    });
+    completeTherapyStep({ sessionId, action: 'NEXT' })
+      .then(next => {
+        navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
+      })
+      .catch((e: any) => {
+        Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      });
   };
 
   return (
