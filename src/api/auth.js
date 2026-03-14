@@ -284,6 +284,14 @@ export const updateProfilePassword = async ({current_password, new_password}) =>
   return authPostWithHeaders(ENDPOINTS.PROFILE_PASSWORD, {current_password, new_password});
 };
 
+export const suspendAccount = async () => {
+  return authPostWithHeaders(ENDPOINTS.PROFILE_SUSPEND, {});
+};
+
+export const deleteAccount = async () => {
+  return authPostWithHeaders(ENDPOINTS.PROFILE_DELETE, {});
+};
+
 export const getMembresias = async () => {
   const url = `${API_BASE_URL}${ENDPOINTS.MEMBRESIAS}`;
   const res = await fetch(url);
@@ -306,8 +314,8 @@ export const createSuscripcionIntent = async (membresia_id, success_url, cancel_
   return authPost(ENDPOINTS.SUSCRIPCION_INTENT, { membresia_id, success_url, cancel_url });
 };
 
-export const confirmarSuscripcion = async (membresia_id) => {
-  return authPost(ENDPOINTS.SUSCRIPCION_CONFIRMAR, { membresia_id });
+export const confirmarSuscripcion = async (membresia_id, session_id) => {
+  return authPost(ENDPOINTS.SUSCRIPCION_CONFIRMAR, { membresia_id, session_id });
 };
 
 export const cancelarSuscripcion = async () => {
@@ -316,4 +324,32 @@ export const cancelarSuscripcion = async () => {
 
 export const savePushToken = async (expo_push_token) => {
   return authPost(ENDPOINTS.ACTUALIZAR_PUSH_TOKEN, { expo_push_token });
+};
+
+export const getPaymentMethod = async () => {
+  const session = await getSession();
+  const url = `${API_BASE_URL}${ENDPOINTS.SUSCRIPCION_METODO_PAGO}?id=${session.id}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return res.json();
+  } catch (e) {
+    return null;
+  }
+};
+
+export const getPaymentHistory = async () => {
+  const session = await getSession();
+  const url = `${API_BASE_URL}${ENDPOINTS.SUSCRIPCION_HISTORIAL}?id=${session.id}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return res.json();
+  } catch (e) {
+    return null;
+  }
+};
+
+export const createSetupIntent = async (success_url, cancel_url) => {
+  return authPost(ENDPOINTS.SUSCRIPCION_ACTUALIZAR_METODO, { success_url, cancel_url });
 };

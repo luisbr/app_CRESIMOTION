@@ -16,9 +16,16 @@ export const StackNav = {
   MyPayment: 'MyPayment',
   AddNewCard: 'AddNewCard',
   HelpAndSupport: 'HelpAndSupport',
+  Configuration: 'Configuration',
   Languages: 'Languages',
   FormsStack: 'FormsStack',
   Subscription: 'Subscription',
+  WelcomeEmotion: 'WelcomeEmotion',
+  WellnessNetwork: 'WellnessNetwork',
+  TestsGabo: 'TestsGabo',
+  TestDetail: 'TestDetail',
+  TestResult: 'TestResult',
+  Profile: 'Profile',
 };
 
 export const AuthNav = {
@@ -34,5 +41,5 @@ export const TabNav = {
   HomeTab: 'HomeTab',
   CalenderTab: 'CalenderTab',
   EvaluationsTab: 'EvaluationsTab',
-  ProfileTab: 'ProfileTab',
+  TestsTab: 'TestsTab',
 };

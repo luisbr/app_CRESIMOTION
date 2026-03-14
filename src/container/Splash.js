@@ -12,8 +12,9 @@ import CText from "../components/common/CText";
 import strings from "../i18n/strings";
 import { initialStorageValueGet } from "../utils/AsyncStorage";
 import { colors } from "../theme/colors";
-import { changeThemeAction } from "../redux/action/themeAction";
+import { changeThemeAction, changeFontScaleAction } from "../redux/action/themeAction";
 import { StackNav } from "../navigation/NavigationKey";
+import { getProfile } from "../api/auth";
 
 export default function Splash({ navigation }) {
   const color = useSelector((state) => state.theme.theme);
@@ -33,14 +34,27 @@ export default function Splash({ navigation }) {
           }
         }
         // Small delay to keep the logo visible a moment
-        const navigateNext = () => {
+        const navigateNext = async () => {
           try {
             if (!!accessTokenValue) {
-              console.log('Splash navigating to TabNavigation');
-              navigation.reset({ index: 0, routes: [{ name: StackNav.TabNavigation }] });
+              // Fetch user profile settings silently to set global scaling before reaching home
+              try {
+                const p = await getProfile();
+                if (p && p.success && p.perfil && p.perfil.accesibilidad_fuente) {
+                  let startScale = 1.0;
+                  if (p.perfil.accesibilidad_fuente === 'pequeno') startScale = 0.85;
+                  if (p.perfil.accesibilidad_fuente === 'grande') startScale = 1.15;
+                  dispatch(changeFontScaleAction(startScale));
+                }
+              } catch (e) {
+                console.log("Error loading initial font scaling", e);
+              }
+
+              console.log('Splash navigating to WelcomeEmotion');
+              navigation.reset({ index: 0, routes: [{ name: StackNav.WelcomeEmotion }] });
             } else if (!!onBoardingValue) {
-              console.log('Splash navigating to AuthNavigation');
-              navigation.reset({ index: 0, routes: [{ name: StackNav.AuthNavigation }] });
+              console.log('Splash navigating to WelcomeEmotion');
+              navigation.reset({ index: 0, routes: [{ name: StackNav.WelcomeEmotion }] });
             } else {
               console.log('Splash navigating to OnBoarding');
               navigation.reset({ index: 0, routes: [{ name: StackNav.OnBoarding }] });

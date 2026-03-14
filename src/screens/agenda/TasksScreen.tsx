@@ -9,7 +9,7 @@ import CButton from '../../components/common/CButton';
 import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { getAgendaItems } from '../../api/sesionTerapeutica';
-import TherapyHeader from '../therapy/TherapyHeader';
+import CMainAppBar from '../../components/common/CMainAppBar';
 
 const daysHeader = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
@@ -282,7 +282,7 @@ export default function TasksScreen({ navigation }: any) {
 
   return (
     <CSafeAreaView>
-      <TherapyHeader />
+      <CMainAppBar mode="main" />
       <View style={styles.p20}>
         <View style={[styles.rowSpaceBetween, styles.mb10]}>
           <CText type={'B20'}>Tareas</CText>

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, ScrollView, View, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
-import CHeader from '../../../components/common/CHeader';
+import CMainAppBar from '../../../components/common/CMainAppBar';
 import {Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
@@ -174,41 +174,19 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
 
   return (
     <CSafeAreaView>
-      <CHeader
-        isHideBack
-        centerAccessory={
-          <Image
-            source={require('../../../../assets/logo.png')}
-            style={{width: moderateScale(110), height: moderateScale(50)}}
-            resizeMode="contain"
-          />
-        }
-        isLeftIcon={
-          <TouchableOpacity onPress={drawer.open} style={{padding: 6, marginLeft: -8}}>
-            <Ionicons name={'menu-outline'} size={moderateScale(24)} color={colors.textColor} />
-          </TouchableOpacity>
-        }
-        rightAccessory={
-          <View style={[styles.rowStart, styles.g10]}>
-            <TouchableOpacity style={{width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(18), alignItems: 'center', justifyContent: 'center'}}>
-              <Ionicons name={'call-outline'} size={moderateScale(22)} color={colors.textColor} />
-            </TouchableOpacity>
-            <TouchableOpacity style={{width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(18), alignItems: 'center', justifyContent: 'center'}}>
-              <Ionicons name={'notifications-outline'} size={moderateScale(22)} color={colors.textColor} />
-            </TouchableOpacity>
-          </View>
-        }
-      />
-      <View style={[styles.flex, styles.p20, {position: 'relative'}]}>
-        <CText type={'S24'} align={'center'} style={styles.mb10}>
-          {moduleKey === 'motivos'
+      <CMainAppBar 
+        mode="sub" 
+        title={
+          moduleKey === 'motivos'
             ? 'Motivos de tu estado emocional'
             : moduleKey === 'sintomas_fisicos'
             ? 'Sintomatología física'
             : moduleKey === 'sintomas_emocionales'
             ? 'Sintomatología emocional'
-            : capitalizeSentence(moduleKey.replace('_', ' '))}
-        </CText>
+            : capitalizeSentence(moduleKey.replace('_', ' '))
+        } 
+      />
+      <View style={[styles.flex, styles.p20, {position: 'relative', paddingTop: moderateScale(10)}]}>
         <View
           style={{
             backgroundColor: colors.inputBg,

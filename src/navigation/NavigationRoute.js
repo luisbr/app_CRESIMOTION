@@ -26,6 +26,7 @@ import AddNewCard from '../container/profile/AddNewCard';
 import HelpAndSupport from '../container/profile/HelpAndSupport';
 import Languages from '../container/profile/Languages';
 import SubscriptionScreen from '../container/profile/SubscriptionScreen';
+import ConfigurationScreen from '../container/profile/ConfigurationScreen';
 // forms flow
 import ReasonsListScreen from '../screens/forms/ReasonsListScreen';
 import IntensityWizardScreen from '../screens/forms/IntensityWizardScreen';
@@ -47,6 +48,11 @@ import BehaviorExerciseSelectScreen from '../screens/therapy/BehaviorExerciseSel
 import AgendaSetupScreen from '../screens/therapy/AgendaSetupScreen';
 import TasksScreen from '../screens/agenda/TasksScreen';
 import TaskDetailScreen from '../screens/agenda/TaskDetailScreen';
+import WelcomeEmotionScreen from '../screens/home/WelcomeEmotionScreen';
+import WellnessNetworkScreen from '../screens/home/WellnessNetworkScreen';
+import TestsListScreen from '../screens/tests/TestsListScreen';
+import TestDetailScreen from '../screens/tests/TestDetailScreen';
+import TestResultScreen from '../screens/tests/TestResultScreen';
 
 // tab screens
 import HomeTab from '../container/home/HomeTab';
@@ -73,6 +79,7 @@ export const StackRoute = {
   AddNewCard,
   HelpAndSupport,
   Languages,
+  Configuration: ConfigurationScreen,
   Subscription: SubscriptionScreen,
   // forms
   ReasonsListScreen,
@@ -95,6 +102,12 @@ export const StackRoute = {
   AgendaSetupScreen,
   TasksScreen,
   TaskDetailScreen,
+  WelcomeEmotion: WelcomeEmotionScreen,
+  WellnessNetwork: WellnessNetworkScreen,
+  TestsGabo: TestsListScreen,
+  TestDetail: TestDetailScreen,
+  TestResult: TestResultScreen,
+  Profile: ProfileTab,
 };
 
 export const AuthRoute = {
@@ -110,5 +123,5 @@ export const TabRoute = {
   HomeTab,
   CalenderTab,
   EvaluationsTab: DiagnosticoHistoryScreen,
-  ProfileTab,
+  TestsTab: TestsListScreen,
 };

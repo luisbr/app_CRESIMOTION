@@ -74,6 +74,10 @@ export default function StackNavigation() {
         component={StackRoute.Subscription}
       />
       <Stack.Screen
+        name={StackNav.Configuration}
+        component={StackRoute.Configuration}
+      />
+      <Stack.Screen
         name={StackNav.HelpAndSupport}
         component={StackRoute.HelpAndSupport}
       />
@@ -81,6 +85,30 @@ export default function StackNavigation() {
       <Stack.Screen name={"ReasonsList"} component={ReasonsListScreen} />
       <Stack.Screen name={"IntensityWizard"} component={IntensityWizardScreen} />
       <Stack.Screen name={"Summary"} component={SummaryScreen} />
+      <Stack.Screen
+        name={StackNav.WelcomeEmotion}
+        component={StackRoute.WelcomeEmotion}
+      />
+      <Stack.Screen
+        name={StackNav.WellnessNetwork}
+        component={StackRoute.WellnessNetwork}
+      />
+      <Stack.Screen
+        name={StackNav.TestsGabo}
+        component={StackRoute.TestsGabo}
+      />
+      <Stack.Screen
+        name={StackNav.TestDetail}
+        component={StackRoute.TestDetail}
+      />
+      <Stack.Screen
+        name={StackNav.TestResult}
+        component={StackRoute.TestResult}
+      />
+      <Stack.Screen
+        name={StackNav.Profile}
+        component={StackRoute.Profile}
+      />
     </Stack.Navigator>
   );
 }

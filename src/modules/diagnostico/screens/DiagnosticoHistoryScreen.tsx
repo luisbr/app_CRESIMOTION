@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, Image, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
-import CHeader from '../../../components/common/CHeader';
 import CText from '../../../components/common/CText';
 import {styles} from '../../../theme';
 import type {ModuleKey} from '../types';
@@ -11,6 +10,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
+import CMainAppBar from '../../../components/common/CMainAppBar';
 
 const MODULES: ModuleKey[] = ['motivos', 'sintomas_fisicos', 'sintomas_emocionales'];
 
@@ -168,35 +168,8 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
 
   return (
     <CSafeAreaView>
-      <CHeader
-        isHideBack
-        centerAccessory={
-          <Image
-            source={require('../../../../assets/logo.png')}
-            style={{width: moderateScale(110), height: moderateScale(50)}}
-            resizeMode="contain"
-          />
-        }
-        isLeftIcon={
-          <TouchableOpacity onPress={drawer.open} style={{padding: 6, marginLeft: -8}}>
-            <Ionicons name={'menu-outline'} size={moderateScale(24)} color={colors.textColor} />
-          </TouchableOpacity>
-        }
-        rightAccessory={
-          <View style={[styles.rowStart, styles.g10]}>
-            <TouchableOpacity style={{width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(18), alignItems: 'center', justifyContent: 'center'}}>
-              <Ionicons name={'call-outline'} size={moderateScale(22)} color={colors.textColor} />
-            </TouchableOpacity>
-            <TouchableOpacity style={{width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(18), alignItems: 'center', justifyContent: 'center'}}>
-              <Ionicons name={'notifications-outline'} size={moderateScale(22)} color={colors.textColor} />
-            </TouchableOpacity>
-          </View>
-        }
-      />
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={styles.p20}>
-        <CText type={'S24'} style={styles.mb10}>
-          Mis autoevaluaciones
-        </CText>
+      <CMainAppBar mode="sub" title="Mis autoevaluaciones" />
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={[styles.p20, {paddingTop: moderateScale(10)}]}>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : error ? (

@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {ActivityIndicator, Modal, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
-import CHeader from '../../../components/common/CHeader';
+import CMainAppBar from '../../../components/common/CMainAppBar';
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import {styles} from '../../../theme';
@@ -228,11 +228,9 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
 
   return (
     <CSafeAreaView>
-      <CHeader />
+      <CMainAppBar mode="sub" title={moduleTitle} />
       <View style={[styles.p20, styles.flex]}>
-        <CText type={'S24'} align={'center'} style={styles.mb10}>
-          Resultados
-        </CText>
+
         <CText type={'S12'} align={'center'} >
           Aquí te presentamos un resumen gráfico de la información que nos proporcionaste.
         </CText>
@@ -283,9 +281,6 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
                     </TouchableOpacity>
                   ))}
                 </View>
-                <CText type={'S16'} align={'center'} style={styles.mb10}>
-                  {moduleTitle}
-                </CText>
                 {view === 'bar' ? (
                   <BarChartSVG
                     data={mainItems.map((d, idx) => ({

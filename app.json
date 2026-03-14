@@ -41,7 +41,9 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "API_BASE_URL": "http://192.168.1.106",
+
+      "API_BASE_URL": "https://cresimotion.staging.mx",
+
       "eas": {
         "projectId": "3addbbcb-6772-4100-aeda-cc592300a1a4"
       }
@@ -53,9 +55,7 @@
       "@react-native-community/datetimepicker",
       "expo-localization"
     ],
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/3addbbcb-6772-4100-aeda-cc592300a1a4"
     }

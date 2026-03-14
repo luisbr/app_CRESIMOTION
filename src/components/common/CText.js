@@ -6,6 +6,8 @@ import {useSelector} from 'react-redux';
 //Text Component
 const CText = ({type, style, align, color, children, ...props}) => {
   const colors = useSelector(state => state.theme.theme);
+  const fontScale = useSelector(state => state.theme.fontScale) || 1.0;
+
   const fontWeights = () => {
     switch (type.charAt(0).toUpperCase()) {
       case 'R':
@@ -82,10 +84,19 @@ const CText = ({type, style, align, color, children, ...props}) => {
     }
   };
 
+  // Multiply fontSize based on user globally set preferences
+  const getScaledFontSize = () => {
+    const defaultSizeStyle = fontSize();
+    if (defaultSizeStyle && defaultSizeStyle.fontSize) {
+      return { fontSize: defaultSizeStyle.fontSize * fontScale };
+    }
+    return defaultSizeStyle;
+  };
+
   return (
     <Text
       style={[
-        type && {...fontWeights(), ...fontSize()},
+        type && {...fontWeights(), ...getScaledFontSize()},
         {color: color ? color : colors.textColor},
         align && {textAlign: align},
         style,
