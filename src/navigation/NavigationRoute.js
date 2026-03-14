@@ -50,6 +50,8 @@ import TasksScreen from '../screens/agenda/TasksScreen';
 import TaskDetailScreen from '../screens/agenda/TaskDetailScreen';
 import WelcomeEmotionScreen from '../screens/home/WelcomeEmotionScreen';
 import WellnessNetworkScreen from '../screens/home/WellnessNetworkScreen';
+import ApoyoFinancieroScreen from '../screens/home/ApoyoFinancieroScreen';
+import ApoyoAceptadoScreen from '../screens/home/ApoyoAceptadoScreen';
 import TestsListScreen from '../screens/tests/TestsListScreen';
 import TestDetailScreen from '../screens/tests/TestDetailScreen';
 import TestResultScreen from '../screens/tests/TestResultScreen';
@@ -110,6 +112,8 @@ export const StackRoute = {
   TestResult: TestResultScreen,
   TestResultsHistory: TestResultsHistoryScreen,
   Profile: ProfileTab,
+  ApoyoFinanciero: ApoyoFinancieroScreen,
+  ApoyoAceptado: ApoyoAceptadoScreen,
 };
 
 export const AuthRoute = {

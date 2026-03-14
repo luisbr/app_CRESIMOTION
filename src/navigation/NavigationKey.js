@@ -27,6 +27,8 @@ export const StackNav = {
   TestResult: 'TestResult',
   TestResultsHistory: 'TestResultsHistory',
   Profile: 'Profile',
+  ApoyoFinanciero: 'ApoyoFinanciero',
+  ApoyoAceptado: 'ApoyoAceptado',
 };
 
 export const AuthNav = {
