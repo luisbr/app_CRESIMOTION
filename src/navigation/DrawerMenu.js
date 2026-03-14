@@ -35,11 +35,24 @@ function DrawerMenu() {
     }
   }, [isOpen, refreshSession]);
 
-  const navigateHomeScreen = (screenName) => {
+  const navigateHomeScreen = (tabName) => {
     close();
-    navigation.navigate(StackNav.TabNavigation, {
-      screen: TabNav.HomeTab,
-      params: {screen: screenName},
+    if (tabName) {
+      navigation.navigate(tabName);
+    } else {
+      navigation.navigate(TabNav.HomeTab);
+    }
+  };
+
+  const navigateToTab = (tabName) => {
+    close();
+    navigation.navigate(tabName);
+  };
+
+  const navigateToStackScreen = (tabName, screenName) => {
+    close();
+    navigation.navigate(tabName, {
+      screen: screenName,
     });
   };
 
@@ -74,37 +87,37 @@ function DrawerMenu() {
       <TouchableOpacity style={localStyles.drawerBackdrop} onPress={close} />
       <View style={[localStyles.drawerPanel, {backgroundColor: '#0aa693'}]}>
         <View style={localStyles.drawerTopSpacer} />
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.WelcomeEmotion)}>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToTab(TabNav.HomeTab)}>
           <Ionicons name={'happy-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
             <CText type={'S16'} color={colors.white}>¿Cómo te sientes hoy?</CText>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('DiagnosticoHome')}>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToStackScreen(TabNav.HomeTab, 'DiagnosticoHome')}>
           <Ionicons name={'pulse-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
             <CText type={'S16'} color={colors.white}>Diagnostico</CText>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('DiagnosticoHistory')}>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToTab(TabNav.EvaluationsTab)}>
           <Ionicons name={'list-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
             <CText type={'S16'} color={colors.white}>Mis autoevaluaciones</CText>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('Tasks')}>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToTab(TabNav.CalenderTab)}>
           <Ionicons name={'calendar-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
             <CText type={'S16'} color={colors.white}>Tareas</CText>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateHomeScreen('TherapyPendingSessions')}>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToStackScreen(TabNav.HomeTab, 'TherapyPendingSessions')}>
           <Ionicons name={'heart-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
             <CText type={'S16'} color={colors.white}>Sesiones terapeuticas</CText>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigation.navigate(TabNav.TestsTab)}>
+        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToTab(TabNav.TestsTab)}>
           <Ionicons name={'clipboard-outline'} size={20} color={colors.white} />
           <View style={styles.ml10}>
             <CText type={'S16'} color={colors.white}>Test</CText>

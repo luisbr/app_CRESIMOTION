@@ -7,7 +7,7 @@ import {useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {setOnBoarding} from '../utils/AsyncStorage';
-import {StackNav} from '../navigation/NavigationKey';
+import {StackNav, TabNav} from '../navigation/NavigationKey';
 import {OnBoardingData} from '../api/constant';
 import {deviceHeight, deviceWidth, moderateScale} from '../common/constants';
 import CText from '../components/common/CText';
@@ -33,7 +33,7 @@ export default function OnBoarding() {
       await setOnBoarding(true);
       navigation.reset({
         index: 0,
-        routes: [{name: StackNav.WelcomeEmotion}],
+        routes: [{name: StackNav.TabNavigation, state: { routes: [{ name: TabNav.HomeTab }] }}],
       });
     } else {
       slideRef.current._listRef._scrollRef.scrollTo({

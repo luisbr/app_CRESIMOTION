@@ -1,6 +1,7 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import HomeTab from '../../container/home/HomeTab';
+import WelcomeEmotionScreen from '../../screens/home/WelcomeEmotionScreen';
 import ReasonsListScreen from '../../screens/forms/ReasonsListScreen';
 import IntensityWizardScreen from '../../screens/forms/IntensityWizardScreen';
 import SummaryScreen from '../../screens/forms/SummaryScreen';
@@ -36,8 +37,9 @@ const Stack = createStackNavigator();
 
 export default function HomeStack() {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="DiagnosticoHome">
+    <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="WelcomeEmotion">
       <Stack.Screen name="HomeRoot" component={HomeTab} />
+      <Stack.Screen name="WelcomeEmotion" component={WelcomeEmotionScreen} />
       <Stack.Screen name="DiagnosticoHome" component={DiagnosticoHomeScreen} />
       <Stack.Screen name="DiagnosticoSelection" component={DiagnosticoSelectionScreen} />
       <Stack.Screen name="DiagnosticoWizard" component={DiagnosticoWizardScreen} />

@@ -100,10 +100,7 @@ export default function WelcomeEmotionScreen() {
 
   const handleResponder = () => {
     if (isLoggedIn) {
-      navigation.reset({
-        index: 0,
-        routes: [{name: StackNav.WelcomeEmotion}],
-      });
+      navigation.navigate('DiagnosticoHome');
     } else {
       navigation.reset({
         index: 0,
@@ -246,7 +243,6 @@ export default function WelcomeEmotionScreen() {
       >
         {renderWelcomeSection()}
         {renderEmotionSelector()}
-        {renderBottomLinks()}
       </ScrollView>
     </CSafeAreaView>
   );

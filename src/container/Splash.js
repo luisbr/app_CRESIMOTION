@@ -13,7 +13,7 @@ import strings from "../i18n/strings";
 import { initialStorageValueGet } from "../utils/AsyncStorage";
 import { colors } from "../theme/colors";
 import { changeThemeAction, changeFontScaleAction } from "../redux/action/themeAction";
-import { StackNav } from "../navigation/NavigationKey";
+import { StackNav, TabNav } from "../navigation/NavigationKey";
 import { getProfile } from "../api/auth";
 
 export default function Splash({ navigation }) {
@@ -50,11 +50,11 @@ export default function Splash({ navigation }) {
                 console.log("Error loading initial font scaling", e);
               }
 
-              console.log('Splash navigating to WelcomeEmotion');
-              navigation.reset({ index: 0, routes: [{ name: StackNav.WelcomeEmotion }] });
+              console.log('Splash navigating to TabNavigation');
+              navigation.reset({ index: 0, routes: [{ name: StackNav.TabNavigation, state: { routes: [{ name: TabNav.HomeTab }] } }] });
             } else if (!!onBoardingValue) {
-              console.log('Splash navigating to WelcomeEmotion');
-              navigation.reset({ index: 0, routes: [{ name: StackNav.WelcomeEmotion }] });
+              console.log('Splash navigating to TabNavigation');
+              navigation.reset({ index: 0, routes: [{ name: StackNav.TabNavigation, state: { routes: [{ name: TabNav.HomeTab }] } }] });
             } else {
               console.log('Splash navigating to OnBoarding');
               navigation.reset({ index: 0, routes: [{ name: StackNav.OnBoarding }] });

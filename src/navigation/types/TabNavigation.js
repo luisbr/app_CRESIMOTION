@@ -14,6 +14,7 @@ import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/Diagnost
 import HomeStack from './HomeStack';
 import TasksScreen from '../../screens/agenda/TasksScreen';
 import TestsListScreen from '../../screens/tests/TestsListScreen';
+import WelcomeEmotionScreen from '../../screens/home/WelcomeEmotionScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {DrawerProvider, useDrawer} from '../DrawerContext';
 import {getSession} from '../../api/auth';
