@@ -364,5 +364,11 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
     width: getWidth(70),
   },
+  bottomIconLabel: {
+    ...styles.mt5,
+    fontSize: moderateScale(10),
+    lineHeight: moderateScale(12),
+    textAlign: 'center',
+  },
 });
-// https://com.luis.buendiagmail.com.crestimotion//stripe/success?membresia_id=2&session_id=cs_test_a1iwmZBBqtVLR3ZwgOfvFBNOJ5bLRWsGVAZPbAXmG7leBsll7VGMHvzmpJ
+https://com.luis.buendiagmail.com.crestimotion//stripe/success?membresia_id=2&session_id=cs_test_a1iwmZBBqtVLR3ZwgOfvFBNOJ5bLRWsGVAZPbAXmG7leBsll7VGMHvzmpJ
