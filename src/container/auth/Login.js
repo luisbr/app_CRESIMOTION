@@ -1,5 +1,5 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // custom imports
@@ -19,9 +19,12 @@ import TermsModal from '../../components/model/TermsModal';
 // Removed social login icons
 import {AuthNav, StackNav} from '../../navigation/NavigationKey';
 import {setAuthToken} from '../../utils/AsyncStorage';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 export default function Login({navigation}) {
   const colors = useSelector(state => state.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
+  const submittingRef = useRef(false);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [password, setPassword] = useState('');
@@ -47,22 +50,28 @@ export default function Login({navigation}) {
   };
 
   const onPressSignUp = () => {
-    navigation.navigate(AuthNav.Register);
+    safeNavigation.navigate(AuthNav.Register);
   };
 
   const onPressForgotPass = () => {
-    navigation.navigate(AuthNav.ForgotPassword, {correo: email});
+    safeNavigation.navigate(AuthNav.ForgotPassword, {correo: email});
   };
   const onPressSignIn = async () => {
+    if (submittingRef.current) {
+      return;
+    }
     if (emailError || passwordError || !email || !password) {
       return;
     }
+    submittingRef.current = true;
     setSubmitting(true);
     setSubmitError('');
+    let didNavigate = false;
     try {
       const resp = await apiLogin({correo: email, contrasena: password});
       if (resp && (resp.success === true || resp.status === true)) {
-        navigation.reset({index: 0, routes: [{name: StackNav.WelcomeEmotion}]});
+        didNavigate = true;
+        safeNavigation.reset({index: 0, routes: [{name: StackNav.WelcomeEmotion}]});
       } else {
         setSubmitError((resp && (resp.success_message || resp.message)) || 'Error al iniciar sesión');
       }
@@ -70,6 +79,8 @@ export default function Login({navigation}) {
       console.log('Login error:', e);
       setSubmitError('Error de red');
     } finally {
+      if (didNavigate) return;
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };
@@ -146,7 +157,7 @@ export default function Login({navigation}) {
               </CText>
             </TouchableOpacity>
           </View>
-          <CButton title={strings.signIn} onPress={onPressSignIn} disabled={submitting} />
+          <CButton title={strings.signIn} onPress={onPressSignIn} disabled={submitting} loading={submitting} />
           {!!submitError && (
             <CText type={'S14'} align={'center'} color={colors.redAlert}>
               {submitError}

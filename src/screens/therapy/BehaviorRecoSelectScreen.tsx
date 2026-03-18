@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { View, FlatList, TouchableOpacity, Alert, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -11,9 +11,11 @@ import { moderateScale } from '../../common/constants';
 import { submitBehaviorRecommendations } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
@@ -29,6 +31,8 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
   const min = Number(selection?.required_min || 1);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
 
   const getItemKey = (item: any, index: number) =>
     String(item?.recomendacion_id ?? item?.id ?? index);
@@ -70,6 +74,10 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
 
 
   const onContinue = async () => {
+    if (submittingRef.current) {
+      return;
+    }
+    let didNavigate = false;
     try {
       if (!sessionId) throw new Error('No se encontró la sesión.');
       if (selectedCount < min) return;
@@ -77,6 +85,8 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
         Alert.alert('Error', 'No pudimos identificar las recomendaciones seleccionadas.');
         return;
       }
+      submittingRef.current = true;
+      setSubmitting(true);
       console.log('[THERAPY] recomendaciones payload', {
         sessionId,
         recomendacionIds: selectedIds,
@@ -85,9 +95,14 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
       });
       const next = await submitBehaviorRecommendations({ sessionId, recomendacionIds: selectedIds });
       console.log('[THERAPY] recomendaciones response', next);
-      navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
+      didNavigate = true;
+      safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo continuar.');
+    } finally {
+      if (didNavigate) return;
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -223,7 +238,7 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
           elevation: 6,
         }}
       >
-        <CButton title={'Siguiente'} disabled={selectedCount < min} onPress={onContinue} />
+        <CButton title={'Siguiente'} disabled={selectedCount < min || submitting} loading={submitting} onPress={onContinue} />
       </View>
       <ScreenTooltip />
     </CSafeAreaView>

@@ -14,9 +14,11 @@ import CButton from '../../components/common/CButton';
 import {validateEmail} from '../../utils/Validation';
 import {AuthNav} from '../../navigation/NavigationKey';
 import {requestPasswordReset} from '../../api/auth';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 export default function ForgotPassword({navigation, route}) {
   const colors = useSelector(state => state.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const [email, setEmail] = useState(route?.params?.correo || '');
   const [emailError, setEmailError] = useState('');
   const [submitError, setSubmitError] = useState('');
@@ -39,6 +41,7 @@ export default function ForgotPassword({navigation, route}) {
       return;
     }
     setSubmitting(true);
+    let didNavigate = false;
     try {
       const resp = await requestPasswordReset({correo: normalizedEmail});
       if (resp?.retry_in_seconds) {
@@ -46,13 +49,15 @@ export default function ForgotPassword({navigation, route}) {
         return;
       }
       if (resp && (resp.success === true || resp.status === true)) {
-        navigation.navigate(AuthNav.OtpScreen, {correo: normalizedEmail});
+        didNavigate = true;
+        safeNavigation.navigate(AuthNav.OtpScreen, {correo: normalizedEmail});
         return;
       }
       setSubmitError(resp?.message || 'No se pudo enviar el codigo.');
     } catch (e) {
       setSubmitError(e?.body?.message || e?.message || 'No se pudo enviar el codigo.');
     } finally {
+      if (didNavigate) return;
       setSubmitting(false);
     }
   };
@@ -85,7 +90,7 @@ export default function ForgotPassword({navigation, route}) {
             {submitError}
           </CText>
         )}
-        <CButton title={strings.next} onPress={onPressNext} />
+        <CButton title={strings.next} onPress={onPressNext} disabled={submitting} loading={submitting} />
       </KeyBoardAvoidWrapper>
     </CSafeAreaView>
   );

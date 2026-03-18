@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Platform, ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -11,6 +11,7 @@ import { submitAgendaItems } from '../../api/sesionTerapeutica';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Calendar from 'expo-calendar';
 import { normalizeTherapyNext } from './therapyUtils';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 const DAYS = [
   { key: 'mon', label: 'Lun' },
@@ -58,6 +59,7 @@ const FREQUENCIES = [
 
 export default function AgendaSetupScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const nextPayload = route?.params?.next || null;
   const { data, sessionId: nextSessionId } = normalizeTherapyNext(nextPayload);
   const sessionId = route?.params?.sessionId ?? nextSessionId ?? null;
@@ -81,6 +83,8 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
 
   const [datePicker, setDatePicker] = useState<{ idx: number; field: 'start_date' | 'end_date' } | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
 
   const formatDate = (d: Date) => {
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -218,6 +222,10 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
   };
 
   const onSave = async () => {
+    if (savingRef.current) {
+      return;
+    }
+    let didNavigate = false;
     try {
       if (!sessionId) throw new Error('No se encontró la sesión.');
       const invalid = rows.find(r => !isValidRange(r));
@@ -229,6 +237,8 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
         );
         return;
       }
+      savingRef.current = true;
+      setSaving(true);
       const items = rows.map((r: any) => ({
         ejercicio_id: r.ejercicio_id,
         custom_title: r.custom_title || r.title || '',
@@ -254,10 +264,17 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
       await createCalendarEvents(items);
       setSuccessMessage('Agenda registrada correctamente.');
       setTimeout(() => {
-        navigation.navigate('HomeRoot');
+        savingRef.current = false;
+        setSaving(false);
+        safeNavigation.navigate('HomeRoot');
       }, 1200);
+      didNavigate = true;
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo guardar la agenda.');
+    } finally {
+      if (didNavigate) return;
+      savingRef.current = false;
+      setSaving(false);
     }
   };
 
@@ -359,7 +376,7 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
               No hay ejercicios para programar en este momento. Vuelve a intentar desde la selección de hábitos.
             </CText>
             <View style={styles.mt10}>
-              <CButton title={'Volver al inicio'} onPress={() => navigation.navigate('HomeRoot')} />
+              <CButton title={'Volver al inicio'} onPress={() => safeNavigation.navigate('HomeRoot')} />
             </View>
           </View>
         )}
@@ -545,7 +562,7 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
             elevation: 6,
           }}
         >
-          <CButton title={'Guardar agenda'} disabled={!canSave} onPress={onSave} />
+          <CButton title={'Guardar agenda'} disabled={!canSave || saving} loading={saving} onPress={onSave} />
         </View>
       )}
       <ScreenTooltip />

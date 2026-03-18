@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { View, FlatList, TouchableOpacity, Alert, ScrollView, Platform, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -11,9 +11,11 @@ import { moderateScale } from '../../common/constants';
 import { submitBehaviorExercises } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 export default function BehaviorExerciseSelectScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
@@ -28,6 +30,8 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
   const requiredMin = Number(rules?.required_min_per_group || 1);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
 
   const selectedIds = useMemo(() => Object.entries(selected).filter(([, v]) => v).map(([k]) => Number(k)), [selected]);
 
@@ -56,6 +60,10 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
   }, [groups, requiredMin, selected, selectedIds.length]);
 
   const onContinue = async () => {
+    if (submittingRef.current) {
+      return;
+    }
+    let didNavigate = false;
     if (!sessionId) {
       Alert.alert('Error', 'No se encontró la sesión.');
       return;
@@ -89,11 +97,18 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
     });
     if (!items.length) return;
     try {
+      submittingRef.current = true;
+      setSubmitting(true);
       const resp = await submitBehaviorExercises({ sessionId, items });
       console.log('[THERAPY] ejercicios response', resp);
-      navigation.navigate('TherapyAgendaSetup', { sessionId, exercises: exercisesForAgenda });
+      didNavigate = true;
+      safeNavigation.navigate('TherapyAgendaSetup', { sessionId, exercises: exercisesForAgenda });
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo guardar los ejercicios.');
+    } finally {
+      if (didNavigate) return;
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -242,7 +257,7 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
           elevation: 6,
         }}
       >
-        <CButton title={'Siguiente'} disabled={selectedIds.length === 0} onPress={onContinue} />
+        <CButton title={'Siguiente'} disabled={selectedIds.length === 0 || submitting} loading={submitting} onPress={onContinue} />
       </View>
       <ScreenTooltip />
     </CSafeAreaView>

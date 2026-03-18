@@ -1251,6 +1251,7 @@ export default function Register({navigation}) {
                   title={strings.tutorCodeSend}
                   onPress={onRequestTutorCode}
                   disabled={tutorRequesting}
+                  loading={tutorRequesting}
                 />
               )}
               {!tutorVerified && !tutorCodeSent && !!tutorCodeError && (
@@ -1285,6 +1286,7 @@ export default function Register({navigation}) {
                     title={strings.tutorCodeVerify}
                     onPress={onVerifyTutorCode}
                     disabled={tutorVerifying}
+                    loading={tutorVerifying}
                   />
                 </>
               )}
@@ -1350,6 +1352,7 @@ export default function Register({navigation}) {
                   title={strings.register}
                   onPress={onPressRegister}
                   disabled={emailRequesting || submitting || !termsAccepted}
+                  loading={emailRequesting || submitting}
                 />
               )}
               {!emailCodeSent && !!emailCodeError && (
@@ -1387,6 +1390,7 @@ export default function Register({navigation}) {
                     title={strings.register}
                     onPress={onPressRegister}
                     disabled={submitting || !termsAccepted}
+                    loading={submitting}
                   />
                 </>
               )}

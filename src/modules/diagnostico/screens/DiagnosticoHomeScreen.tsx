@@ -20,9 +20,11 @@ import {getStoredNotifications} from '../../../utils/notificationStorage';
 import {StackNav, TabNav} from '../../../navigation/NavigationKey';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import CMainAppBar from '../../../components/common/CMainAppBar';
+import {useSafeNavigation} from '../../../navigation/safeNavigation';
 
 export default function DiagnosticoHomeScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const drawer = useDrawer();
   const [loading, setLoading] = useState(false);
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
@@ -30,6 +32,8 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   const [hasNewNotifs, setHasNewNotifs] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isCheckingRef = useRef(false);
+  const [navigating, setNavigating] = useState(false);
+  const navigatingRef = useRef(false);
   const nextModuleKey: ModuleKey =
     (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
   const moduleTitleMap: Record<ModuleKey, string> = {
@@ -184,26 +188,44 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   }, [navigation, checkResume]);
 
   const onPressStart = () => {
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
+    setNavigating(true);
     if (therapyNext) {
-      navigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
+      safeNavigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
       return;
     }
-    navigation.navigate('DiagnosticoSelection', {module_key: 'motivos'});
+    safeNavigation.navigate('DiagnosticoSelection', {module_key: 'motivos'});
   };
 
   const onPressHistory = () => {
-    navigation.navigate('DiagnosticoHistory');
+    safeNavigation.navigate('DiagnosticoHistory');
   };
 
   const onPressContinue = () => {
     if (!resumeTarget) return;
-    navigation.navigate(resumeTarget.screen, resumeTarget.params);
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
+    setNavigating(true);
+    safeNavigation.navigate(resumeTarget.screen, resumeTarget.params);
   };
 
   const onPressTherapy = () => {
     if (!therapyNext) return;
-    navigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
+    setNavigating(true);
+    safeNavigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
   };
+
+  useEffect(() => {
+    if (!navigating) return;
+    const unsubscribe = navigation.addListener('blur', () => {
+      navigatingRef.current = false;
+      setNavigating(false);
+    });
+    return unsubscribe;
+  }, [navigation, navigating]);
 
   const onPressResetHealingIntro = async () => {
     try {
@@ -268,7 +290,9 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             textStyle={null}
             bgColor={null}
             borderColor={null}
-            onPress={onPressTherapy} 
+            onPress={onPressTherapy}
+            disabled={navigating}
+            loading={navigating}
           />
         ) : resumeTarget ? (
           <CButton
@@ -276,6 +300,8 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             type="B14"
             color={colors.white}
             onPress={onPressContinue}
+            disabled={navigating}
+            loading={navigating}
             containerStyle={localStyles.evalButton}
             style={null}
             textStyle={null}
@@ -295,6 +321,8 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             type="B14"
             color={colors.white}
             onPress={onPressStart}
+            disabled={navigating}
+            loading={navigating}
             containerStyle={localStyles.evalButton}
             style={null}
             textStyle={null}

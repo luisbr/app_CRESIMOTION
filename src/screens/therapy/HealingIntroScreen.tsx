@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Audio } from 'expo-av';
@@ -14,6 +14,7 @@ import { getAudioUrl, getAudioTitle, normalizeTherapyNext } from './therapyUtils
 import { getDebugTailPosition } from '../../utils/audioDebug';
 import { getSession } from '../../api/auth';
 import { API_BASE_URL } from '../../api/config';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 const DEFAULT_TEXT =
   'Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:';
@@ -21,6 +22,7 @@ const DEFAULT_TEXT_HIGHLIGHT = 'dos fases';
 
 export default function HealingIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
   const postWork = route?.params?.postWork || false;
@@ -48,6 +50,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const [prefLoaded, setPrefLoaded] = useState(false);
   const [prefValue, setPrefValue] = useState<'1' | '0' | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const continuingRef = useRef(false);
 
   const allRequiredChecked = useMemo(() => {
     if (!required.length) return true;
@@ -154,17 +157,24 @@ export default function HealingIntroScreen({ navigation, route }: any) {
     } finally {
       setSound(null);
       setPlaying(false);
-      navigation.navigate('HomeRoot');
+      safeNavigation.navigate('HomeRoot');
     }
   };
 
   const onContinue = async () => {
+    if (continuingRef.current) {
+      return;
+    }
+    let didNavigate = false;
     try {
+      continuingRef.current = true;
+      setLoadingNext(true);
       if (postWork) {
         if (!postWorkGroupId || !postWorkMotivoId) {
           throw new Error('Falta información para continuar.');
         }
-        navigation.replace('TherapyFocusContent', {
+        didNavigate = true;
+        safeNavigation.replace('TherapyFocusContent', {
           postWork: true,
           groupId: postWorkGroupId,
           motivoId: postWorkMotivoId,
@@ -177,17 +187,20 @@ export default function HealingIntroScreen({ navigation, route }: any) {
       }
       if (!sessionId) throw new Error('No se encontró la sesión.');
       if (nextResponse) {
-        navigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint });
+        didNavigate = true;
+        safeNavigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint });
         return;
       }
       const actionKey = data?.actions?.primary?.key || 'START_HEALING';
-      setLoadingNext(true);
       const next = await completeTherapyStep({ sessionId, action: actionKey });
       setNextResponse(next);
-      navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
+      didNavigate = true;
+      safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo continuar.');
     } finally {
+      if (didNavigate) return;
+      continuingRef.current = false;
       setLoadingNext(false);
     }
   };
@@ -295,9 +308,9 @@ export default function HealingIntroScreen({ navigation, route }: any) {
         }}
       >
         <View style={styles.mb10}>
-          <CButton title={data?.actions?.secondary?.label || 'Más tarde'} bgColor={colors.inputBg} color={colors.primary} onPress={onLater} />
+          <CButton title={data?.actions?.secondary?.label || 'Más tarde'} bgColor={colors.inputBg} color={colors.primary} disabled={loadingNext} onPress={onLater} />
         </View>
-        <CButton title={data?.actions?.primary?.label || 'Comenzarå'} disabled={!allRequiredChecked} onPress={onContinue} />
+        <CButton title={data?.actions?.primary?.label || 'Comenzarå'} disabled={!allRequiredChecked || loadingNext} loading={loadingNext} onPress={onContinue} />
       </View>
       <ScreenTooltip />
     </CSafeAreaView>

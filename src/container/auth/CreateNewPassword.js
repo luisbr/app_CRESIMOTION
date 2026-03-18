@@ -115,6 +115,8 @@ export default function CreateNewPassword({navigation, route}) {
             title={strings.next}
             containerStyle={styles.mv20}
             onPress={onPressNext}
+            disabled={submitting}
+            loading={submitting}
           />
           {!!submitError && (
             <CText type={'S14'} align={'center'} color={colors.redAlert}>

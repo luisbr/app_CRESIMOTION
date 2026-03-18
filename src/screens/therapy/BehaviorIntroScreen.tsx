@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { ScrollView, View, Alert, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -13,9 +13,11 @@ import { API_BASE_URL } from '../../api/config';
 import { getSession } from '../../api/auth';
 import { getOrCreateDeviceUUID } from '../../utils/uuid';
 import { normalizeTherapyNext } from './therapyUtils';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 export default function BehaviorIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const sessionId = route?.params?.sessionId || null;
   const emocionId = route?.params?.emocionId || null;
   const resolvedEmotionId =
@@ -66,6 +68,8 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   const [selectedValue, setSelectedValue] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [nextResponse, setNextResponse] = useState<any>(null);
+  const [continuing, setContinuing] = useState(false);
+  const continuingRef = useRef(false);
 
   const postEvalMessage = nextResponse?.post_eval_message || null;
   const title = postEvalMessage?.message_title || 'Evaluación de la Sesión terapéutica';
@@ -74,9 +78,9 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
 
   useEffect(() => {
     if (inferredPostWork && nextResponse && !postEvalMessage) {
-      navigation.navigate('DiagnosticoHistory');
+      safeNavigation.navigate('DiagnosticoHistory');
     }
-  }, [inferredPostWork, nextResponse, postEvalMessage, navigation]);
+  }, [inferredPostWork, nextResponse, postEvalMessage, safeNavigation]);
 
   const options = useMemo(
     () => [
@@ -143,15 +147,18 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   };
 
   const onContinue = () => {
+    if (continuingRef.current) return;
     if (!nextResponse) return;
+    continuingRef.current = true;
+    setContinuing(true);
     if (inferredPostWork) {
-      navigation.navigate('DiagnosticoHistory');
+      safeNavigation.navigate('DiagnosticoHistory');
       return;
     }
     if (nextResponse?.route === 'BEHAVIOR_RECO_SELECT') {
-      navigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint: 'behavior' });
+      safeNavigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint: 'behavior' });
     } else {
-      navigation.replace('TherapyBehaviorRecoSelect', { entrypoint: 'behavior', next: nextResponse });
+      safeNavigation.replace('TherapyBehaviorRecoSelect', { entrypoint: 'behavior', next: nextResponse });
     }
   };
 
@@ -217,9 +224,9 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
         }}
       >
         {postEvalMessage ? (
-          <CButton title={'Continuar'} onPress={onContinue} />
+          <CButton title={'Continuar'} onPress={onContinue} disabled={continuing} loading={continuing} />
         ) : (
-          <CButton title={'Enviar'} disabled={loading || selectedValue == null} onPress={onSubmitEval} />
+          <CButton title={'Enviar'} disabled={loading || selectedValue == null} loading={loading} onPress={onSubmitEval} />
         )}
       </View>
       <ScreenTooltip />

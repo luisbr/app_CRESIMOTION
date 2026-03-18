@@ -174,6 +174,7 @@ export default function TestDetailScreen() {
           title={submitting ? 'Calculando...' : 'Ver mi resultado'}
           onPress={handleSubmit}
           disabled={!allAnswered || submitting}
+          loading={submitting}
           containerStyle={[
             localStyles.submitBtn,
             !allAnswered && {opacity: 0.5},

@@ -168,7 +168,7 @@ export default function FocusMotivoEvalScreen({ navigation, route }: any) {
         {hasResponse ? (
           <CButton title={'Continuar'} onPress={onContinue} />
         ) : (
-          <CButton title={'Enviar'} disabled={loading || selectedValue == null} onPress={onSubmitEval} />
+          <CButton title={'Enviar'} disabled={loading || selectedValue == null} loading={loading} onPress={onSubmitEval} />
         )}
       </View>
       <ScreenTooltip />

@@ -20,9 +20,11 @@ import {getEmergencyByLocation, getEmergencyContacts} from '../api/emergencyApi'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
+import {useSafeNavigation} from '../../../navigation/safeNavigation';
 
 export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const sessionId: number = Number(route?.params?.sessionId);
   const moduleKey: ModuleKey = route?.params?.module_key || 'motivos';
   const initialItems: CatalogItem[] = route?.params?.items || [];
@@ -55,6 +57,10 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const [emergencyContacts, setEmergencyContacts] = useState<any[]>([]);
   const [allCountries, setAllCountries] = useState<any[]>([]);
   const [countryQuery, setCountryQuery] = useState('');
+  const [savingAnswer, setSavingAnswer] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const savingAnswerRef = useRef(false);
+  const completingRef = useRef(false);
 
   const selectedItems = useMemo(() => items.filter(i => selectedIds.includes(Number(i.id))), [items, selectedIds]);
   const currentItem =
@@ -240,6 +246,9 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   };
 
   const onPressNext = async () => {
+    if (savingAnswerRef.current) {
+      return;
+    }
     if (!currentItem || !selectedOption) {
       setError('Selecciona una opcion para continuar.');
       return;
@@ -270,6 +279,8 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       }
     }
     console.log('[DiagnosticoWizard] save answer payload', payload);
+    savingAnswerRef.current = true;
+    setSavingAnswer(true);
     try {
       const resp = await saveAnswer(sessionId, payload);
       console.log('[DiagnosticoWizard] save answer response', resp);
@@ -277,6 +288,9 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       console.log('[DiagnosticoWizard] save answer error', e?.body || e?.message || e);
       setError(e?.body?.message || e?.message || 'No se pudo guardar la respuesta.');
       return;
+    } finally {
+      savingAnswerRef.current = false;
+      setSavingAnswer(false);
     }
     const next = new Set(answeredIds);
     next.add(Number(currentItem.id));
@@ -292,27 +306,38 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   };
 
   const onPressComplete = async () => {
+    if (completingRef.current) {
+      return;
+    }
     if (!sessionId) {
       setError('Falta sessionId para completar.');
       console.log('[DiagnosticoWizard] missing sessionId', {moduleKey});
       return;
     }
     console.log('[DiagnosticoWizard] complete start', {sessionId, moduleKey});
+    completingRef.current = true;
+    setCompleting(true);
+    let didNavigate = false;
     try {
       const resp = await completeSession(sessionId);
       console.log('[DiagnosticoWizard] complete response', resp);
       await saveLastRoute({session_id: sessionId, module_key: moduleKey, screen: 'Results'});
-      navigation.replace('DiagnosticoResults', {sessionId, module_key: moduleKey});
+      didNavigate = true;
+      safeNavigation.replace('DiagnosticoResults', {sessionId, module_key: moduleKey});
     } catch (e: any) {
       console.log('[DiagnosticoWizard] complete error', e?.body || e?.message || e);
       setError(e?.body?.message || e?.message || 'No se pudo completar.');
+    } finally {
+      if (didNavigate) return;
+      completingRef.current = false;
+      setCompleting(false);
     }
   };
 
   const onPressBack = () => {
     if (currentIndex == null) return;
     if (currentIndex <= 0) {
-      navigation.navigate('DiagnosticoSelection', {
+      safeNavigation.navigate('DiagnosticoSelection', {
         module_key: moduleKey,
         sessionId,
         selection: selectedIds,
@@ -543,13 +568,18 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
         ]}
       >
         {currentItem ? (
-          <CButton title={'Siguiente ...'} onPress={onPressNext} />
+          <CButton
+            title={'Siguiente ...'}
+            onPress={onPressNext}
+            disabled={savingAnswer || !selectedOption || (isOtherAddictionsItem && !specialValue.trim())}
+            loading={savingAnswer}
+          />
         ) : selectedIds.length ? (
-          <CButton title={'Continuar'} onPress={onPressComplete} />
+          <CButton title={'Continuar'} onPress={onPressComplete} disabled={completing} loading={completing} />
         ) : (
           <CButton
             title={'Volver a seleccion'}
-            onPress={() => navigation.replace('DiagnosticoSelection', {module_key: moduleKey, sessionId})}
+            onPress={() => safeNavigation.replace('DiagnosticoSelection', {module_key: moduleKey, sessionId})}
           />
         )}
       </View>

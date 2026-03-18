@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, ScrollView, View, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
@@ -17,6 +17,7 @@ import {saveSelection, startSession} from '../api/sessionsApi';
 import ChecklistItem from '../components/ChecklistItem';
 import {getGroupId, saveGroupId, saveLastRoute} from '../utils';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
+import {useSafeNavigation} from '../../../navigation/safeNavigation';
 
 const capitalizeSentence = (value: string) => {
   const trimmed = value.trim();
@@ -26,6 +27,7 @@ const capitalizeSentence = (value: string) => {
 
 export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const drawer = useDrawer();
   const moduleKey: ModuleKey = route?.params?.module_key || 'motivos';
   const preloadedSessionId = route?.params?.sessionId;
@@ -40,6 +42,8 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<number[]>([]);
+  const [savingSelection, setSavingSelection] = useState(false);
+  const savingSelectionRef = useRef(false);
 
   const load = async (mountedRef?: {current: boolean}) => {
     setLoading(true);
@@ -97,6 +101,9 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   };
 
   const onPressNext = async () => {
+    if (savingSelectionRef.current) {
+      return;
+    }
     console.log('[DiagnosticoSelection] next pressed', {
       moduleKey,
       sessionId,
@@ -112,11 +119,15 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       return;
     }
     setError('');
+    savingSelectionRef.current = true;
+    setSavingSelection(true);
+    let didNavigate = false;
     try {
       const resp = await saveSelection(sessionId, selectedIds);
       console.log('[DiagnosticoSelection] saveSelection response', resp);
       await saveLastRoute({session_id: sessionId, module_key: moduleKey, screen: 'Wizard'});
-      navigation.navigate('DiagnosticoWizard', {
+      didNavigate = true;
+      safeNavigation.navigate('DiagnosticoWizard', {
         sessionId,
         module_key: moduleKey,
         items,
@@ -126,6 +137,10 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     } catch (e: any) {
       console.log('[DiagnosticoSelection] saveSelection error', e?.body || e?.message || e);
       setError(e?.body?.message || e?.message || 'No se pudo guardar la seleccion.');
+    } finally {
+      if (didNavigate) return;
+      savingSelectionRef.current = false;
+      setSavingSelection(false);
     }
   };
 
@@ -369,7 +384,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         ]}
       >
         {!!selectedIds.length && (
-          <CButton title={'Siguiente'} onPress={onPressNext} />
+          <CButton title={'Siguiente'} onPress={onPressNext} disabled={savingSelection} loading={savingSelection} />
         )}
       </View>
       {SHOW_SCREEN_TOOLTIP && (

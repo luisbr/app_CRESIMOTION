@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -18,12 +18,14 @@ import {
   getIntensityRank,
   normalizeTherapyNext,
 } from './therapyUtils';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 const INTRO_TEXT =
   'Nos alegra tenerte aquí. La sanación emocional es el camino para sanar las heridas del pasado, procesar las emociones no resueltas y restaurar la paz interna. A través de herramientas avanzadas y personalizadas, te ayudaremos a reconocer, comprender y liberar esas emociones, permitiéndote vivir con mayor equilibrio, autocomprensión y resiliencia.\n\nAhora, a fin de proporcionarte una Sesión de sanación emocional para reducir considerablemente una a una cualquier emoción dolorosa, selecciona la emoción que más está teniendo impacto en tu vida en este momento, entre las emociones que marcaste en nivel Muy alto, Alto o Medio.';
 
 export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
   const postWork = route?.params?.postWork || false;
@@ -31,8 +33,9 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   const postWorkEmotions = Array.isArray(route?.params?.emotions) ? route.params.emotions : [];
   const { sessionId, data } = normalizeTherapyNext(nextPayload);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
-
   const [postWorkItems, setPostWorkItems] = useState<any[]>(postWorkEmotions);
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
 
   useEffect(() => {
     if (!postWork || postWorkItems.length || !postWorkGroupId) return;
@@ -84,14 +87,21 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   }, [data, postWork]);
 
   const onContinue = async () => {
+    if (submittingRef.current) {
+      return;
+    }
+    let didNavigate = false;
     try {
       if (selectedId == null) return;
+      submittingRef.current = true;
+      setSubmitting(true);
       if (postWork) {
         if (!postWorkGroupId) return;
         const next = await postPostWorkEmotion(Number(postWorkGroupId), {
           emocion_id: Number(selectedId),
         });
-        navigation.replace('TherapyHealingPlayback', {
+        didNavigate = true;
+        safeNavigation.replace('TherapyHealingPlayback', {
           postWork: true,
           groupId: postWorkGroupId,
           emocionId: Number(selectedId),
@@ -106,9 +116,14 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
         sessionId,
         emocionId: selectedId,
       });
-      navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
+      didNavigate = true;
+      safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo continuar.');
+    } finally {
+      if (didNavigate) return;
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -230,15 +245,16 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
                 title={'Más tarde'}
                 bgColor={colors.inputBg}
                 color={colors.primary}
-                onPress={() => navigation.navigate('DiagnosticoHistory')}
+                disabled={submitting}
+                onPress={() => safeNavigation.navigate('DiagnosticoHistory')}
               />
             </View>
             <View style={{ flex: 1, marginLeft: 8 }}>
-              <CButton title={'Siguiente'} disabled={selectedId == null} onPress={onContinue} />
+              <CButton title={'Siguiente'} disabled={selectedId == null || submitting} loading={submitting} onPress={onContinue} />
             </View>
           </View>
         ) : (
-          <CButton title={'Siguiente'} disabled={selectedId == null} onPress={onContinue} />
+          <CButton title={'Siguiente'} disabled={selectedId == null || submitting} loading={submitting} onPress={onContinue} />
         )}
       </View>
       <ScreenTooltip />

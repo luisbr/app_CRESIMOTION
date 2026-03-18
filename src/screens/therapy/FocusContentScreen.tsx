@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Audio } from 'expo-av';
@@ -13,9 +13,11 @@ import { canSkipAudio, getAudioTitle, getAudioUrl, getMotivoId, getMotivoLabel, 
 import { completeTherapyStep } from '../../api/sesionTerapeutica';
 import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL } from '../../api/config';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 export default function FocusContentScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const dispatch = useDispatch();
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
@@ -36,6 +38,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
   const [positionMillis, setPositionMillis] = useState(0);
   const [durationMillis, setDurationMillis] = useState(0);
   const [loadingAudio, setLoadingAudio] = useState(false);
+  const [continuing, setContinuing] = useState(false);
+  const continuingRef = useRef(false);
 
   const withTimeout = <T,>(promise: Promise<T>, ms = 8000) =>
     Promise.race([
@@ -258,17 +262,24 @@ export default function FocusContentScreen({ navigation, route }: any) {
     } finally {
       setSound(null);
       setPlaying(false);
-      navigation.navigate('HomeRoot');
+      safeNavigation.navigate('HomeRoot');
     }
   };
 
   const goNext = () => {
+    if (continuingRef.current) {
+      return;
+    }
+    continuingRef.current = true;
+    setContinuing(true);
     if (postWork) {
       if (!postWorkGroupId || !motivoId) {
+        continuingRef.current = false;
+        setContinuing(false);
         Alert.alert('Error', 'Falta información para continuar.');
         return;
       }
-      navigation.replace('TherapyFocusMotivoEval', {
+      safeNavigation.replace('TherapyFocusMotivoEval', {
         postWork: true,
         groupId: postWorkGroupId,
         motivoId,
@@ -280,14 +291,18 @@ export default function FocusContentScreen({ navigation, route }: any) {
       return;
     }
     if (!sessionId) {
+      continuingRef.current = false;
+      setContinuing(false);
       Alert.alert('Error', 'No se encontró la sesión.');
       return;
     }
     completeTherapyStep({ sessionId, action: 'NEXT' })
       .then(next => {
-        navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
+        safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
       })
       .catch((e: any) => {
+        continuingRef.current = false;
+        setContinuing(false);
         Alert.alert('Error', e?.message || 'No se pudo continuar.');
       });
   };
@@ -349,12 +364,13 @@ export default function FocusContentScreen({ navigation, route }: any) {
               title={skipLabel}
               bgColor={colors.inputBg}
               color={colors.primary}
-              disabled={playing}
+              disabled={playing || continuing}
+              loading={continuing}
               onPress={goNext}
             />
           </View>
         )}
-        <CButton title={'Siguiente'} disabled={!audioUrl || !ended || playing} onPress={goNext} />
+        <CButton title={'Siguiente'} disabled={!audioUrl || !ended || playing || continuing} loading={continuing} onPress={goNext} />
       </View>
       <ScreenTooltip />
     </CSafeAreaView>

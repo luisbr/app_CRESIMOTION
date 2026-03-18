@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert, ActivityIndicator, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Audio } from 'expo-av';
@@ -11,6 +11,7 @@ import { styles } from '../../theme';
 import { completeTherapyStep, sendPlaybackEvent } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
 import { API_BASE_URL } from '../../api/config';
+import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 type PlaybackItem =
   | { type: 'local'; source: number; label: string }
@@ -42,6 +43,7 @@ const waitForDuration = async (sound: Audio.Sound) => {
 export default function HealingPlaybackScreen({ navigation, route }: any) {
   console.log('[THERAPY] playback route params', route?.params || {});
   const colors = useSelector((s: any) => s.theme.theme);
+  const safeNavigation = useSafeNavigation(navigation);
   const dispatch = useDispatch();
   const nextPayload = route?.params?.next || null;
   const entrypoint = route?.params?.entrypoint || null;
@@ -71,6 +73,8 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   const [totalDurationMillis, setTotalDurationMillis] = useState(0);
   const [preloadError, setPreloadError] = useState<string | null>(null);
   const [trackDurations, setTrackDurations] = useState<number[]>([]);
+  const [continuing, setContinuing] = useState(false);
+  const continuingRef = useRef(false);
 
   const ensureAudioMode = async () => {
     try {
@@ -301,13 +305,13 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
             setFinished(true);
             if (sessionId) {
               sendPlaybackEvent({ sessionId, event: 'FINISH' })
-                .then(() => navigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload }))
+                .then(() => safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload }))
                 .catch(e => {
                   console.log('[THERAPY] playback finish error', e);
-                  navigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
+                  safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
                 });
             } else {
-              navigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
+              safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
             }
           }
         }
@@ -383,7 +387,13 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   };
 
   const onContinue = async () => {
+    if (continuingRef.current) {
+      return;
+    }
+    let didNavigate = false;
     try {
+      continuingRef.current = true;
+      setContinuing(true);
       if (inferredPostWork) {
         if (!resolvedGroupId || !resolvedEmotionId) {
           throw new Error('Falta información para continuar.');
@@ -393,7 +403,8 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
           emocionId: resolvedEmotionId,
           emotionLabel: resolvedEmotionLabel,
         });
-        navigation.replace('TherapyBehaviorIntro', {
+        didNavigate = true;
+        safeNavigation.replace('TherapyBehaviorIntro', {
           postWork: true,
           groupId: resolvedGroupId,
           emocionId: resolvedEmotionId,
@@ -410,6 +421,10 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       //navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo continuar.');
+    } finally {
+      if (didNavigate) return;
+      continuingRef.current = false;
+      setContinuing(false);
     }
   };
 
@@ -494,7 +509,8 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       >
         <CButton
           title={data?.actions?.primary?.label || 'Continuar'}
-          disabled={!finished || playing}
+          disabled={!finished || playing || continuing}
+          loading={continuing}
           onPress={onContinue}
         />
         <CText type={'S12'} color={colors.labelColor} style={styles.mt8}>
