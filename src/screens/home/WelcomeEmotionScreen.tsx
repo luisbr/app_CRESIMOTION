@@ -100,25 +100,7 @@ export default function WelcomeEmotionScreen() {
 
   const handleResponder = () => {
     if (isLoggedIn) {
-      // Go to Diagnostico Home Screen
-      navigation.reset({
-        index: 0,
-        routes: [
-          {
-            name: StackNav.TabNavigation,
-            state: {
-              routes: [
-                {
-                  name: TabNav.HomeTab,
-                  state: {
-                    routes: [{name: 'DiagnosticoHome'}],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      });
+      navigation.navigate('DiagnosticoHome');
     } else {
       navigation.reset({
         index: 0,
@@ -261,7 +243,6 @@ export default function WelcomeEmotionScreen() {
       >
         {renderWelcomeSection()}
         {renderEmotionSelector()}
-        {renderBottomLinks()}
       </ScrollView>
     </CSafeAreaView>
   );
@@ -382,5 +363,11 @@ const localStyles = StyleSheet.create({
   bottomIcon: {
     alignItems: 'center',
     width: getWidth(70),
+  },
+  bottomIconLabel: {
+    ...styles.mt5,
+    fontSize: moderateScale(10),
+    lineHeight: moderateScale(12),
+    textAlign: 'center',
   },
 });

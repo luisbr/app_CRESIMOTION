@@ -310,8 +310,12 @@ export const getSuscripcionActual = async () => {
   }
 };
 
-export const createSuscripcionIntent = async (membresia_id, success_url, cancel_url) => {
-  return authPost(ENDPOINTS.SUSCRIPCION_INTENT, { membresia_id, success_url, cancel_url });
+export const createSuscripcionIntent = async (membresia_id, success_url, cancel_url, codigo_apoyo = null) => {
+  const params = { membresia_id, success_url, cancel_url };
+  if (codigo_apoyo) {
+    params.codigo_apoyo = codigo_apoyo;
+  }
+  return authPost(ENDPOINTS.SUSCRIPCION_INTENT, params);
 };
 
 export const confirmarSuscripcion = async (membresia_id, session_id) => {

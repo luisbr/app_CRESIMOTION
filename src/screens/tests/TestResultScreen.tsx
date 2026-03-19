@@ -13,13 +13,15 @@ import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import {styles} from '../../theme';
 import {moderateScale} from '../../common/constants';
-import {StackNav} from '../../navigation/NavigationKey';
+import {StackNav, TabNav} from '../../navigation/NavigationKey';
 
 export default function TestResultScreen() {
   const colors = useSelector((state: any) => state.theme.theme);
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const {testName, puntaje, result} = route.params ?? {};
+
+  console.log('[TestResultScreen] Params:', {testName, puntaje, result});
 
   const rango = result?.rango ?? null;
 
@@ -105,7 +107,7 @@ export default function TestResultScreen() {
         />
         <CButton
           title="Volver al inicio"
-          onPress={() => navigation.navigate(StackNav.WelcomeEmotion)}
+          onPress={() => navigation.reset({ index: 0, routes: [{ name: StackNav.TabNavigation, state: { routes: [{ name: TabNav.HomeTab }] } }] })}
           containerStyle={styles.mt10}
           type="B16"
           color="#fff"

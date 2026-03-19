@@ -7,12 +7,12 @@ import CButton from '../components/common/CButton';
 import images from '../assets/images';
 import {getHeight, getWidth, moderateScale} from '../common/constants';
 import {useSelector} from 'react-redux';
-import {StackNav} from '../navigation/NavigationKey';
+import {StackNav, TabNav} from '../navigation/NavigationKey';
 
 export default function ThankYou({navigation}) {
   const colors = useSelector(state => state.theme.theme);
   const onNext = () => {
-    navigation.reset({index: 0, routes: [{name: StackNav.WelcomeEmotion}]});
+    navigation.reset({index: 0, routes: [{name: StackNav.TabNavigation, state: { routes: [{ name: TabNav.HomeTab }] }}]});
   };
   return (
     <CSafeAreaView>

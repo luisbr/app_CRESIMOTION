@@ -109,6 +109,14 @@ export default function StackNavigation() {
         name={StackNav.Profile}
         component={StackRoute.Profile}
       />
+      <Stack.Screen
+        name={StackNav.ApoyoFinanciero}
+        component={StackRoute.ApoyoFinanciero}
+      />
+      <Stack.Screen
+        name={StackNav.ApoyoAceptado}
+        component={StackRoute.ApoyoAceptado}
+      />
     </Stack.Navigator>
   );
 }

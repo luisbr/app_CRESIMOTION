@@ -17,7 +17,7 @@ import CButton from '../../components/common/CButton';
 import {login as apiLogin} from '../../api/auth';
 import TermsModal from '../../components/model/TermsModal';
 // Removed social login icons
-import {AuthNav, StackNav} from '../../navigation/NavigationKey';
+import {AuthNav, StackNav, TabNav} from '../../navigation/NavigationKey';
 import {setAuthToken} from '../../utils/AsyncStorage';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 
@@ -71,7 +71,10 @@ export default function Login({navigation}) {
       const resp = await apiLogin({correo: email, contrasena: password});
       if (resp && (resp.success === true || resp.status === true)) {
         didNavigate = true;
-        safeNavigation.reset({index: 0, routes: [{name: StackNav.WelcomeEmotion}]});
+        safeNavigation.reset({
+          index: 0,
+          routes: [{name: StackNav.TabNavigation, state: {routes: [{name: TabNav.HomeTab}]}}],
+        });
       } else {
         setSubmitError((resp && (resp.success_message || resp.message)) || 'Error al iniciar sesión');
       }

@@ -18,6 +18,7 @@ import {
   getPaymentHistory,
   createSetupIntent
 } from '../../api/auth';
+import { obtenerEstadoApoyo } from '../../api/apoyoFinanciero';
 
 export default function SubscriptionScreen({navigation}) {
   const colors = useSelector(state => state.theme.theme);
@@ -26,6 +27,7 @@ export default function SubscriptionScreen({navigation}) {
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
+  const [codigoApoyoInfo, setCodigoApoyoInfo] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -122,6 +124,20 @@ export default function SubscriptionScreen({navigation}) {
         setPaymentHistory([]);
       }
 
+      // Obtener código de apoyo financiero activo
+      try {
+        const estadoApoyo = await obtenerEstadoApoyo();
+        if (estadoApoyo.success && estadoApoyo.tiene_solicitud && 
+            estadoApoyo.estatus === 'aprobada' && estadoApoyo.codigo && !estadoApoyo.codigo.usado) {
+          setCodigoApoyoInfo(estadoApoyo.codigo);
+        } else {
+          setCodigoApoyoInfo(null);
+        }
+      } catch (e) {
+        console.log('Error obteniendo estado de apoyo:', e);
+        setCodigoApoyoInfo(null);
+      }
+
     } catch (e) {
       console.log(e);
     } finally {
@@ -163,7 +179,7 @@ export default function SubscriptionScreen({navigation}) {
       const successUrl = Linking.createURL('stripe/success', { queryParams: { membresia_id: pkg.id.toString() } });
       const cancelUrl = Linking.createURL('stripe/cancel');
 
-      const intent = await createSuscripcionIntent(pkg.id, successUrl, cancelUrl);
+      const intent = await createSuscripcionIntent(pkg.id, successUrl, cancelUrl, codigoApoyoInfo?.codigo);
       
       if (!intent.success) {
         Alert.alert('Error', intent.message || 'No se pudo procesar la solicitud');
@@ -273,6 +289,16 @@ export default function SubscriptionScreen({navigation}) {
     const isCurrent = currentSub && parseInt(currentSub.membresia_id) === parseInt(pkg.id);
     const hasConcepts = pkg.conceptos && pkg.conceptos.length > 0;
     
+    // Verificar si este paquete tiene descuento de apoyo financiero
+    const tieneDescuentoApoyo = codigoApoyoInfo && codigoApoyoInfo.membresia && 
+      parseInt(codigoApoyoInfo.membresia.id) === parseInt(pkg.id);
+    
+    const precioBase = parseFloat(pkg.precio);
+    const descuento = tieneDescuentoApoyo ? codigoApoyoInfo.porcentaje_descuento : 0;
+    const precioFinal = tieneDescuentoApoyo 
+      ? (precioBase * (1 - descuento / 100)).toFixed(2) 
+      : precioBase;
+    
     return (
       <View key={pkg.id} style={[localStyles.packageCard, {backgroundColor: colors.secondary, borderColor: isCurrent ? colors.primary : 'transparent', borderWidth: isCurrent ? 3 : 2}]}>
         {isCurrent && (
@@ -280,15 +306,46 @@ export default function SubscriptionScreen({navigation}) {
             <CText type={"B12"} color={colors.white}>TU PLAN ACTUAL</CText>
           </View>
         )}
+
+        {/* Badge de Apoyo Financiero */}
+        {tieneDescuentoApoyo && (
+          <View style={[localStyles.apoyoBadge, {backgroundColor: colors.primary, alignSelf: 'flex-start', marginTop: 4}]}>
+            <CText type={"B10"} color={colors.white}>🎉 APOYO FINANCIERO -{descuento}%</CText>
+          </View>
+        )}
         
         {/* Encabezado: Título y Precio */}
         <View style={localStyles.cardHeader}>
-          <CText type={"B22"} color={colors.textColor}>{pkg.nombre}</CText>
+          <View style={styles.flex}>
+            <CText type={"B22"} color={colors.textColor}>{pkg.nombre}</CText>
+          </View>
           <View style={localStyles.priceBox}>
-            <CText type={"B24"} color={colors.primary}>${parseInt(pkg.precio)}</CText>
-            <CText type={"M14"} color={colors.grayScale3}>/mes</CText>
+            {tieneDescuentoApoyo ? (
+              <View style={{alignItems: 'flex-end'}}>
+                <CText type={"B14"} style={{textDecorationLine: 'line-through', color: colors.grayScale3}}>${precioBase}</CText>
+                <CText type={"B24"} color={colors.primary}>${precioFinal}</CText>
+                <CText type={"M12"} color={colors.primary}>/mes</CText>
+              </View>
+            ) : (
+              <>
+                <CText type={"B24"} color={colors.primary}>${parseInt(pkg.precio)}</CText>
+                <CText type={"M14"} color={colors.grayScale3}>/mes</CText>
+              </>
+            )}
           </View>
         </View>
+
+        {/* Info del descuento de apoyo financiero */}
+        {tieneDescuentoApoyo && (
+          <View style={[localStyles.apoyoInfoBox, {backgroundColor: colors.primary + '15', borderColor: colors.primary}]}>
+            <CText type={"M12"} color={colors.primary}>
+              Código: <CText type={"B12"} color={colors.primary}>{codigoApoyoInfo.codigo}</CText>
+              {codigoApoyoInfo.fecha_expiracion && (
+                <> • Vence: {new Date(codigoApoyoInfo.fecha_expiracion + 'T00:00:00').toLocaleDateString('es-MX', {day: '2-digit', month: 'short'})}</>
+              )}
+            </CText>
+          </View>
+        )}
 
         {/* Separador */}
         <View style={[localStyles.divider, {backgroundColor: colors.dark ? colors.dividerColor : colors.grayScale2}]} />
@@ -318,7 +375,7 @@ export default function SubscriptionScreen({navigation}) {
             </View>
           ) : (
             <CButton
-              title="Elegir este plan"
+              title={tieneDescuentoApoyo ? `Elegir con ${descuento}% dto.` : "Elegir este plan"}
               onPress={() => handleSelectPackage(pkg)}
               containerStyle={localStyles.btnSelectFull}
               bgColor={colors.primary}
@@ -353,15 +410,6 @@ export default function SubscriptionScreen({navigation}) {
             {currentSub && (
               <View style={localStyles.infoSection}>
                 <View style={localStyles.sectionBlock}>
-                  <CText type={"B18"} color={colors.textColor} style={styles.mb10}>
-                    Tus promociones <CText type={"M14"} color={colors.grayScale3}>(paquetes promocionales y ofertas)</CText>
-                  </CText>
-                  <CText type={"M14"} color={colors.grayScale3}>
-                    No tienes promociones activas actualmente. Mantente pendiente de las notificaciones.
-                  </CText>
-                </View>
-
-                <View style={localStyles.sectionBlock}>
                   <CText type={"B18"} color={colors.textColor} style={styles.mb10}>Método de pago</CText>
                   {paymentMethod ? (
                     <View style={localStyles.paymentDetails}>
@@ -388,6 +436,12 @@ export default function SubscriptionScreen({navigation}) {
                         <CText type={"M14"} color={colors.textColor}>
                           • {item.fecha} — ${parseFloat(item.monto).toFixed(2)} {item.moneda} — {item.estado}
                         </CText>
+                        {item.descuento_aplicado && (
+                          <CText type={"M12"} color={colors.primary} style={styles.mt5}>
+                            🎉 Cupón aplicado: {item.descuento_aplicado}
+                            {item.porcentaje_descuento && ` (${item.porcentaje_descuento}% desc.)`}
+                          </CText>
+                        )}
                         {item.receipt_url && (
                           <TouchableOpacity onPress={() => Linking.openURL(item.receipt_url)} style={styles.mt5}>
                             <CText type={"M14"} color={colors.primary}>🔍 Ver más detalles</CText>
@@ -506,5 +560,66 @@ const localStyles = StyleSheet.create({
     borderRadius: moderateScale(10),
     borderWidth: 1,
     borderColor: '#F75555',
-  }
+  },
+  couponBadgeCard: {
+    borderRadius: moderateScale(16),
+    borderWidth: 2,
+    marginBottom: moderateScale(15),
+    overflow: 'hidden',
+  },
+  couponBadgeHeader: {
+    backgroundColor: '#0aa693',
+    paddingHorizontal: moderateScale(15),
+    paddingVertical: moderateScale(10),
+  },
+  couponBadgeContent: {
+    paddingHorizontal: moderateScale(15),
+    paddingVertical: moderateScale(12),
+  },
+  couponPriceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: moderateScale(8),
+    flexWrap: 'wrap',
+  },
+  discountBadge: {
+    paddingHorizontal: moderateScale(8),
+    paddingVertical: moderateScale(3),
+    borderRadius: moderateScale(12),
+    marginLeft: moderateScale(8),
+  },
+  apoyoBadge: {
+    paddingHorizontal: moderateScale(8),
+    paddingVertical: moderateScale(3),
+    borderRadius: moderateScale(10),
+    marginRight: moderateScale(8),
+  },
+  apoyoInfoBox: {
+    marginTop: moderateScale(8),
+    paddingHorizontal: moderateScale(10),
+    paddingVertical: moderateScale(8),
+    borderRadius: moderateScale(8),
+    borderWidth: 1,
+  },
+  promoItem: {
+    padding: moderateScale(12),
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    marginBottom: moderateScale(10),
+  },
+  promoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: moderateScale(6),
+  },
+  promoBadge: {
+    paddingHorizontal: moderateScale(8),
+    paddingVertical: moderateScale(3),
+    borderRadius: moderateScale(10),
+  },
+  promoPriceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });

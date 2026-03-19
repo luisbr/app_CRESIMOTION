@@ -1,6 +1,7 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import HomeTab from '../../container/home/HomeTab';
+import WelcomeEmotionScreen from '../../screens/home/WelcomeEmotionScreen';
 import ReasonsListScreen from '../../screens/forms/ReasonsListScreen';
 import IntensityWizardScreen from '../../screens/forms/IntensityWizardScreen';
 import SummaryScreen from '../../screens/forms/SummaryScreen';
@@ -30,20 +31,23 @@ import DiagnosticoWizardScreen from '../../modules/diagnostico/screens/Diagnosti
 import DiagnosticoResultsScreen from '../../modules/diagnostico/screens/DiagnosticoResultsScreen';
 import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryScreen';
 import DiagnosticoHistoryDetailScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryDetailScreen';
+import TestResultsHistoryScreen from '../../modules/diagnostico/screens/TestResultsHistoryScreen';
 import SupportResourcesScreen from '../../modules/diagnostico/screens/SupportResourcesScreen';
 
 const Stack = createStackNavigator();
 
 export default function HomeStack() {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="DiagnosticoHome">
+    <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="WelcomeEmotion">
       <Stack.Screen name="HomeRoot" component={HomeTab} />
+      <Stack.Screen name="WelcomeEmotion" component={WelcomeEmotionScreen} />
       <Stack.Screen name="DiagnosticoHome" component={DiagnosticoHomeScreen} />
       <Stack.Screen name="DiagnosticoSelection" component={DiagnosticoSelectionScreen} />
       <Stack.Screen name="DiagnosticoWizard" component={DiagnosticoWizardScreen} />
       <Stack.Screen name="DiagnosticoResults" component={DiagnosticoResultsScreen} />
       <Stack.Screen name="DiagnosticoHistory" component={DiagnosticoHistoryScreen} />
       <Stack.Screen name="DiagnosticoHistoryDetail" component={DiagnosticoHistoryDetailScreen} />
+      <Stack.Screen name="TestResultsHistory" component={TestResultsHistoryScreen} />
       <Stack.Screen name="SupportResources" component={SupportResourcesScreen} />
       <Stack.Screen name="ReasonsList" component={ReasonsListScreen} />
       <Stack.Screen name="IntensityWizard" component={IntensityWizardScreen} />
