@@ -371,4 +371,3 @@ const localStyles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-https://com.luis.buendiagmail.com.crestimotion//stripe/success?membresia_id=2&session_id=cs_test_a1iwmZBBqtVLR3ZwgOfvFBNOJ5bLRWsGVAZPbAXmG7leBsll7VGMHvzmpJ
