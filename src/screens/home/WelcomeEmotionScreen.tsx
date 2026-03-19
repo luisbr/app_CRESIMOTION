@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
   StyleSheet,
   View,
@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -41,13 +41,22 @@ const PHRASES: Record<number, string> = {
 export default function WelcomeEmotionScreen() {
   const colors = useSelector((state: any) => state.theme.theme);
   const navigation = useNavigation<any>();
+  const dispatch = useDispatch();
   const insets = useSafeAreaInsets();
   const drawer = useDrawer();
+  const pendingNavigation = useSelector((state: any) => state.ui.pendingNavigation);
   
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedEmotion, setSelectedEmotion] = useState<number | null>(null);
   const [hasNewNotifs, setHasNewNotifs] = useState(false);
+
+  useEffect(() => {
+    if (pendingNavigation) {
+      navigation.navigate(pendingNavigation.screen, pendingNavigation.params);
+      dispatch({type: 'CLEAR_PENDING_NAVIGATION'});
+    }
+  }, [pendingNavigation, navigation, dispatch]);
 
   useFocusEffect(
     useCallback(() => {

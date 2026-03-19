@@ -1,6 +1,7 @@
 import { API_BASE_URL } from './config';
 import { getSession } from './auth';
 import { getOrCreateDeviceUUID } from '../utils/uuid';
+import { createApiError } from '../utils/apiError';
 
 const authFetch = async (path, init) => {
   const session = await getSession();
@@ -219,7 +220,11 @@ export const submitBehaviorRecommendations = async ({ sessionId, recomendacionId
   });
   const json = await safeJson(res);
   if (!res.ok || (json && json.ok === false)) {
-    throw new Error(json?.message || 'No se pudo guardar las recomendaciones.');
+    throw createApiError(
+      json?.message || 'No se pudo guardar las recomendaciones.',
+      json?.error,
+      json?.meta
+    );
   }
   return json?.data ?? json;
 };
@@ -290,7 +295,11 @@ export const submitBehaviorExercises = async ({ sessionId, items }) => {
   });
   const json = await safeJson(res);
   if (!res.ok || (json && json.ok === false)) {
-    throw new Error(json?.message || 'No se pudo guardar los ejercicios.');
+    throw createApiError(
+      json?.message || 'No se pudo guardar los ejercicios.',
+      json?.error,
+      json?.meta
+    );
   }
   return json?.data ?? json;
 };

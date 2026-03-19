@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, ScrollView, View, StyleSheet} from 'react-native';
+import {ActivityIndicator, ScrollView, View, StyleSheet, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CMainAppBar from '../../../components/common/CMainAppBar';
@@ -10,6 +10,7 @@ import {useDrawer} from '../../../navigation/DrawerContext';
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import CInput from '../../../components/common/CInput';
+import LimitReachedModal from '../../../components/common/LimitReachedModal';
 import {styles} from '../../../theme';
 import type {CatalogItem, ModuleKey, MotivoCategory} from '../types';
 import {getMotivosCatalog, getMotivosCategories, getSintomasEmocionalesCatalog, getSintomasFisicosCatalog} from '../api/wsCatalogApi';
@@ -18,6 +19,7 @@ import ChecklistItem from '../components/ChecklistItem';
 import {getGroupId, saveGroupId, saveLastRoute} from '../utils';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
+import {isLimitReached} from '../../../utils/apiError';
 
 const capitalizeSentence = (value: string) => {
   const trimmed = value.trim();
@@ -44,30 +46,34 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<number[]>([]);
   const [savingSelection, setSavingSelection] = useState(false);
   const savingSelectionRef = useRef(false);
+  const [emotionLimits, setEmotionLimits] = useState<{assigned: number; used: number; remaining: number} | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const load = async (mountedRef?: {current: boolean}) => {
     setLoading(true);
     setError('');
     try {
       let sessionResp: any = null;
-      if (preloadedSessionId) {
-        sessionResp = {
-          session: {id: Number(preloadedSessionId)},
-          selection: {selected_item_ids: preloadedSelection},
-          answers: preloadedAnswers,
-        };
-      } else {
-        const storedGroupId = moduleKey === 'motivos' ? null : await getGroupId();
-        sessionResp = await startSession(moduleKey, 'MX', storedGroupId);
-      }
+      const storedGroupId = moduleKey === 'motivos' ? null : await getGroupId();
+      sessionResp = await startSession(moduleKey, 'MX', storedGroupId);
       if (mountedRef && !mountedRef.current) return;
       setSessionId(Number(sessionResp?.session?.id));
       if (moduleKey === 'motivos' && sessionResp?.session?.group_id) {
         await saveGroupId(Number(sessionResp.session.group_id));
       }
-      const preSelected = sessionResp?.selection?.selected_item_ids || [];
+      if (sessionResp?.emotion_limits) {
+        setEmotionLimits(sessionResp.emotion_limits);
+      } else if (moduleKey === 'sintomas_emocionales') {
+        setEmotionLimits(null);
+      }
+      const preSelected = preloadedSessionId
+        ? (preloadedSelection || [])
+        : (sessionResp?.selection?.selected_item_ids || []);
       setSelectedIds(preSelected.map((id: any) => Number(id)));
-      setAnswers(Array.isArray(sessionResp?.answers) ? sessionResp.answers : []);
+      const preAnswers = preloadedSessionId
+        ? (preloadedAnswers || [])
+        : (sessionResp?.answers || []);
+      setAnswers(Array.isArray(preAnswers) ? preAnswers : []);
       let catalog: CatalogItem[] = [];
       if (moduleKey === 'motivos') {
         const categories = await getMotivosCategories();
@@ -97,6 +103,16 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   }, [moduleKey]);
 
   const toggleId = (id: number) => {
+    if (moduleKey === 'sintomas_emocionales' && emotionLimits) {
+      const isCurrentlySelected = selectedIds.includes(id);
+      if (!isCurrentlySelected) {
+        const availableSlots = emotionLimits.remaining - selectedIds.length;
+        if (availableSlots <= 0) {
+          setShowLimitModal(true);
+          return;
+        }
+      }
+    }
     setSelectedIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
   };
 
@@ -136,7 +152,11 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       });
     } catch (e: any) {
       console.log('[DiagnosticoSelection] saveSelection error', e?.body || e?.message || e);
-      setError(e?.body?.message || e?.message || 'No se pudo guardar la seleccion.');
+      if (isLimitReached(e)) {
+        setShowLimitModal(true);
+      } else {
+        setError(e?.body?.message || e?.message || 'No se pudo guardar la seleccion.');
+      }
     } finally {
       if (didNavigate) return;
       savingSelectionRef.current = false;
@@ -185,6 +205,8 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       ? 'Cuéntanos cuáles son los motivos de tu estado emocional.'
       : moduleKey === 'sintomas_fisicos'
       ? 'Cuéntanos cuáles son tus síntomas físicos.'
+      : moduleKey === 'sintomas_emocionales' && emotionLimits
+      ? `Cuéntanos cuáles son tus síntomas emocionales. (${emotionLimits.remaining} de ${emotionLimits.assigned} disponibles)`
       : 'Cuéntanos cuáles son tus síntomas emocionales.';
 
   return (
@@ -387,6 +409,15 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           <CButton title={'Siguiente'} onPress={onPressNext} disabled={savingSelection} loading={savingSelection} />
         )}
       </View>
+      <LimitReachedModal
+        visible={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        onUpgrade={() => {
+          setShowLimitModal(false);
+          safeNavigation.navigate('SubscriptionScreen');
+        }}
+        limitKey="max_emociones_nombradas_mes"
+      />
       {SHOW_SCREEN_TOOLTIP && (
         <View style={localStyles.screenTooltip} pointerEvents="none">
           <CText type={'S12'} color={'#fff'}>

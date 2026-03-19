@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CHeader from '../../components/common/CHeader';
 import CText from '../../components/common/CText';
@@ -113,6 +113,7 @@ const expandAgendaEvents = (items: any[]) => {
 
 export default function TasksScreen({ navigation }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
+  const dispatch = useDispatch();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -187,7 +188,10 @@ export default function TasksScreen({ navigation }: any) {
               {sortEventsByTime(eventsByDate.get(dateKey) || []).map((event: AgendaEvent) => (
                 <TouchableOpacity
                   key={event.id}
-                  onPress={() => navigation.navigate('TaskDetail', { item: event.originalItem })}
+                  onPress={() => {
+                    dispatch({type: 'SET_PENDING_NAVIGATION', payload: {screen: 'TaskDetail', params: { item: event.originalItem }}});
+                    navigation.navigate('HomeTab');
+                  }}
                   style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
                 >
                   <CText type={'S16'}>{event.title}</CText>
@@ -264,7 +268,10 @@ export default function TasksScreen({ navigation }: any) {
             selectedItems.map((event: AgendaEvent) => (
               <TouchableOpacity
                 key={event.id}
-                onPress={() => navigation.navigate('TaskDetail', { item: event.originalItem })}
+                onPress={() => {
+                  dispatch({type: 'SET_PENDING_NAVIGATION', payload: {screen: 'TaskDetail', params: { item: event.originalItem }}});
+                  navigation.navigate('HomeTab');
+                }}
                 style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
               >
                 <CText type={'S16'}>{event.title}</CText>
