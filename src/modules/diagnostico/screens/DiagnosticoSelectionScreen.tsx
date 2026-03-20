@@ -61,8 +61,14 @@ const renderResumenCard = ({
 }) => {
   if (!resumenMensual) return null;
 
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
   const periodo = resumenMensual.period;
-  const periodoLabel = periodo ? `${periodo.start} - ${periodo.end}` : '';
+  const periodoLabel = periodo ? `${formatDate(periodo.start)} - ${formatDate(periodo.end)}` : '';
 
   // Get selected motivos from resumen
   const selectedMotivoIds = resumenMensual.enfoques_positivos?.items?.map((i: any) => i.motivo_id) || [];
@@ -85,17 +91,17 @@ const renderResumenCard = ({
       padding: moderateScale(12),
       marginBottom: moderateScale(12),
     }}>
-      <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(8)}}>
+      <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
         <Ionicons name="analytics-outline" size={moderateScale(20)} color={colors.primary} />
         <CText type={'B16'} style={{marginLeft: moderateScale(8)}}>
           Tu proceso de sanación
         </CText>
-        {periodoLabel && (
-          <CText type={'S12'} color={colors.labelColor} style={{marginLeft: moderateScale(8)}}>
-            ({periodoLabel})
-          </CText>
-        )}
       </View>
+      {periodoLabel && (
+        <CText type={'S12'} color={colors.labelColor} style={{marginBottom: moderateScale(8)}}>
+          Período: {periodoLabel}
+        </CText>
+      )}
 
       {selectedMotivoIds.length > 0 && (
         <View style={{marginBottom: moderateScale(12)}}>
