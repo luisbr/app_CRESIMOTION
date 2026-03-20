@@ -11,6 +11,7 @@ import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import CMainAppBar from '../../../components/common/CMainAppBar';
+import {StackNav, TabNav} from '../../../navigation/NavigationKey';
 
 const MODULES: ModuleKey[] = ['motivos', 'sintomas_fisicos', 'sintomas_emocionales'];
 
@@ -98,12 +99,18 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
     try {
       setStartingId(key);
       const data = await getPostWork(groupId);
-      navigation.navigate('TherapyFocusSelect', {
-        postWork: true,
-        groupId,
-        motivos: data?.motivos || [],
-        emotions: data?.emotions || [],
-        entrypoint: 'history',
+      navigation.navigate(StackNav.TabNavigation, {
+        screen: TabNav.HomeTab,
+        params: {
+          screen: 'TherapyFocusSelect',
+          params: {
+            postWork: true,
+            groupId,
+            motivos: data?.motivos || [],
+            emotions: data?.emotions || [],
+            entrypoint: 'history',
+          },
+        },
       });
     } catch (e: any) {
       setError(e?.body?.message || e?.message || 'No se pudo iniciar la terapia.');
@@ -379,7 +386,7 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
                           }}
                         >
                           <CText type={'S12'} color={colors.white}>
-                            {startingId === String(groupId) ? 'Cargando...' : 'Iniciar terapia'}
+                            {startingId === String(groupId) ? 'Cargando...' : 'Sesión Terapeutica'}
                           </CText>
                         </TouchableOpacity>
                       </View>

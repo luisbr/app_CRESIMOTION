@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert, ActivityIndicator, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system/legacy';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
@@ -17,6 +18,10 @@ type PlaybackItem =
   | { type: 'local'; source: number; label: string }
   | { type: 'remote'; source: string; label: string };
 
+type ResolvedPlaybackItem =
+  | { type: 'local'; source: number; label: string }
+  | { type: 'remote'; source: string; label: string; originalSource: string };
+
 const formatTime = (ms: number) => {
   const value = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(value / 60);
@@ -25,6 +30,11 @@ const formatTime = (ms: number) => {
 };
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const withTimeout = <T,>(promise: Promise<T>, ms = 10000) =>
+  Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
+  ]);
 
 const waitForDuration = async (sound: Audio.Sound) => {
   const MAX_ATTEMPTS = 5;
@@ -73,8 +83,10 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   const [totalDurationMillis, setTotalDurationMillis] = useState(0);
   const [preloadError, setPreloadError] = useState<string | null>(null);
   const [trackDurations, setTrackDurations] = useState<number[]>([]);
+  const [resolvedSequence, setResolvedSequence] = useState<ResolvedPlaybackItem[]>([]);
   const [continuing, setContinuing] = useState(false);
   const continuingRef = useRef(false);
+  const cachedRemoteUrisRef = useRef<Record<string, string>>({});
 
   const ensureAudioMode = async () => {
     try {
@@ -96,6 +108,33 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     if (/^https?:\/\//i.test(u)) return u;
     const base = API_BASE_URL || '';
     return `${base}${u.startsWith('/') ? '' : '/'}${u}`;
+  };
+
+  const getCachedAudioUri = async (remoteUrl: string) => {
+    const cached = cachedRemoteUrisRef.current[remoteUrl];
+    if (cached) {
+      const info = await FileSystem.getInfoAsync(cached).catch(() => ({ exists: false }));
+      if ((info as any)?.exists) {
+        return cached;
+      }
+    }
+
+    const safeName = encodeURIComponent(remoteUrl);
+    const fileUri = `${FileSystem.cacheDirectory || ''}healing_${safeName}.mp3`;
+    try {
+      const info = await FileSystem.getInfoAsync(fileUri);
+      if (info.exists && info.uri) {
+        cachedRemoteUrisRef.current[remoteUrl] = info.uri;
+        return info.uri;
+      }
+      const downloaded = await withTimeout(FileSystem.downloadAsync(remoteUrl, fileUri), 15000);
+      const resolvedUri = downloaded?.uri || remoteUrl;
+      cachedRemoteUrisRef.current[remoteUrl] = resolvedUri;
+      return resolvedUri;
+    } catch (e) {
+      console.log('[THERAPY] healing cache error', remoteUrl, e);
+      return remoteUrl;
+    }
   };
   const sequence = useMemo(() => {
     const list: PlaybackItem[] = [];
@@ -170,6 +209,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
           setPreloading(false);
           setTotalDurationMillis(0);
           setPreloadProgress(0);
+          setResolvedSequence([]);
         }
         return;
       }
@@ -178,18 +218,28 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
         setPreloadProgress(0);
         setTotalDurationMillis(0);
         setPreloadError(null);
+        setResolvedSequence([]);
       }
       let total = 0;
       const durations: number[] = [];
+      const prepared: ResolvedPlaybackItem[] = [];
       const len = sequence.length;
       for (let i = 0; i < len; i += 1) {
         const item = sequence[i];
         const tmpSound = new Audio.Sound();
         try {
           if (item.type === 'local') {
-            await tmpSound.loadAsync(item.source);
+            await withTimeout(tmpSound.loadAsync(item.source));
+            prepared.push(item);
           } else {
-            await tmpSound.loadAsync({ uri: item.source });
+            const localUri = await getCachedAudioUri(item.source);
+            await withTimeout(tmpSound.loadAsync({ uri: localUri }));
+            prepared.push({
+              type: 'remote',
+              source: localUri,
+              originalSource: item.source,
+              label: item.label,
+            });
           }
           const durationMillis = await waitForDuration(tmpSound);
           durations.push(durationMillis);
@@ -207,6 +257,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
         }
       }
       if (mounted) {
+        setResolvedSequence(prepared);
         setTrackDurations(durations);
         const resolvedTotal = total || chainDurationMillis;
         setTotalDurationMillis(resolvedTotal);
@@ -222,13 +273,13 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   useEffect(() => {
     console.log(
       '[THERAPY] playback plan on mount',
-      sequence.map((item, idx) => ({
+      resolvedSequence.map((item, idx) => ({
         index: idx,
         type: item.type,
         source: item.label,
       }))
     );
-  }, [sequence]);
+  }, [resolvedSequence]);
 
   useEffect(() => {
     return () => {
@@ -249,13 +300,18 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     idx: number,
     options: { tailSeconds?: number; allowContinue: boolean; tailForAll?: boolean }
   ): Promise<boolean> => {
-    if (!sequence[idx]) return false;
-    const item = sequence[idx];
+    if (!resolvedSequence[idx]) return false;
+    const item = resolvedSequence[idx];
     const s = sound || new Audio.Sound();
     if (!sound) {
       setSound(s);
     } else {
-      await s.unloadAsync();
+      try {
+        s.setOnPlaybackStatusUpdate(null);
+        await withTimeout(s.unloadAsync(), 5000);
+      } catch (e) {
+        console.log('[THERAPY] healing unload before switch error', e);
+      }
     }
     setCurrentIndex(idx);
     setFinished(false);
@@ -263,9 +319,9 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     try {
       await ensureAudioMode();
       if (item.type === 'local') {
-        await s.loadAsync(item.source);
+        await withTimeout(s.loadAsync(item.source));
       } else {
-        await s.loadAsync({ uri: item.source });
+        await withTimeout(s.loadAsync({ uri: item.source }));
       }
       const st = await s.getStatusAsync();
       const duration = (st as any)?.durationMillis ?? 0;
@@ -277,7 +333,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       }
       await s.setIsMutedAsync(false);
       await s.setVolumeAsync(1.0);
-      await s.playAsync();
+      await withTimeout(s.playAsync(), 8000);
       setPlaying(true);
       s.setOnPlaybackStatusUpdate((status: any) => {
         if (!status) return;
@@ -289,7 +345,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
         if (status?.didJustFinish) {
           setPlaying(false);
           const nextIdx = idx + 1;
-          if (options.allowContinue && nextIdx < sequence.length) {
+          if (options.allowContinue && nextIdx < resolvedSequence.length) {
             queuePlayback(nextIdx, {
               allowContinue: true,
               tailSeconds: options.tailForAll ? options.tailSeconds : undefined,
@@ -301,7 +357,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
                 }
               })
               .catch(e => console.log('[THERAPY] healing playback next error', e));
-          } else if (nextIdx >= sequence.length) {
+          } else if (nextIdx >= resolvedSequence.length) {
             setFinished(true);
             if (sessionId) {
               sendPlaybackEvent({ sessionId, event: 'FINISH' })
@@ -319,7 +375,17 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       return true;
     } catch (error) {
       console.log('[THERAPY] healing playback load error', { index: idx, label: item.label, error });
+      try {
+        s.setOnPlaybackStatusUpdate(null);
+        await withTimeout(s.stopAsync(), 3000).catch(() => {});
+        await withTimeout(s.unloadAsync(), 5000).catch(() => {});
+      } catch (cleanupError) {
+        console.log('[THERAPY] healing playback cleanup error', cleanupError);
+      }
+      setSound(null);
       setPlaying(false);
+      setPlaybackStatus({ positionMillis: 0, durationMillis: 0, isLoaded: false });
+      setPreloadError('No se pudo continuar la reproducción. Verifica tu conexión o intenta reiniciar.');
       return false;
     }
   };
@@ -332,18 +398,13 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     if (preloading) return;
     console.log(
       '[THERAPY] playback plan',
-      sequence.map((item, idx) => ({
+      resolvedSequence.map((item, idx) => ({
         index: idx,
         type: item.type,
         source: item.label,
       }))
     );
     try {
-      if (playing && sound) {
-        await sound.pauseAsync();
-        setPlaying(false);
-        return;
-      }
       if (!sound) {
         const success = await loadAndPlay(currentIndex);
         if (!success) {
@@ -351,10 +412,23 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
         }
         return;
       }
-      await sound.playAsync();
+      const st = await sound.getStatusAsync();
+      if ((st as any)?.isPlaying) {
+        return;
+      }
+      if (!(st as any)?.isLoaded) {
+        setSound(null);
+        const success = await loadAndPlay(currentIndex);
+        if (!success) {
+          return;
+        }
+        return;
+      }
+      await withTimeout(sound.playAsync(), 8000);
       setPlaying(true);
     } catch (e) {
       console.log('[THERAPY] healing playback error', e);
+      setPlaying(false);
     }
   };
 
@@ -363,8 +437,14 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     try {
       setCurrentIndex(0);
       if (sound) {
-        await sound.stopAsync();
-        await sound.unloadAsync();
+        try {
+          sound.setOnPlaybackStatusUpdate(null);
+          await withTimeout(sound.stopAsync(), 3000).catch(() => {});
+          await withTimeout(sound.unloadAsync(), 5000).catch(() => {});
+        } catch (e) {
+          console.log('[THERAPY] healing restart cleanup error', e);
+        }
+        setSound(null);
       }
       await loadAndPlay(0);
     } catch (e) {
@@ -377,8 +457,14 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     try {
       setCurrentIndex(0);
       if (sound) {
-        await sound.stopAsync();
-        await sound.unloadAsync();
+        try {
+          sound.setOnPlaybackStatusUpdate(null);
+          await withTimeout(sound.stopAsync(), 3000).catch(() => {});
+          await withTimeout(sound.unloadAsync(), 5000).catch(() => {});
+        } catch (e) {
+          console.log('[THERAPY] healing tail cleanup error', e);
+        }
+        setSound(null);
       }
       await loadAndPlayPast();
     } catch (e) {
@@ -452,8 +538,9 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
           <View style={[styles.rowSpaceBetween, styles.g10]}>
             <View style={{ flex: 1 }}>
               <CButton
-                title={playing ? 'Pausar' : playbackStatus.positionMillis === 0 ? 'Iniciar' : 'Continuar'}
+                title={playbackStatus.positionMillis === 0 ? 'Iniciar' : 'Reanudar'}
                 onPress={onPlay}
+                disabled={preloading || playing}
               />
             </View>
             <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />
@@ -471,7 +558,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
             {/* <CButton title={'Reiniciar'} bgColor={colors.inputBg} color={colors.primary} onPress={onRestart} />
             */}
           </View>
-          {sequence.length > 0 && (
+          {resolvedSequence.length > 0 && (
             <View style={[styles.mt10]}>
               <CText type={'S14'} color={colors.labelColor}>
                 {formatTime(totalElapsed)} / {formatTime(computedTotalDuration)}
