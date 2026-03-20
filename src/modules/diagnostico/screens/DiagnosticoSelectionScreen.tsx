@@ -20,13 +20,158 @@ import {getGroupId, saveGroupId, saveLastRoute} from '../utils';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
 import {API_BASE_URL} from '../../../api/config';
-import {getSession} from '../../../api/auth';
+import {getSession, getMembresias} from '../../../api/auth';
 import {getOrCreateDeviceUUID} from '../../../utils/uuid';
+import {getResumenMensual} from '../../../api/sesionTerapeutica';
 
 const capitalizeSentence = (value: string) => {
   const trimmed = value.trim();
   if (!trimmed) return trimmed;
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+};
+
+const matchItemsWithNames = (itemIds: number[], catalog: any[]): {id: number; titulo: string}[] => {
+  return itemIds
+    .map(id => {
+      const found = catalog.find(item => item.id === id || item.motivo_id === id || item.emocion_id === id);
+      return found ? { id, titulo: found.titulo || found.nombre || 'Sin nombre' } : null;
+    })
+    .filter(Boolean) as {id: number; titulo: string}[];
+};
+
+const getExceedStatus = (used: number, limit: number) => {
+  if (limit <= 0) return { status: 'ok' as const, text: '' };
+  if (used > limit) return { status: 'exceeded' as const, text: `Excedes por ${used - limit}` };
+  if (used === limit) return { status: 'at_limit' as const, text: 'Alcanzaste el límite' };
+  return { status: 'ok' as const, text: `${limit - used} disponibles` };
+};
+
+const renderResumenCard = ({
+  resumenMensual,
+  motivoCategories,
+  emotionCatalog,
+  moduleLimits,
+  colors,
+}: {
+  resumenMensual: any;
+  motivoCategories: any[];
+  emotionCatalog: any[];
+  moduleLimits: Record<string, {used: number; limit: number; remaining: number}>;
+  colors: any;
+}) => {
+  if (!resumenMensual) return null;
+
+  const periodo = resumenMensual.period;
+  const periodoLabel = periodo ? `${periodo.start} - ${periodo.end}` : '';
+
+  // Get selected motivos from resumen
+  const selectedMotivoIds = resumenMensual.enfoques_positivos?.items?.map((i: any) => i.motivo_id) || [];
+  const flatMotivos = motivoCategories.flatMap((cat: any) => cat.motivos || []);
+  const selectedMotivos = matchItemsWithNames(selectedMotivoIds, flatMotivos);
+  const motivoStatus = getExceedStatus(selectedMotivoIds.length, moduleLimits.motivos.limit);
+
+  // Get selected emociones from resumen
+  const selectedEmocionIds = resumenMensual.sanacion_emocional?.items?.map((i: any) => i.emocion_id) || [];
+  const selectedEmociones = matchItemsWithNames(selectedEmocionIds, emotionCatalog);
+  const emocionStatus = getExceedStatus(selectedEmocionIds.length, moduleLimits.sintomas_emocionales.limit);
+
+  const hasAnyData = selectedMotivoIds.length > 0 || selectedEmocionIds.length > 0;
+  if (!hasAnyData) return null;
+
+  return (
+    <View style={{
+      backgroundColor: colors.inputBg,
+      borderRadius: moderateScale(12),
+      padding: moderateScale(12),
+      marginBottom: moderateScale(12),
+    }}>
+      <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(8)}}>
+        <Ionicons name="analytics-outline" size={moderateScale(20)} color={colors.primary} />
+        <CText type={'B16'} style={{marginLeft: moderateScale(8)}}>
+          Tu proceso de sanación
+        </CText>
+        {periodoLabel && (
+          <CText type={'S12'} color={colors.labelColor} style={{marginLeft: moderateScale(8)}}>
+            ({periodoLabel})
+          </CText>
+        )}
+      </View>
+
+      {selectedMotivoIds.length > 0 && (
+        <View style={{marginBottom: moderateScale(12)}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
+            <CText type={'M14'}>Motivos abordados: {selectedMotivoIds.length}/{moduleLimits.motivos.limit}</CText>
+            {motivoStatus.status !== 'ok' && (
+              <Ionicons
+                name={motivoStatus.status === 'exceeded' ? 'warning' : 'checkmark-circle'}
+                size={moderateScale(16)}
+                color={motivoStatus.status === 'exceeded' ? colors.redAlert : colors.primary}
+                style={{marginLeft: moderateScale(4)}}
+              />
+            )}
+          </View>
+          {selectedMotivos.slice(0, 5).map((item: any) => (
+            <View key={`motivo-${item.id}`} style={{flexDirection: 'row', alignItems: 'center', marginLeft: moderateScale(8), marginTop: moderateScale(2)}}>
+              <Ionicons name="checkmark" size={moderateScale(14)} color={colors.primary} />
+              <CText type={'S12'} color={colors.labelColor} style={{marginLeft: moderateScale(4)}}>
+                {capitalizeSentence(item.titulo)}
+              </CText>
+            </View>
+          ))}
+          {selectedMotivos.length > 5 && (
+            <CText type={'S12'} color={colors.labelColor} style={{marginLeft: moderateScale(8), marginTop: moderateScale(2)}}>
+              ...y {selectedMotivos.length - 5} más
+            </CText>
+          )}
+        </View>
+      )}
+
+      {selectedEmocionIds.length > 0 && (
+        <View style={{marginBottom: moderateScale(12)}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
+            <CText type={'M14'}>Síntomas emocionales trabajados: {selectedEmocionIds.length}/{moduleLimits.sintomas_emocionales.limit}</CText>
+            {emocionStatus.status !== 'ok' && (
+              <Ionicons
+                name={emocionStatus.status === 'exceeded' ? 'warning' : 'checkmark-circle'}
+                size={moderateScale(16)}
+                color={emocionStatus.status === 'exceeded' ? colors.redAlert : colors.primary}
+                style={{marginLeft: moderateScale(4)}}
+              />
+            )}
+          </View>
+          {selectedEmociones.slice(0, 5).map((item: any) => (
+            <View key={`emocion-${item.id}`} style={{flexDirection: 'row', alignItems: 'center', marginLeft: moderateScale(8), marginTop: moderateScale(2)}}>
+              <Ionicons name="checkmark" size={moderateScale(14)} color={colors.primary} />
+              <CText type={'S12'} color={colors.labelColor} style={{marginLeft: moderateScale(4)}}>
+                {capitalizeSentence(item.titulo)}
+              </CText>
+            </View>
+          ))}
+          {selectedEmociones.length > 5 && (
+            <CText type={'S12'} color={colors.labelColor} style={{marginLeft: moderateScale(8), marginTop: moderateScale(2)}}>
+              ...y {selectedEmociones.length - 5} más
+            </CText>
+          )}
+        </View>
+      )}
+
+      {(motivoStatus.status === 'exceeded' || emocionStatus.status === 'exceeded') && (
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: '#FEF3F2',
+          borderRadius: moderateScale(8),
+          padding: moderateScale(8),
+          marginTop: moderateScale(4),
+        }}>
+          <Ionicons name="warning-outline" size={moderateScale(16)} color={colors.redAlert} />
+          <CText type={'S12'} color={colors.redAlert} style={{marginLeft: moderateScale(4), flex: 1}}>
+            Excedes el límite de tu plan {periodo?.membresia_nombre || ''}
+          </CText>
+        </View>
+      )}
+    </View>
+  );
 };
 
 export default function DiagnosticoSelectionScreen({navigation, route}: any) {
@@ -48,7 +193,12 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<number[]>([]);
   const [savingSelection, setSavingSelection] = useState(false);
   const savingSelectionRef = useRef(false);
-  const [emotionLimits, setEmotionLimits] = useState<{assigned: number; used: number; remaining: number} | null>(null);
+  const [resumenMensual, setResumenMensual] = useState<any>(null);
+  const [emotionCatalog, setEmotionCatalog] = useState<CatalogItem[]>([]);
+  const [moduleLimits, setModuleLimits] = useState<Record<string, {used: number; limit: number; remaining: number}>>({
+    motivos: { used: 0, limit: 0, remaining: 0 },
+    sintomas_emocionales: { used: 0, limit: 0, remaining: 0 },
+  });
   const [showLimitModal, setShowLimitModal] = useState(false);
 
   const load = async (mountedRef?: {current: boolean}) => {
@@ -70,11 +220,6 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       setSessionId(Number(sessionResp?.session?.id));
       if (moduleKey === 'motivos' && sessionResp?.session?.group_id) {
         await saveGroupId(Number(sessionResp.session.group_id));
-      }
-      if (sessionResp?.emotion_limits) {
-        setEmotionLimits(sessionResp.emotion_limits);
-      } else if (moduleKey === 'sintomas_emocionales') {
-        setEmotionLimits(null);
       }
       const preSelected = preloadedSessionId
         ? (preloadedSelection || [])
@@ -111,9 +256,41 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         );
         catalog = await getSintomasEmocionalesCatalog();
         console.log('[DiagnosticoSelectionScreen] getSintomasEmocionalesCatalog response', catalog);
+        setEmotionCatalog(catalog);
       }
       if (mountedRef && !mountedRef.current) return;
       setItems(catalog);
+
+      // Fetch resumen-mensual and calculate limits
+      try {
+        const [resumen, membresiasResp] = await Promise.all([
+          getResumenMensual(),
+          getMembresias(),
+        ]);
+        if (mountedRef && !mountedRef.current) return;
+        setResumenMensual(resumen);
+
+        const membresiaId = resumen?.period?.membresia_id;
+        const membresia = membresiasResp?.data?.find((m: any) => String(m.id) === String(membresiaId));
+
+        // Motivos (concepto_id = 2 - Cambio de enfoque)
+        const motivoConcept = membresia?.conceptos?.find((c: any) => String(c.conceptos_id) === '2');
+        const motivoLimit = parseInt(motivoConcept?.cantidad ?? 0, 10);
+        const motivoUsed = resumen?.enfoques_positivos?.count ?? 0;
+
+        // Síntomas emocionales (concepto_id = 1 - Emoción a resolver)
+        const emocionConcept = membresia?.conceptos?.find((c: any) => String(c.conceptos_id) === '1');
+        const emocionLimit = parseInt(emocionConcept?.cantidad ?? 0, 10);
+        const emocionUsed = resumen?.sesiones_realizadas?.count ?? 0;
+
+        if (mountedRef && !mountedRef.current) return;
+        setModuleLimits({
+          motivos: { used: motivoUsed, limit: motivoLimit, remaining: Math.max(0, motivoLimit - motivoUsed) },
+          sintomas_emocionales: { used: emocionUsed, limit: emocionLimit, remaining: Math.max(0, emocionLimit - emocionUsed) },
+        });
+      } catch (e) {
+        console.log('[DiagnosticoSelectionScreen] Error fetching limits:', e);
+      }
     } catch (e: any) {
       if (mountedRef && !mountedRef.current) return;
       console.warn('[DiagnosticoSelection] load error', e?.body || e?.message || e);
@@ -132,11 +309,11 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   }, [moduleKey]);
 
   const toggleId = (id: number) => {
-    if (moduleKey === 'sintomas_emocionales' && emotionLimits) {
-      const isCurrentlySelected = selectedIds.includes(id);
-      if (!isCurrentlySelected) {
-        const availableSlots = emotionLimits.remaining - selectedIds.length;
-        if (availableSlots <= 0) {
+    if (moduleKey === 'sintomas_emocionales' || moduleKey === 'motivos') {
+      const limitInfo = moduleLimits[moduleKey];
+      if (limitInfo) {
+        const isCurrentlySelected = selectedIds.includes(id);
+        if (!isCurrentlySelected && limitInfo.remaining <= 0) {
           setShowLimitModal(true);
           return;
         }
@@ -237,12 +414,10 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
 
   const introBody =
     moduleKey === 'motivos'
-      ? 'Cuéntanos cuáles son los motivos de tu estado emocional.'
+      ? `Cuéntanos cuáles son los motivos de tu estado emocional. (${moduleLimits.motivos.remaining} de ${moduleLimits.motivos.limit} disponibles)`
       : moduleKey === 'sintomas_fisicos'
       ? 'Cuéntanos cuáles son tus síntomas físicos.'
-      : moduleKey === 'sintomas_emocionales' && emotionLimits
-      ? `Cuéntanos cuáles son tus síntomas emocionales. (${emotionLimits.remaining} de ${emotionLimits.assigned} disponibles)`
-      : 'Cuéntanos cuáles son tus síntomas emocionales.';
+      : `Cuéntanos cuáles son tus síntomas emocionales. (${moduleLimits.sintomas_emocionales.remaining} de ${moduleLimits.sintomas_emocionales.limit} disponibles)`;
 
   return (
     <CSafeAreaView>
@@ -274,6 +449,13 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
             {introBody}
           </CText>
         </View>
+        {!loading && renderResumenCard({
+          resumenMensual,
+          motivoCategories,
+          emotionCatalog,
+          moduleLimits,
+          colors,
+        })}
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : (
@@ -446,12 +628,17 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       </View>
       <LimitReachedModal
         visible={showLimitModal}
+        limitKey={moduleKey === 'motivos' ? 'max_enfoques_mes' : 'max_emociones_nombradas_mes'}
+        customMessage={
+          moduleKey === 'motivos'
+            ? `Has alcanzado el límite de cambios de enfoque de tu plan actual (${moduleLimits.motivos.used} de ${moduleLimits.motivos.limit}). Mejora tu plan para desbloquear más.`
+            : `Has alcanzado el límite de emociones a resolver de tu plan actual (${moduleLimits.sintomas_emocionales.used} de ${moduleLimits.sintomas_emocionales.limit}). Mejora tu plan para desbloquear más.`
+        }
         onClose={() => setShowLimitModal(false)}
         onUpgrade={() => {
           setShowLimitModal(false);
           safeNavigation.navigate('SubscriptionScreen');
         }}
-        limitKey="max_emociones_nombradas_mes"
       />
       {SHOW_SCREEN_TOOLTIP && (
         <View style={localStyles.screenTooltip} pointerEvents="none">
