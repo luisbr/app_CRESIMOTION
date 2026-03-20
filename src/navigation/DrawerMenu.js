@@ -14,6 +14,68 @@ import {getSession} from '../api/auth';
 import {clearSession} from '../session/storage';
 import {DEVICE_UUID} from '../common/constants';
 
+const MENU_OPTIONS = [
+  {
+    id: 'home',
+    label: 'Inicio',
+    icon: 'happy-outline',
+    kind: 'root',
+    screenName: StackNav.WelcomeEmotion,
+    requiresSession: false,
+  },
+  {
+    id: 'sessions',
+    label: 'Sesiones',
+    icon: 'heart-outline',
+    kind: 'stack-tab',
+    tabName: TabNav.HomeTab,
+    screenName: StackNav.SessionsMenu,
+    requiresSession: true,
+  },
+  {
+    id: 'tasks',
+    label: 'Tareas',
+    icon: 'calendar-outline',
+    kind: 'stack-tab',
+    tabName: TabNav.HomeTab,
+    screenName: StackNav.TasksMenu,
+    requiresSession: true,
+  },
+  {
+    id: 'evaluations',
+    label: 'Evaluaciones',
+    icon: 'list-outline',
+    kind: 'stack-tab',
+    tabName: TabNav.HomeTab,
+    screenName: StackNav.EvaluationsMenu,
+    requiresSession: true,
+  },
+  {
+    id: 'support',
+    label: 'Apoyo financiero',
+    icon: 'cash-outline',
+    kind: 'root',
+    screenName: StackNav.ApoyoFinanciero,
+    requiresSession: true,
+  },
+  {
+    id: 'settings',
+    label: 'Configuraciones',
+    icon: 'settings-outline',
+    kind: 'root',
+    screenName: StackNav.Configuration,
+    requiresSession: true,
+  },
+  {
+    id: 'about',
+    label: 'Acerca de',
+    icon: 'information-circle-outline',
+    kind: 'root',
+    screenName: StackNav.About,
+    requiresSession: false,
+  },
+];
+
 function DrawerMenu() {
   const colors = useSelector(state => state.theme.theme);
   const navigation = useNavigation();
@@ -50,6 +112,19 @@ function DrawerMenu() {
     navigation.navigate(screenName);
   };
 
+  const onPressMenuOption = option => {
+    if (option.requiresSession && !isLoggedIn) {
+      return;
+    }
+
+    if (option.kind === 'stack-tab') {
+      navigateToStackScreen(option.tabName, option.screenName);
+      return;
+    }
+
+    navigateRootScreen(option.screenName);
+  };
+
   const onPressLogout = async () => {
     close();
     try {
@@ -76,42 +151,32 @@ function DrawerMenu() {
       <TouchableOpacity style={localStyles.drawerBackdrop} onPress={close} />
       <View style={[localStyles.drawerPanel, {backgroundColor: '#0aa693'}]}>
         <View style={localStyles.drawerTopSpacer} />
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToStackScreen(TabNav.HomeTab, StackNav.WelcomeEmotion)}>
-          <Ionicons name={'happy-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Inicio</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToStackScreen(TabNav.HomeTab, StackNav.SessionsMenu)}>
-          <Ionicons name={'heart-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Sesiones</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToStackScreen(TabNav.HomeTab, StackNav.TasksMenu)}>
-          <Ionicons name={'calendar-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Tareas</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateToStackScreen(TabNav.HomeTab, StackNav.EvaluationsMenu)}>
-          <Ionicons name={'list-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Evaluaciones</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.ApoyoFinanciero)}>
-          <Ionicons name={'cash-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Apoyo financiero</CText>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.drawerItem} onPress={() => navigateRootScreen(StackNav.Configuration)}>
-          <Ionicons name={'settings-outline'} size={20} color={colors.white} />
-          <View style={styles.ml10}>
-            <CText type={'S16'} color={colors.white}>Configuraciones</CText>
-          </View>
-        </TouchableOpacity>
+        {MENU_OPTIONS.map(option => {
+          const disabled = option.requiresSession && !isLoggedIn;
+          return (
+            <TouchableOpacity
+              key={option.id}
+              style={[localStyles.drawerItem, disabled && localStyles.drawerItemDisabled]}
+              disabled={disabled}
+              onPress={() => onPressMenuOption(option)}>
+              <Ionicons
+                name={disabled ? 'lock-closed-outline' : option.icon}
+                size={20}
+                color={colors.white}
+              />
+              <View style={styles.ml10}>
+                <CText type={'S16'} color={colors.white}>
+                  {option.label}
+                </CText>
+                {disabled ? (
+                  <CText type={'R12'} color={'rgba(255,255,255,0.72)'}>
+                    Requiere iniciar sesión
+                  </CText>
+                ) : null}
+              </View>
+            </TouchableOpacity>
+          );
+        })}
         <TouchableOpacity
           style={localStyles.drawerItem}
           onPress={isLoggedIn ? onPressLogout : onPressLogin}
@@ -163,6 +228,9 @@ const localStyles = StyleSheet.create({
   drawerItem: {
     ...styles.rowStart,
     ...styles.mb15,
+  },
+  drawerItemDisabled: {
+    opacity: 0.55,
   },
   drawerFooter: {
     marginTop: 'auto',

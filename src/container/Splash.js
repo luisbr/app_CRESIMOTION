@@ -14,7 +14,7 @@ import { initialStorageValueGet } from "../utils/AsyncStorage";
 import { colors } from "../theme/colors";
 import { changeThemeAction, changeFontScaleAction } from "../redux/action/themeAction";
 import { StackNav, TabNav } from "../navigation/NavigationKey";
-import { getProfile } from "../api/auth";
+import { getProfile, hasValidSession } from "../api/auth";
 
 export default function Splash({ navigation }) {
   const color = useSelector((state) => state.theme.theme);
@@ -23,8 +23,9 @@ export default function Splash({ navigation }) {
   const asyncProcess = async () => {
     try {
       let asyncData = await initialStorageValueGet();
-      let { themeColor, onBoardingValue, accessTokenValue } = asyncData;
-      console.log("accessTokenValue===>",accessTokenValue)
+      let { themeColor, onBoardingValue } = asyncData;
+      const hasSession = await hasValidSession();
+      console.log("hasSession===>", hasSession);
       if (!!asyncData) {
         if (!!themeColor) {
           if (themeColor === "light") {
@@ -36,7 +37,7 @@ export default function Splash({ navigation }) {
         // Small delay to keep the logo visible a moment
         const navigateNext = async () => {
           try {
-            if (!!accessTokenValue) {
+            if (hasSession) {
               // Fetch user profile settings silently to set global scaling before reaching home
               try {
                 const p = await getProfile();
@@ -53,8 +54,8 @@ export default function Splash({ navigation }) {
               console.log('Splash navigating to TabNavigation');
               navigation.reset({ index: 0, routes: [{ name: StackNav.TabNavigation, state: { routes: [{ name: TabNav.HomeTab }] } }] });
             } else if (!!onBoardingValue) {
-              console.log('Splash navigating to TabNavigation');
-              navigation.reset({ index: 0, routes: [{ name: StackNav.TabNavigation, state: { routes: [{ name: TabNav.HomeTab }] } }] });
+              console.log('Splash navigating to WelcomeEmotion');
+              navigation.reset({ index: 0, routes: [{ name: StackNav.WelcomeEmotion }] });
             } else {
               console.log('Splash navigating to OnBoarding');
               navigation.reset({ index: 0, routes: [{ name: StackNav.OnBoarding }] });

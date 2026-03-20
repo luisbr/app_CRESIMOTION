@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Image, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Image, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -257,110 +257,115 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   return (
     <CSafeAreaView>
       <CMainAppBar mode="main" />
-      <View>
-        <Image
-          source={require('../../../assets/images/home.png')}
-          style={{ width: '100%', height: moderateScale(180) }}
-          resizeMode="cover"
-        />
-      </View>
-      <View style={[styles.p20, { paddingTop: 16 }]}>
-        <CText type={'S20'} align={'center'} color={colors.textColor} style={styles.mb10}>
-          {moduleTitle}
-        </CText>
-        <CText type={'S12'} align={'center'} color={colors.labelColor} style={styles.mb15}>
-          {moduleBodyPrefix}
-          <CText type={'S12'} color={colors.textColor} align="center" style={null}>
-            {moduleTitleInline}
+      <ScrollView
+        contentContainerStyle={localStyles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View>
+          <Image
+            source={require('../../../assets/images/home.png')}
+            style={{ width: '100%', height: moderateScale(180) }}
+            resizeMode="cover"
+          />
+        </View>
+        <View style={[styles.p20, { paddingTop: 16 }]}>
+          <CText type={'S20'} align={'center'} color={colors.textColor} style={styles.mb10}>
+            {moduleTitle}
           </CText>
-          {moduleBodySuffix}
-        </CText>
-        {__DEV__ && (
-          <View style={styles.mb10}>
+          <CText type={'S12'} align={'center'} color={colors.labelColor} style={styles.mb15}>
+            {moduleBodyPrefix}
+            <CText type={'S12'} color={colors.textColor} align="center" style={null}>
+              {moduleTitleInline}
+            </CText>
+            {moduleBodySuffix}
+          </CText>
+          {__DEV__ && (
+            <View style={styles.mb10}>
+              <CButton
+                title={'Reset intro (debug)'}
+                type="B16"
+                onPress={onPressResetHealingIntro}
+                bgColor={colors.inputBg}
+                color={colors.primary}
+                containerStyle={null}
+                style={null}
+                textStyle={null}
+                borderColor={null}
+              />
+            </View>
+          )}
+          {loading ? (
+            <ActivityIndicator color={colors.primary} />
+          ) : therapyNext ? (
             <CButton
-              title={'Reset intro (debug)'}
+              title={therapyNext?.payload?.title || 'Continuar sesión terapéutica'}
               type="B16"
-              onPress={onPressResetHealingIntro}
-              bgColor={colors.inputBg}
-              color={colors.primary}
+              color={colors.white}
               containerStyle={null}
               style={null}
               textStyle={null}
+              bgColor={null}
               borderColor={null}
+              onPress={onPressTherapy}
+              disabled={navigating}
+              loading={navigating}
             />
-          </View>
-        )}
-        {loading ? (
-          <ActivityIndicator color={colors.primary} />
-        ) : therapyNext ? (
-          <CButton 
-            title={therapyNext?.payload?.title || 'Continuar sesión terapéutica'} 
+          ) : resumeTarget ? (
+            <CButton
+              title={''}
+              type="B14"
+              color={colors.white}
+              onPress={onPressContinue}
+              disabled={navigating}
+              loading={navigating}
+              containerStyle={localStyles.evalButton}
+              style={null}
+              textStyle={null}
+              bgColor={null}
+              borderColor={null}
+            >
+              <CText type={'M12'} color={colors.white} align={'center'} style={null}>
+                Autoevaluación:
+              </CText>
+              <CText type={'B14'} color={colors.white} align={'center'} style={null}>
+                {moduleTitle}
+              </CText>
+            </CButton>
+          ) : (
+            <CButton
+              title={''}
+              type="B14"
+              color={colors.white}
+              onPress={onPressStart}
+              disabled={navigating}
+              loading={navigating}
+              containerStyle={localStyles.evalButton}
+              style={null}
+              textStyle={null}
+              bgColor={null}
+              borderColor={null}
+            >
+              <CText type={'M12'} color={colors.white} align={'center'} style={null}>
+                Autoevaluación:
+              </CText>
+              <CText type={'B14'} color={colors.white} align={'center'} style={null}>
+                {moduleTitle}
+              </CText>
+            </CButton>
+          )}
+          <CButton
+            title={'Mis autoevaluaciones'}
             type="B16"
-            color={colors.white}
+            onPress={onPressHistory}
+            bgColor={colors.inputBg}
+            color={colors.primary}
             containerStyle={null}
             style={null}
             textStyle={null}
-            bgColor={null}
             borderColor={null}
-            onPress={onPressTherapy}
-            disabled={navigating}
-            loading={navigating}
           />
-        ) : resumeTarget ? (
-          <CButton
-            title={''}
-            type="B14"
-            color={colors.white}
-            onPress={onPressContinue}
-            disabled={navigating}
-            loading={navigating}
-            containerStyle={localStyles.evalButton}
-            style={null}
-            textStyle={null}
-            bgColor={null}
-            borderColor={null}
-          >
-            <CText type={'M12'} color={colors.white} align={'center'} style={null}>
-              Autoevaluación:
-            </CText>
-            <CText type={'B14'} color={colors.white} align={'center'} style={null}>
-              {moduleTitle}
-            </CText>
-          </CButton>
-        ) : (
-          <CButton
-            title={''}
-            type="B14"
-            color={colors.white}
-            onPress={onPressStart}
-            disabled={navigating}
-            loading={navigating}
-            containerStyle={localStyles.evalButton}
-            style={null}
-            textStyle={null}
-            bgColor={null}
-            borderColor={null}
-          >
-            <CText type={'M12'} color={colors.white} align={'center'} style={null}>
-              Autoevaluación:
-            </CText>
-            <CText type={'B14'} color={colors.white} align={'center'} style={null}>
-              {moduleTitle}
-            </CText>
-          </CButton>
-        )}
-        <CButton
-          title={'Mis autoevaluaciones'}
-          type="B16"
-          onPress={onPressHistory}
-          bgColor={colors.inputBg}
-          color={colors.primary}
-          containerStyle={null}
-          style={null}
-          textStyle={null}
-          borderColor={null}
-        />
-      </View>
+        </View>
+      </ScrollView>
       {SHOW_SCREEN_TOOLTIP && (
         <View style={localStyles.screenTooltip} pointerEvents="none">
           <CText type={'S12'} color={'#fff'} align="left" style={null}>
@@ -373,6 +378,9 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
 }
 
 const localStyles: any = {
+  scrollContent: {
+    paddingBottom: moderateScale(24),
+  },
   evalButton: {
     flexDirection: 'column',
     height: moderateScale(62),

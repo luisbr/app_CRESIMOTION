@@ -49,6 +49,8 @@ import AgendaSetupScreen from '../screens/therapy/AgendaSetupScreen';
 import TasksScreen from '../screens/agenda/TasksScreen';
 import TaskDetailScreen from '../screens/agenda/TaskDetailScreen';
 import WelcomeEmotionScreen from '../screens/home/WelcomeEmotionScreen';
+import AboutScreen from '../screens/home/AboutScreen';
+import AboutDetailScreen from '../screens/home/AboutDetailScreen';
 import WellnessNetworkScreen from '../screens/home/WellnessNetworkScreen';
 import ApoyoFinancieroScreen from '../screens/home/ApoyoFinancieroScreen';
 import ApoyoAceptadoScreen from '../screens/home/ApoyoAceptadoScreen';
@@ -106,6 +108,8 @@ export const StackRoute = {
   TasksScreen,
   TaskDetailScreen,
   WelcomeEmotion: WelcomeEmotionScreen,
+  About: AboutScreen,
+  AboutDetail: AboutDetailScreen,
   WellnessNetwork: WellnessNetworkScreen,
   TestsGabo: TestsListScreen,
   TestDetail: TestDetailScreen,

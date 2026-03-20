@@ -132,9 +132,7 @@ const CMainAppBar: React.FC<CMainAppBarProps> = ({
       <View style={[localStyles.rightHeaderIcons, { flex: mode === 'main' ? 1 : 0 }]}>
         <TouchableOpacity
           style={localStyles.iconButtonRight}
-          onPress={() =>
-            isLoggedIn && navigation.navigate(StackNav.WellnessNetwork)
-          }>
+          onPress={() => navigation.navigate(StackNav.WellnessNetwork)}>
           <Ionicons name="call-outline" size={26} color={colors.primary} />
         </TouchableOpacity>
 

@@ -4,6 +4,33 @@ import {AUTH_HASH, AUTH_ID, AUTH_TOKEN, AUTH_UUID, ACCESS_TOKEN, AUTH_NAME, AUTH
 import * as SecureStore from 'expo-secure-store';
 import {getOrCreateDeviceUUID} from '../utils/uuid';
 
+const emptySession = {
+  id: null,
+  token: null,
+  uuid: null,
+  hash: null,
+  nombre: null,
+  alias: null,
+};
+
+const clearStoredAuthState = async () => {
+  await AsyncStorage.multiRemove([AUTH_ID, AUTH_UUID, AUTH_NAME, AUTH_ALIAS, ACCESS_TOKEN]);
+  await SecureStore.deleteItemAsync(AUTH_TOKEN);
+  await SecureStore.deleteItemAsync(AUTH_HASH);
+};
+
+const hasValue = value => value !== null && value !== undefined;
+
+export const isAuthenticatedSession = (session) => (
+  hasValue(session?.id) && !!session?.token && hasValue(session?.uuid)
+);
+
+const requireAuthenticatedSession = (session) => {
+  if (!isAuthenticatedSession(session)) {
+    throw new Error('Sesion no disponible');
+  }
+};
+
 const postJson = async (path, body) => {
   const url = `${API_BASE_URL}${path}`;
   console.log(`[auth] POST ${url}`);
@@ -206,15 +233,16 @@ export const verifyTutorCode = async ({correo_tutor, codigo}) => {
 };
 
 export const getSession = async () => {
-  const [[, id], [, uuid], [, nombre], [, alias]] = await AsyncStorage.multiGet([
+  const [[, id], [, uuid], [, nombre], [, alias], [, accessTokenFlag]] = await AsyncStorage.multiGet([
     AUTH_ID,
     AUTH_UUID,
     AUTH_NAME,
     AUTH_ALIAS,
+    ACCESS_TOKEN,
   ]);
   const token = await SecureStore.getItemAsync(AUTH_TOKEN);
   const hash = await SecureStore.getItemAsync(AUTH_HASH);
-  return {
+  const session = {
     id: id ? JSON.parse(id) : null,
     token: token ? JSON.parse(token) : null,
     uuid: uuid ? JSON.parse(uuid) : null,
@@ -222,10 +250,37 @@ export const getSession = async () => {
     nombre: nombre ? JSON.parse(nombre) : null,
     alias: alias ? JSON.parse(alias) : null,
   };
+  const accessToken = accessTokenFlag ? JSON.parse(accessTokenFlag) === true : false;
+  const hasAnyStoredAuth =
+    accessToken ||
+    hasValue(session.id) ||
+    hasValue(session.uuid) ||
+    !!session.token ||
+    !!session.hash;
+
+  if (!hasAnyStoredAuth) {
+    return session;
+  }
+
+  const hasCompleteSession = accessToken && isAuthenticatedSession(session);
+
+  if (!hasCompleteSession) {
+    console.log('[auth] Clearing inconsistent stored session state');
+    await clearStoredAuthState();
+    return emptySession;
+  }
+
+  return session;
+};
+
+export const hasValidSession = async () => {
+  const session = await getSession();
+  return isAuthenticatedSession(session);
 };
 
 export const authPost = async (path, body) => {
   const session = await getSession();
+  requireAuthenticatedSession(session);
   const payload = {
     ...body,
     id: session.id,
@@ -237,6 +292,7 @@ export const authPost = async (path, body) => {
 
 const authPostWithHeaders = async (path, body) => {
   const session = await getSession();
+  requireAuthenticatedSession(session);
   const url = `${API_BASE_URL}${path}`;
   const token = session.token;
   const uuid = session.uuid;
