@@ -247,7 +247,7 @@ loadHomeState();
       <View>
         <View style={localStyles.headerContainer}>
           <View>
-            <CText type={"B18"}>{displayName ? `Hola, ${displayName}` : 'Hola'}</CText>
+            <CText type={"B18"}>{displayName ? `Hola **, ${displayName}` : 'Hola'}</CText>
             <CText type={"S12"} color={colors.labelColor}>
               {strings.howFeelToday}
             </CText>

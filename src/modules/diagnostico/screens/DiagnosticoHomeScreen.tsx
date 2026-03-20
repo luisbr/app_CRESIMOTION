@@ -74,9 +74,12 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     setLoading(true);
     try {
       try {
+        console.log('[DiagnosticoHomeScreen] getSession request');
         const s = await getSession();
+        console.log('[DiagnosticoHomeScreen] getSession response', s);
         const userId = s?.id ? String(s.id) : null;
         if (userId) {
+          console.log('[DiagnosticoHomeScreen] getTherapyNext request', {userId, from_menu: 1});
           const next = await getTherapyNext(userId, { from_menu: 1 });
           console.log('[DiagnosticoHomeScreen] getTherapyNext response', next);
           const normalized = normalizeTherapyNext(next);
@@ -91,11 +94,16 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
       } catch (e) {
         setTherapyNext(null);
       }
+      console.log('[DiagnosticoHomeScreen] getLastRoute request');
       const local = await getLastRoute();
+      console.log('[DiagnosticoHomeScreen] getLastRoute response', local);
       let open: any = null;
       try {
+        console.log('[DiagnosticoHomeScreen] getOpenSession request');
         open = await getOpenSession();
+        console.log('[DiagnosticoHomeScreen] getOpenSession response', open);
       } catch (e) {
+        console.log('[DiagnosticoHomeScreen] getOpenSession error', e);
         open = null;
       }
       const sessions = open?.sessions || [];
@@ -156,11 +164,15 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
       let isActive = true;
       const checkSessionAndNotifs = async () => {
         try {
+          console.log('[DiagnosticoHomeScreen] getSession (focus) request');
           const session = await getSession();
+          console.log('[DiagnosticoHomeScreen] getSession (focus) response', session);
           if (isActive) {
             if (session?.token) {
               setIsLoggedIn(true);
+              console.log('[DiagnosticoHomeScreen] getStoredNotifications request');
               const notifs = await getStoredNotifications();
+              console.log('[DiagnosticoHomeScreen] getStoredNotifications response', notifs);
               const hasNew = notifs.some(n => n.isNew && !n.isDeleted && !n.isArchived);
               setHasNewNotifs(hasNew);
             } else {

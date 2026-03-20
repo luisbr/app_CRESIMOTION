@@ -19,3 +19,7 @@
     "SAVEHIST": "10000"
   }
 }
+
+
+
+curl -X GET 'https://cresimotion.staging.mx/api/app/sesion-terapeutica/resumen-mensual' -H 'Authorization: Bearer 1a7b13c38b2960c45e8054afa3fdac081bc74a8fb143486432efe80edd9c9411' -H 'X-Device-UUID: b888a52e-9c28-a19c-71d2-d0291d4d727e'

@@ -114,7 +114,7 @@ const CMainAppBar: React.FC<CMainAppBarProps> = ({
       }]}>
         {mode === 'main' ? (
           <TouchableOpacity
-            onPress={() => isLoggedIn && navigation.navigate(StackNav.Subscription)}>
+            onPress={() => navigation.navigate(StackNav.WelcomeEmotion)}>
             <Image
               source={require('../../../assets/logo.png')}
               style={localStyles.logo}

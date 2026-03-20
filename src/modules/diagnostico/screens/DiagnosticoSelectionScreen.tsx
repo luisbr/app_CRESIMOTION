@@ -18,6 +18,9 @@ import ChecklistItem from '../components/ChecklistItem';
 import {getGroupId, saveGroupId, saveLastRoute} from '../utils';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
+import {API_BASE_URL} from '../../../api/config';
+import {getSession} from '../../../api/auth';
+import {getOrCreateDeviceUUID} from '../../../utils/uuid';
 
 const capitalizeSentence = (value: string) => {
   const trimmed = value.trim();
@@ -57,7 +60,20 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           answers: preloadedAnswers,
         };
       } else {
+        console.log('[DiagnosticoSelectionScreen] getGroupId request', {moduleKey});
         const storedGroupId = moduleKey === 'motivos' ? null : await getGroupId();
+        console.log('[DiagnosticoSelectionScreen] getGroupId response', {moduleKey, storedGroupId});
+        const session = await getSession();
+        const uuid = await getOrCreateDeviceUUID();
+        const payload = {
+          module_key: moduleKey,
+          country_code: 'MX',
+          ...(storedGroupId ? {group_id: storedGroupId} : {}),
+        };
+        console.log(
+          '[DiagnosticoSelectionScreen] curl startSession',
+          `curl -X POST '${API_BASE_URL}/api/v1/evaluations/sessions/start' -H 'Content-Type: application/json' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}' -d '${JSON.stringify(payload)}'`,
+        );
         sessionResp = await startSession(moduleKey, 'MX', storedGroupId);
       }
       if (mountedRef && !mountedRef.current) return;
@@ -70,13 +86,32 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       setAnswers(Array.isArray(sessionResp?.answers) ? sessionResp.answers : []);
       let catalog: CatalogItem[] = [];
       if (moduleKey === 'motivos') {
+        console.log(
+          '[DiagnosticoSelectionScreen] curl getMotivosCategories',
+          `curl -X GET '${API_BASE_URL}/api/ws/diagnostico/motivos'`,
+        );
         const categories = await getMotivosCategories();
+        console.log('[DiagnosticoSelectionScreen] getMotivosCategories response', categories);
         const flatMotivos = categories.flatMap(category => category.motivos || []);
         setMotivoCategories(categories);
         catalog = flatMotivos;
       }
-      if (moduleKey === 'sintomas_fisicos') catalog = await getSintomasFisicosCatalog();
-      if (moduleKey === 'sintomas_emocionales') catalog = await getSintomasEmocionalesCatalog();
+      if (moduleKey === 'sintomas_fisicos') {
+        console.log(
+          '[DiagnosticoSelectionScreen] curl getSintomasFisicosCatalog',
+          `curl -X GET '${API_BASE_URL}/api/ws/diagnostico/sintomas-fisicos'`,
+        );
+        catalog = await getSintomasFisicosCatalog();
+        console.log('[DiagnosticoSelectionScreen] getSintomasFisicosCatalog response', catalog);
+      }
+      if (moduleKey === 'sintomas_emocionales') {
+        console.log(
+          '[DiagnosticoSelectionScreen] curl getSintomasEmocionalesCatalog',
+          `curl -X GET '${API_BASE_URL}/api/ws/diagnostico/sintomas-emocionales'`,
+        );
+        catalog = await getSintomasEmocionalesCatalog();
+        console.log('[DiagnosticoSelectionScreen] getSintomasEmocionalesCatalog response', catalog);
+      }
       if (mountedRef && !mountedRef.current) return;
       setItems(catalog);
     } catch (e: any) {
@@ -123,6 +158,12 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     setSavingSelection(true);
     let didNavigate = false;
     try {
+      const session = await getSession();
+      const uuid = await getOrCreateDeviceUUID();
+      console.log(
+        '[DiagnosticoSelectionScreen] curl saveSelection',
+        `curl -X POST '${API_BASE_URL}/api/v1/evaluations/sessions/${sessionId}/selection' -H 'Content-Type: application/json' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}' -d '${JSON.stringify({selected_item_ids: selectedIds})}'`,
+      );
       const resp = await saveSelection(sessionId, selectedIds);
       console.log('[DiagnosticoSelection] saveSelection response', resp);
       await saveLastRoute({session_id: sessionId, module_key: moduleKey, screen: 'Wizard'});
