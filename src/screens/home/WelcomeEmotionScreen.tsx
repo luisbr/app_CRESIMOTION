@@ -7,8 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useSelector} from 'react-redux';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -17,25 +16,50 @@ import CButton from '../../components/common/CButton';
 import {styles} from '../../theme';
 import {getHeight, getWidth, moderateScale} from '../../common/constants';
 import {getSession} from '../../api/auth';
-import {StackNav, TabNav} from '../../navigation/NavigationKey';
+import {StackNav} from '../../navigation/NavigationKey';
 import {getStoredNotifications} from '../../utils/notificationStorage';
-import {useDrawer} from '../../navigation/DrawerContext';
 import CMainAppBar from '../../components/common/CMainAppBar';
+import {
+  MOTIVATIONAL_PHRASES,
+  PAINFUL_PHRASES,
+} from '../../constants/emotionPhrases';
 
 const EMOTIONS = [
-  {id: 1, emoji: '😄', label: 'Muy feliz'},
-  {id: 2, emoji: '🙂', label: 'Feliz'},
-  {id: 3, emoji: '😐', label: 'Regular'},
-  {id: 4, emoji: '🙁', label: 'Mal'},
-  {id: 5, emoji: '😢', label: 'Muy triste'},
+  {
+    id: 1,
+    label: 'Muy feliz',
+    icon: require('../../assets/iconos_emociones/excelente.png'),
+  },
+  {
+    id: 2,
+    label: 'Feliz',
+    icon: require('../../assets/iconos_emociones/bien.png'),
+  },
+  {
+    id: 3,
+    label: 'Regular',
+    icon: require('../../assets/iconos_emociones/regular.png'),
+  },
+  {
+    id: 4,
+    label: 'Mal',
+    icon: require('../../assets/iconos_emociones/mal.png'),
+  },
+  {
+    id: 5,
+    label: 'Muy mal',
+    icon: require('../../assets/iconos_emociones/muy_mal.png'),
+  },
 ];
 
-const PHRASES: Record<number, string> = {
-  1: '¡Qué maravilloso! Sigue irradiando esa hermosa energía.',
-  2: 'Hoy es un buen día para cuidar de ti.',
-  3: 'Recuerda que incluso los días nublados ayudan a que crezcan flores.',
-  4: 'Está bien no sentirse bien. Permítete sentir para luego soltar.',
-  5: 'Te abrazo en tu tristeza. Cada pequeña acción cuenta, sé amable contigo hoy.',
+const POSITIVE_EMOTIONS = new Set([1, 2]);
+
+const getRandomPhrase = (emotionId: number) => {
+  const pool = POSITIVE_EMOTIONS.has(emotionId)
+    ? MOTIVATIONAL_PHRASES
+    : PAINFUL_PHRASES;
+
+  return pool[Math.floor(Math.random() * pool.length)];
 };
 
 export default function WelcomeEmotionScreen() {
@@ -44,11 +68,11 @@ export default function WelcomeEmotionScreen() {
   const dispatch = useDispatch();
   const insets = useSafeAreaInsets();
   const drawer = useDrawer();
-  const pendingNavigation = useSelector((state: any) => state.ui.pendingNavigation);
   
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedEmotion, setSelectedEmotion] = useState<number | null>(null);
+  const [selectedPhrase, setSelectedPhrase] = useState<string | null>(null);
   const [hasNewNotifs, setHasNewNotifs] = useState(false);
 
   useEffect(() => {
@@ -91,25 +115,14 @@ export default function WelcomeEmotionScreen() {
     }, [])
   );
 
-  const handleLoginLogout = () => {
-    if (isLoggedIn) {
-      // Navigate to profile or something, or handle logout
-      // For now, let's go to AuthNavigation (Login)
-      navigation.reset({
-        index: 0,
-        routes: [{name: StackNav.AuthNavigation}],
-      });
-    } else {
-      navigation.reset({
-        index: 0,
-        routes: [{name: StackNav.AuthNavigation}],
-      });
-    }
+  const handleSelectEmotion = (emotionId: number) => {
+    setSelectedEmotion(emotionId);
+    setSelectedPhrase(getRandomPhrase(emotionId));
   };
 
   const handleResponder = () => {
     if (isLoggedIn) {
-      navigation.navigate('DiagnosticoHome');
+      navigation.navigate(StackNav.TestsGabo);
     } else {
       navigation.reset({
         index: 0,
@@ -144,7 +157,10 @@ export default function WelcomeEmotionScreen() {
   const renderEmotionSelector = () => (
     <View style={localStyles.emotionSection}>
       <CText type="B18" color={colors.textColor} align="center" style={styles.mb15}>
-        ¿Cómo te sientes hoy?
+        ¿Te gustaría contarnos algunos motivos que podrían estar influyendo en cómo te sientes hoy?
+      </CText>
+      <CText type="R14" color={colors.textColor} align="center" style={localStyles.supportingCopy}>
+        Con esta información podremos ofrecerte un enfoque positivo y una sesión de sanación emocional para ayudarte a sentirte mejor.
       </CText>
       <View style={localStyles.emojisRow}>
         {EMOTIONS.map((emo) => {
@@ -154,11 +170,18 @@ export default function WelcomeEmotionScreen() {
               key={emo.id}
               style={[
                 localStyles.emojiItem,
-                isSelected && {backgroundColor: colors.grayScale2, borderColor: colors.primary, borderWidth: 1},
+                isSelected && localStyles.emojiItemSelected,
               ]}
-              onPress={() => setSelectedEmotion(emo.id)}
+              onPress={() => handleSelectEmotion(emo.id)}
             >
-              <CText type="M14" color={colors.textColor} align="center" style={{fontSize: moderateScale(32)}}>{emo.emoji}</CText>
+              <Image
+                source={emo.icon}
+                style={localStyles.emotionIcon}
+                resizeMode="contain"
+              />
+              <CText type="M12" color={colors.textColor} align="center" style={localStyles.emotionLabel}>
+                {emo.label}
+              </CText>
             </TouchableOpacity>
           );
         })}
@@ -179,69 +202,15 @@ export default function WelcomeEmotionScreen() {
         />
       )}
 
-      {selectedEmotion !== null && (
+      {selectedPhrase && (
         <View style={[localStyles.phraseBox, {backgroundColor: '#F3D2ED'}]}>
           <CText type="M14" color={colors.textColor} align="center" style={localStyles.phraseText}>
-            {PHRASES[selectedEmotion]}
+            {selectedPhrase}
           </CText>
         </View>
       )}
     </View>
   );
-
-  const renderBottomLinks = () => {
-    const handleBottomLink = (routeScreen: string) => {
-      if (isLoggedIn) {
-         navigation.reset({
-          index: 0,
-          routes: [
-            {
-              name: StackNav.TabNavigation,
-              state: {
-                routes: [
-                  {
-                    name: TabNav.HomeTab,
-                    state: {
-                      routes: [{name: routeScreen}],
-                    },
-                  },
-                ],
-              },
-            },
-          ],
-        });
-      } else {
-        navigation.reset({
-          index: 0,
-          routes: [{name: StackNav.AuthNavigation}],
-        });
-      }
-    };
-
-    return (
-      <View style={localStyles.bottomLinksRow}>
-        <TouchableOpacity style={localStyles.bottomIcon} onPress={() => isLoggedIn && handleResponder()}>
-          <Ionicons name="home-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Home</CText>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('Tasks')}>
-          <Ionicons name="calendar-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Tareas</CText>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.bottomIcon} onPress={() => handleBottomLink('DiagnosticoHistory')}>
-          <Ionicons name="document-text-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={styles.mt5}>Mis evaluaciones</CText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={localStyles.bottomIcon}
-          onPress={() => isLoggedIn && navigation.navigate(StackNav.TestsGabo)}
-        >
-          <Ionicons name="clipboard-outline" size={32} color={colors.textColor} />
-          <CText type="S12" align="center" color={colors.textColor} style={[styles.mt5, null]}>Test</CText>
-        </TouchableOpacity>
-      </View>
-    );
-  };
 
   return (
     <CSafeAreaView style={{backgroundColor: '#F3FAFA'}} color={null}>
@@ -339,11 +308,36 @@ const localStyles = StyleSheet.create({
   emojisRow: {
     ...styles.flexRow,
     ...styles.justifyEvenly,
+    flexWrap: 'wrap',
     ...styles.mb20,
   },
   emojiItem: {
-    padding: moderateScale(10),
-    borderRadius: moderateScale(50),
+    width: '30%',
+    minWidth: moderateScale(88),
+    paddingVertical: moderateScale(12),
+    paddingHorizontal: moderateScale(8),
+    borderRadius: moderateScale(18),
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D9E6DF',
+    backgroundColor: '#FFFFFF',
+    marginBottom: moderateScale(12),
+  },
+  emojiItemSelected: {
+    backgroundColor: '#E7F6EE',
+    borderColor: '#7CD992',
+  },
+  emotionIcon: {
+    width: moderateScale(48),
+    height: moderateScale(48),
+    marginBottom: moderateScale(8),
+  },
+  emotionLabel: {
+    lineHeight: moderateScale(16),
+  },
+  supportingCopy: {
+    marginBottom: moderateScale(18),
+    lineHeight: moderateScale(20),
   },
   responderBtn: {
     width: '60%',
@@ -362,21 +356,6 @@ const localStyles = StyleSheet.create({
   },
   phraseText: {
     flex: 1,
-    textAlign: 'center',
-  },
-  bottomLinksRow: {
-    ...styles.flexRow,
-    ...styles.justifyEvenly,
-    ...styles.mt20,
-  },
-  bottomIcon: {
-    alignItems: 'center',
-    width: getWidth(70),
-  },
-  bottomIconLabel: {
-    ...styles.mt5,
-    fontSize: moderateScale(10),
-    lineHeight: moderateScale(12),
     textAlign: 'center',
   },
 });

@@ -9,9 +9,9 @@ import {styles} from '../../theme';
 import CText from '../../components/common/CText';
 import {getHeight, getWidth, moderateScale} from '../../common/constants';
 import {StackNav, TabNav} from '../NavigationKey';
-import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryScreen';
 // Break require cycle: import screens directly instead of NavigationRoute
 import HomeStack from './HomeStack';
+import EvaluationsStack from './EvaluationsStack';
 import TasksScreen from '../../screens/agenda/TasksScreen';
 import TestsListScreen from '../../screens/tests/TestsListScreen';
 import WelcomeEmotionScreen from '../../screens/home/WelcomeEmotionScreen';
@@ -90,7 +90,7 @@ function TabNavigation() {
         />
         <Tab.Screen
           name={TabNav.EvaluationsTab}
-          component={DiagnosticoHistoryScreen}
+          component={EvaluationsStack}
           options={{
             tabBarIcon: ({focused}) => (
               <TabText

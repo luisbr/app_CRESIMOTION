@@ -2,6 +2,11 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import HomeTab from '../../container/home/HomeTab';
 import WelcomeEmotionScreen from '../../screens/home/WelcomeEmotionScreen';
+import SessionsMenuScreen from '../../screens/home/SessionsMenuScreen';
+import TasksMenuScreen from '../../screens/home/TasksMenuScreen';
+import EvaluationsMenuScreen from '../../screens/home/EvaluationsMenuScreen';
+import WorkedRecommendationsScreen from '../../screens/home/WorkedRecommendationsScreen';
+import WorkedExercisesScreen from '../../screens/home/WorkedExercisesScreen';
 import ReasonsListScreen from '../../screens/forms/ReasonsListScreen';
 import IntensityWizardScreen from '../../screens/forms/IntensityWizardScreen';
 import SummaryScreen from '../../screens/forms/SummaryScreen';
@@ -41,6 +46,11 @@ export default function HomeStack() {
     <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="WelcomeEmotion">
       <Stack.Screen name="HomeRoot" component={HomeTab} />
       <Stack.Screen name="WelcomeEmotion" component={WelcomeEmotionScreen} />
+      <Stack.Screen name="SessionsMenu" component={SessionsMenuScreen} />
+      <Stack.Screen name="TasksMenu" component={TasksMenuScreen} />
+      <Stack.Screen name="EvaluationsMenu" component={EvaluationsMenuScreen} />
+      <Stack.Screen name="WorkedRecommendations" component={WorkedRecommendationsScreen} />
+      <Stack.Screen name="WorkedExercises" component={WorkedExercisesScreen} />
       <Stack.Screen name="DiagnosticoHome" component={DiagnosticoHomeScreen} />
       <Stack.Screen name="DiagnosticoSelection" component={DiagnosticoSelectionScreen} />
       <Stack.Screen name="DiagnosticoWizard" component={DiagnosticoWizardScreen} />

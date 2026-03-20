@@ -10,6 +10,7 @@ import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { getAgendaItems } from '../../api/sesionTerapeutica';
 import CMainAppBar from '../../components/common/CMainAppBar';
+import { StackNav, TabNav } from '../../navigation/NavigationKey';
 
 const daysHeader = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
@@ -169,6 +170,16 @@ export default function TasksScreen({ navigation }: any) {
     setSelectedDate(dateKey);
   };
 
+  const openTaskDetail = (item: any) => {
+    navigation.navigate(StackNav.TabNavigation, {
+      screen: TabNav.HomeTab,
+      params: {
+        screen: 'TaskDetail',
+        params: { item },
+      },
+    });
+  };
+
   const renderList = () => (
     <ScrollView contentContainerStyle={[styles.p20, { paddingBottom: 140 }]}> 
       {datesSorted.length === 0 ? (
@@ -188,10 +199,7 @@ export default function TasksScreen({ navigation }: any) {
               {sortEventsByTime(eventsByDate.get(dateKey) || []).map((event: AgendaEvent) => (
                 <TouchableOpacity
                   key={event.id}
-                  onPress={() => {
-                    dispatch({type: 'SET_PENDING_NAVIGATION', payload: {screen: 'TaskDetail', params: { item: event.originalItem }}});
-                    navigation.navigate('HomeTab');
-                  }}
+                  onPress={() => openTaskDetail(event.originalItem)}
                   style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
                 >
                   <CText type={'S16'}>{event.title}</CText>
@@ -268,10 +276,7 @@ export default function TasksScreen({ navigation }: any) {
             selectedItems.map((event: AgendaEvent) => (
               <TouchableOpacity
                 key={event.id}
-                onPress={() => {
-                  dispatch({type: 'SET_PENDING_NAVIGATION', payload: {screen: 'TaskDetail', params: { item: event.originalItem }}});
-                  navigation.navigate('HomeTab');
-                }}
+                onPress={() => navigation.navigate('TaskDetail', { item: event.originalItem })}
                 style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
               >
                 <CText type={'S16'}>{event.title}</CText>

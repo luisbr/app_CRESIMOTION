@@ -244,6 +244,21 @@ export const getPendingTherapySessions = async () => {
   return json?.data ?? json;
 };
 
+export const getWorkedMotivos = async () => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  console.log(
+    '[THERAPY] curl motivos trabajados',
+    `curl -X GET '${API_BASE_URL}/api/app/sesion-terapeutica/motivos-trabajados' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}'`,
+  );
+  const res = await authFetch('/api/app/sesion-terapeutica/motivos-trabajados');
+  const json = await safeJson(res);
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudieron cargar los motivos trabajados.');
+  }
+  return Array.isArray(json?.items) ? json.items : json?.data?.items ?? json?.data ?? [];
+};
+
 export const continuePendingTherapy = async (payload) => {
   const session = await getSession();
   const uuid = await getOrCreateDeviceUUID();
