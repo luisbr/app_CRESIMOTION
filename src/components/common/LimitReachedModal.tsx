@@ -8,9 +8,10 @@ import CText from '../common/CText';
 import CButton from '../common/CButton';
 import {getLimitKeyLabel} from '../../utils/apiError';
 
-export default function LimitReachedModal({visible, onClose, onUpgrade, limitKey}) {
+export default function LimitReachedModal({visible, onClose, onUpgrade, limitKey, customMessage}) {
   const colors = useSelector(state => state.theme.theme);
   const conceptoLabel = getLimitKeyLabel(limitKey || '');
+  const message = customMessage || `Has alcanzado el límite de ${conceptoLabel} mensuales permitidas por tu plan actual. Mejora tu plan para desbloquear más beneficios.`;
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -30,7 +31,7 @@ export default function LimitReachedModal({visible, onClose, onUpgrade, limitKey
             align={'center'}
             color={colors.labelColor}
             style={[styles.mt10, styles.mb20]}>
-            {`Has alcanzado el límite de ${conceptoLabel} mensuales permitidas por tu plan actual. Mejora tu plan para desbloquear más beneficios.`}
+            {message}
           </CText>
           <CButton
             title={'Ver Planes'}
