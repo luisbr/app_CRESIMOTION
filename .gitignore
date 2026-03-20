@@ -36,3 +36,4 @@ yarn-error.*
 *.tsbuildinfo
 .yarn
 .vscode/.zsh_history
+sync_main_with_gabo2.sh
