@@ -1,6 +1,7 @@
 import { API_BASE_URL } from './config';
 import { getSession } from './auth';
 import { getOrCreateDeviceUUID } from '../utils/uuid';
+import { createApiError } from '../utils/apiError';
 
 const authFetch = async (path, init) => {
   const session = await getSession();
@@ -219,7 +220,11 @@ export const submitBehaviorRecommendations = async ({ sessionId, recomendacionId
   });
   const json = await safeJson(res);
   if (!res.ok || (json && json.ok === false)) {
-    throw new Error(json?.message || 'No se pudo guardar las recomendaciones.');
+    throw createApiError(
+      json?.message || 'No se pudo guardar las recomendaciones.',
+      json?.error,
+      json?.meta
+    );
   }
   return json?.data ?? json;
 };
@@ -305,7 +310,11 @@ export const submitBehaviorExercises = async ({ sessionId, items }) => {
   });
   const json = await safeJson(res);
   if (!res.ok || (json && json.ok === false)) {
-    throw new Error(json?.message || 'No se pudo guardar los ejercicios.');
+    throw createApiError(
+      json?.message || 'No se pudo guardar los ejercicios.',
+      json?.error,
+      json?.meta
+    );
   }
   return json?.data ?? json;
 };
@@ -335,4 +344,21 @@ export const updateAgendaItem = async (payload) => {
     throw new Error(json?.message || 'No se pudo actualizar la agenda.');
   }
   return json?.data ?? json;
+};
+
+export const getResumenMensual = async () => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  const path = '/api/app/sesion-terapeutica/resumen-mensual';
+  console.log(
+    '[THERAPY] curl resumen-mensual',
+    `curl -X GET '${API_BASE_URL}${path}' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}'`
+  );
+  const res = await authFetch(path);
+  const json = await safeJson(res);
+  console.log('[THERAPY] resumen-mensual response', JSON.stringify(json, null, 2));
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudo obtener el resumen mensual.');
+  }
+  return json;
 };

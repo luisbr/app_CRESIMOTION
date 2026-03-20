@@ -38,6 +38,8 @@ const parseJson = async (res: Response) => {
     const error: any = new Error(`Request failed with status ${res.status}`);
     error.status = res.status;
     error.body = data;
+    if (data?.error) error.code = data.error;
+    if (data?.meta) error.meta = data.meta;
     throw error;
   }
   return data;

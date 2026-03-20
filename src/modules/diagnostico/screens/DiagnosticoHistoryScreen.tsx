@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, Image, ScrollView, TouchableOpacity, View} from 'react-native';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CText from '../../../components/common/CText';
 import {styles} from '../../../theme';
@@ -17,6 +17,7 @@ const MODULES: ModuleKey[] = ['motivos', 'sintomas_fisicos', 'sintomas_emocional
 
 export default function DiagnosticoHistoryScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
+  const dispatch = useDispatch();
   const drawer = useDrawer();
   const [moduleKey] = useState<ModuleKey | null>(null);
   const [loading, setLoading] = useState(false);
@@ -370,7 +371,10 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
                       <View style={[styles.rowSpaceBetween, styles.mt10]}>
                         <TouchableOpacity
                           style={{paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8, backgroundColor: colors.primary}}
-                          onPress={() => navigation.navigate('DiagnosticoHistoryDetail', {groupItems})}
+                          onPress={() => {
+                            dispatch({type: 'SET_PENDING_NAVIGATION', payload: {screen: 'DiagnosticoHistoryDetail', params: {groupItems}}});
+                            navigation.navigate('HomeTab');
+                          }}
                         >
                           <CText type={'S12'} color={colors.white}>Ver resultados</CText>
                         </TouchableOpacity>

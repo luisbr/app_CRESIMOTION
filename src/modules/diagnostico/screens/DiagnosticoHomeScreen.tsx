@@ -13,14 +13,15 @@ import {getOpenSession} from '../api/sessionsApi';
 import type {ModuleKey} from '../types';
 import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
-import {getTherapyNext} from '../../../api/sesionTerapeutica';
+import {getTherapyNext, getResumenMensual} from '../../../api/sesionTerapeutica';
 import {isTherapyRoute, normalizeTherapyNext} from '../../../screens/therapy/therapyUtils';
-import {getSession} from '../../../api/auth';
+import {getSession, getSuscripcionActual, getMembresias} from '../../../api/auth';
 import {getStoredNotifications} from '../../../utils/notificationStorage';
 import {StackNav, TabNav} from '../../../navigation/NavigationKey';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import CMainAppBar from '../../../components/common/CMainAppBar';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
+import LimitReachedModal from '../../../components/common/LimitReachedModal';
 
 export default function DiagnosticoHomeScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -34,6 +35,8 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   const isCheckingRef = useRef(false);
   const [navigating, setNavigating] = useState(false);
   const navigatingRef = useRef(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitInfo, setLimitInfo] = useState<{usadas: number; limite: number} | null>(null);
   const nextModuleKey: ModuleKey =
     (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
   const moduleTitleMap: Record<ModuleKey, string> = {
@@ -199,34 +202,68 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     return unsubscribe;
   }, [navigation, checkResume]);
 
-  const onPressStart = () => {
-    if (navigatingRef.current) return;
-    navigatingRef.current = true;
-    setNavigating(true);
+  const checkLimitAndNavigate = async () => {
+    try {
+      const resumen = await getResumenMensual();
+      const sesionesUsadas = resumen?.sesiones_realizadas?.count ?? 0;
+      const suscripcionId = resumen?.period?.suscripcion_id;
+      const membresiaId = resumen?.period?.membresia_id;
+
+      let limite = 0;
+
+      if (suscripcionId) {
+        const suscripcion = await getSuscripcionActual();
+        const conceptos = suscripcion?.conceptos ?? [];
+        const emotionConcept = conceptos.find((c: any) => c.concepto_id === 1);
+        limite = emotionConcept?.cantidad_asignada ?? 0;
+
+        if (limite === 0 && membresiaId) {
+          const membresias = await getMembresias();
+          const membresia = membresias?.data?.find((m: any) => String(m.id) === String(membresiaId));
+          const conceptoPlan = membresia?.conceptos?.find((c: any) => String(c.conceptos_id) === '1');
+          limite = parseInt(conceptoPlan?.cantidad ?? 0, 10);
+        }
+        // ======================= LIMITE TEMPORAL =======================
+        if (sesionesUsadas >= limite && limite > 0) {
+          setLimitInfo({ usadas: sesionesUsadas, limite });
+          setShowLimitModal(true);
+          return false;
+        }
+        // ======================= LIMITE TEMPORAL =======================
+      }
+
+      return true;
+    } catch (e) {
+      return true;
+    }
+  };
+
+  const onPressStart = async () => {
+    const canContinue = await checkLimitAndNavigate();
+    if (!canContinue) return;
+
     if (therapyNext) {
       safeNavigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
-      return;
+    } else {
+      safeNavigation.navigate('DiagnosticoSelection', {module_key: 'motivos'});
     }
-    safeNavigation.navigate('DiagnosticoSelection', {module_key: 'motivos'});
   };
 
   const onPressHistory = () => {
     safeNavigation.navigate('DiagnosticoHistory');
   };
 
-  const onPressContinue = () => {
+  const onPressContinue = async () => {
     if (!resumeTarget) return;
-    if (navigatingRef.current) return;
-    navigatingRef.current = true;
-    setNavigating(true);
+    const canContinue = await checkLimitAndNavigate();
+    if (!canContinue) return;
     safeNavigation.navigate(resumeTarget.screen, resumeTarget.params);
   };
 
-  const onPressTherapy = () => {
+  const onPressTherapy = async () => {
     if (!therapyNext) return;
-    if (navigatingRef.current) return;
-    navigatingRef.current = true;
-    setNavigating(true);
+    const canContinue = await checkLimitAndNavigate();
+    if (!canContinue) return;
     safeNavigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
   };
 
@@ -373,6 +410,20 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
           </CText>
         </View>
       )}
+      <LimitReachedModal
+        visible={showLimitModal}
+        limitKey="max_emociones_nombradas_mes"
+        customMessage={`Has alcanzado el límite de sesiones de autoevaluación permitidas por tu plan actual (${limitInfo?.usadas || 0} de ${limitInfo?.limite || 0}). Mejora tu plan para desbloquear más sesiones.`}
+        onClose={() => {
+          setShowLimitModal(false);
+          setLimitInfo(null);
+        }}
+        onUpgrade={() => {
+          setShowLimitModal(false);
+          setLimitInfo(null);
+          safeNavigation.navigate('Subscription');
+        }}
+      />
     </CSafeAreaView>
   );
 }

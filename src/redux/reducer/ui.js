@@ -1,5 +1,6 @@
 const initialState = {
   audioLocked: false,
+  pendingNavigation: null,
 };
 
 export default function ui(state = initialState, action) {
@@ -8,6 +9,16 @@ export default function ui(state = initialState, action) {
       return {
         ...state,
         audioLocked: Boolean(action.payload),
+      };
+    case 'SET_PENDING_NAVIGATION':
+      return {
+        ...state,
+        pendingNavigation: action.payload,
+      };
+    case 'CLEAR_PENDING_NAVIGATION':
+      return {
+        ...state,
+        pendingNavigation: null,
       };
     default:
       return state;

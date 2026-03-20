@@ -6,10 +6,12 @@ import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import ScreenTooltip from '../../components/common/ScreenTooltip';
+import LimitReachedModal from '../../components/common/LimitReachedModal';
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { submitBehaviorRecommendations } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
+import { isLimitReached } from '../../utils/apiError';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 
@@ -33,6 +35,8 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [currentLimitKey, setCurrentLimitKey] = useState<string>('');
 
   const getItemKey = (item: any, index: number) =>
     String(item?.recomendacion_id ?? item?.id ?? index);
@@ -98,7 +102,12 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
       didNavigate = true;
       safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      if (isLimitReached(e)) {
+        setCurrentLimitKey(e.meta?.limit_key || 'max_recomendaciones');
+        setShowLimitModal(true);
+      } else {
+        Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      }
     } finally {
       if (didNavigate) return;
       submittingRef.current = false;
@@ -240,6 +249,15 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
       >
         <CButton title={'Siguiente'} disabled={selectedCount < min || submitting} loading={submitting} onPress={onContinue} />
       </View>
+      <LimitReachedModal
+        visible={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        onUpgrade={() => {
+          setShowLimitModal(false);
+          safeNavigation.navigate('SubscriptionScreen');
+        }}
+        limitKey={currentLimitKey}
+      />
       <ScreenTooltip />
     </CSafeAreaView>
   );
