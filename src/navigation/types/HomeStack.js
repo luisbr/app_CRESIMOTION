@@ -38,6 +38,7 @@ import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/Diagnost
 import DiagnosticoHistoryDetailScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryDetailScreen';
 import TestResultsHistoryScreen from '../../modules/diagnostico/screens/TestResultsHistoryScreen';
 import SupportResourcesScreen from '../../modules/diagnostico/screens/SupportResourcesScreen';
+import ResumenDebugScreen from '../../modules/diagnostico/screens/ResumenDebugScreen';
 
 const Stack = createStackNavigator();
 
@@ -81,6 +82,7 @@ export default function HomeStack() {
       <Stack.Screen name="TherapyAgendaSetup" component={AgendaSetupScreen} />
       <Stack.Screen name="Tasks" component={TasksScreen} />
       <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />
+      <Stack.Screen name="ResumenDebug" component={ResumenDebugScreen} />
     </Stack.Navigator>
   );
 }

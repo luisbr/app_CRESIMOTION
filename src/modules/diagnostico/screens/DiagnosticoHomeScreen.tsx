@@ -13,7 +13,7 @@ import {getOpenSession} from '../api/sessionsApi';
 import type {ModuleKey} from '../types';
 import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
-import {getTherapyNext} from '../../../api/sesionTerapeutica';
+import {getTherapyNext, getResumenMensual} from '../../../api/sesionTerapeutica';
 import {isTherapyRoute, normalizeTherapyNext} from '../../../screens/therapy/therapyUtils';
 import {getSession} from '../../../api/auth';
 import {getStoredNotifications} from '../../../utils/notificationStorage';
@@ -199,10 +199,12 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     return unsubscribe;
   }, [navigation, checkResume]);
 
-  const onPressStart = () => {
+  const onPressStart = async () => {
     if (navigatingRef.current) return;
     navigatingRef.current = true;
     setNavigating(true);
+    console.log('=== SESIONES TERAPEUTICAS - RESUMEN MENSUAL ===');
+    await getResumenMensual();
     if (therapyNext) {
       safeNavigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
       return;
@@ -283,6 +285,18 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
               onPress={onPressResetHealingIntro}
               bgColor={colors.inputBg}
               color={colors.primary}
+              containerStyle={null}
+              style={null}
+              textStyle={null}
+              borderColor={null}
+            />
+            <View style={{height: 8}} />
+            <CButton
+              title={'Ver Resumen Mensual (debug)'}
+              type="B16"
+              onPress={() => safeNavigation.navigate('ResumenDebug')}
+              bgColor="#4F7A6A"
+              color="#FFFFFF"
               containerStyle={null}
               style={null}
               textStyle={null}

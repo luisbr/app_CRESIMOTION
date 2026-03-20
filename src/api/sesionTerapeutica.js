@@ -345,3 +345,20 @@ export const updateAgendaItem = async (payload) => {
   }
   return json?.data ?? json;
 };
+
+export const getResumenMensual = async () => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  const path = '/api/app/sesion-terapeutica/resumen-mensual';
+  console.log(
+    '[THERAPY] curl resumen-mensual',
+    `curl -X GET '${API_BASE_URL}${path}' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}'`
+  );
+  const res = await authFetch(path);
+  const json = await safeJson(res);
+  console.log('[THERAPY] resumen-mensual response', JSON.stringify(json, null, 2));
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudo obtener el resumen mensual.');
+  }
+  return json;
+};
