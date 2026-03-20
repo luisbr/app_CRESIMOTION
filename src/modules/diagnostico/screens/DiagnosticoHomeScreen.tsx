@@ -224,11 +224,11 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
           limite = parseInt(conceptoPlan?.cantidad ?? 0, 10);
         }
         // ======================= LIMITE TEMPORAL =======================
-        // if (sesionesUsadas >= limite && limite > 0) {
-        //   setLimitInfo({ usadas: sesionesUsadas, limite });
-        //   setShowLimitModal(true);
-        //   return false;
-        // }
+        if (sesionesUsadas >= limite && limite > 0) {
+          setLimitInfo({ usadas: sesionesUsadas, limite });
+          setShowLimitModal(true);
+          return false;
+        }
         // ======================= LIMITE TEMPORAL =======================
       }
 

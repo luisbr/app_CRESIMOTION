@@ -52,12 +52,16 @@ const renderResumenCard = ({
   emotionCatalog,
   moduleLimits,
   colors,
+  resumenMotivoIds,
+  resumenEmocionIds,
 }: {
   resumenMensual: any;
   motivoCategories: any[];
   emotionCatalog: any[];
   moduleLimits: Record<string, {used: number; limit: number; remaining: number}>;
   colors: any;
+  resumenMotivoIds: number[];
+  resumenEmocionIds: number[];
 }) => {
   if (!resumenMensual) return null;
 
@@ -70,18 +74,15 @@ const renderResumenCard = ({
   const periodo = resumenMensual.period;
   const periodoLabel = periodo ? `${formatDate(periodo.start)} - ${formatDate(periodo.end)}` : '';
 
-  // Get selected motivos from resumen
-  const selectedMotivoIds = resumenMensual.enfoques_positivos?.items?.map((i: any) => i.motivo_id) || [];
+  // Use passed resumen IDs
   const flatMotivos = motivoCategories.flatMap((cat: any) => cat.motivos || []);
-  const selectedMotivos = matchItemsWithNames(selectedMotivoIds, flatMotivos);
-  const motivoStatus = getExceedStatus(selectedMotivoIds.length, moduleLimits.motivos.limit);
+  const selectedMotivos = matchItemsWithNames(resumenMotivoIds, flatMotivos);
+  const motivoStatus = getExceedStatus(resumenMotivoIds.length, moduleLimits.motivos.limit);
 
-  // Get selected emociones from resumen
-  const selectedEmocionIds = resumenMensual.sanacion_emocional?.items?.map((i: any) => i.emocion_id) || [];
-  const selectedEmociones = matchItemsWithNames(selectedEmocionIds, emotionCatalog);
-  const emocionStatus = getExceedStatus(selectedEmocionIds.length, moduleLimits.sintomas_emocionales.limit);
+  const selectedEmociones = matchItemsWithNames(resumenEmocionIds, emotionCatalog);
+  const emocionStatus = getExceedStatus(resumenEmocionIds.length, moduleLimits.sintomas_emocionales.limit);
 
-  const hasAnyData = selectedMotivoIds.length > 0 || selectedEmocionIds.length > 0;
+  const hasAnyData = resumenMotivoIds.length > 0 || resumenEmocionIds.length > 0;
   if (!hasAnyData) return null;
 
   return (
@@ -103,10 +104,10 @@ const renderResumenCard = ({
         </CText>
       )}
 
-      {selectedMotivoIds.length > 0 && (
+      {resumenMotivoIds.length > 0 && (
         <View style={{marginBottom: moderateScale(12)}}>
           <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
-            <CText type={'M14'}>Motivos abordados: {selectedMotivoIds.length}/{moduleLimits.motivos.limit}</CText>
+            <CText type={'M14'}>Motivos abordados: {resumenMotivoIds.length}/{moduleLimits.motivos.limit}</CText>
             {motivoStatus.status !== 'ok' && (
               <Ionicons
                 name={motivoStatus.status === 'exceeded' ? 'warning' : 'checkmark-circle'}
@@ -129,13 +130,16 @@ const renderResumenCard = ({
               ...y {selectedMotivos.length - 5} más
             </CText>
           )}
+          <CText type={'S12'} color={colors.primary} style={{marginTop: moderateScale(4)}}>
+            Puedes seleccionar los mismos
+          </CText>
         </View>
       )}
 
-      {selectedEmocionIds.length > 0 && (
+      {resumenEmocionIds.length > 0 && (
         <View style={{marginBottom: moderateScale(12)}}>
           <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
-            <CText type={'M14'}>Síntomas emocionales trabajados: {selectedEmocionIds.length}/{moduleLimits.sintomas_emocionales.limit}</CText>
+            <CText type={'M14'}>Síntomas emocionales trabajados: {resumenEmocionIds.length}/{moduleLimits.sintomas_emocionales.limit}</CText>
             {emocionStatus.status !== 'ok' && (
               <Ionicons
                 name={emocionStatus.status === 'exceeded' ? 'warning' : 'checkmark-circle'}
@@ -158,6 +162,9 @@ const renderResumenCard = ({
               ...y {selectedEmociones.length - 5} más
             </CText>
           )}
+          <CText type={'S12'} color={colors.primary} style={{marginTop: moderateScale(4)}}>
+            Puedes seleccionar los mismos
+          </CText>
         </View>
       )}
 
@@ -206,6 +213,14 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     sintomas_emocionales: { used: 0, limit: 0, remaining: 0 },
   });
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [resumenMotivoIds, setResumenMotivoIds] = useState<number[]>([]);
+  const [resumenEmocionIds, setResumenEmocionIds] = useState<number[]>([]);
+
+  const isInResumen = (id: number): boolean => {
+    if (moduleKey === 'motivos') return resumenMotivoIds.includes(id);
+    if (moduleKey === 'sintomas_emocionales') return resumenEmocionIds.includes(id);
+    return false;
+  };
 
   const load = async (mountedRef?: {current: boolean}) => {
     setLoading(true);
@@ -276,6 +291,12 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         if (mountedRef && !mountedRef.current) return;
         setResumenMensual(resumen);
 
+        // Extraer IDs del resumen para permitir seleccionarlos aunque esté en límite
+        const motivoIds = resumen?.enfoques_positivos?.items?.map((i: any) => i.motivo_id) || [];
+        const emocionIds = resumen?.sanacion_emocional?.items?.map((i: any) => i.emocion_id) || [];
+        setResumenMotivoIds(motivoIds);
+        setResumenEmocionIds(emocionIds);
+
         const membresiaId = resumen?.period?.membresia_id;
         const membresia = membresiasResp?.data?.find((m: any) => String(m.id) === String(membresiaId));
 
@@ -319,7 +340,9 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       const limitInfo = moduleLimits[moduleKey];
       if (limitInfo) {
         const isCurrentlySelected = selectedIds.includes(id);
-        if (!isCurrentlySelected && limitInfo.remaining <= 0) {
+        const alreadyInResumen = isInResumen(id);
+        // Permitir selección si ya está en el resumen o si hay espacios disponibles
+        if (!isCurrentlySelected && !alreadyInResumen && limitInfo.remaining <= 0) {
           setShowLimitModal(true);
           return;
         }
@@ -461,6 +484,8 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           emotionCatalog,
           moduleLimits,
           colors,
+          resumenMotivoIds,
+          resumenEmocionIds,
         })}
         {loading ? (
           <ActivityIndicator color={colors.primary} />
