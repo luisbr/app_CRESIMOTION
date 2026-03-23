@@ -21,7 +21,14 @@ export interface PushNotificationState {
   notification: Notifications.Notification | undefined;
 }
 
-export const usePushNotifications = (): PushNotificationState => {
+export interface NotificationTapData {
+  tipo: string;
+  data: Record<string, any>;
+  titulo: string;
+  mensaje: string;
+}
+
+export const usePushNotifications = (onNotificationTap?: (tapData: NotificationTapData) => void): PushNotificationState => {
   const [expoPushToken, setExpoPushToken] = useState<string | undefined>();
   const [notification, setNotification] = useState<Notifications.Notification | undefined>();
 
@@ -88,8 +95,27 @@ export const usePushNotifications = (): PushNotificationState => {
       }
     });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log(response);
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
+      const content = response.notification.request.content;
+      if (content) {
+        const tapData: NotificationTapData = {
+          tipo: content.data?.tipo || 'promocion',
+          data: content.data || {},
+          titulo: content.title || '',
+          mensaje: content.body || '',
+        };
+        if (content.title && content.body) {
+          await addNotification({
+            titulo: content.title,
+            mensaje: content.body,
+            tipo: tapData.tipo,
+            data: content.data,
+          });
+        }
+        if (onNotificationTap) {
+          onNotificationTap(tapData);
+        }
+      }
     });
 
     return () => {

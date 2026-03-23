@@ -41,7 +41,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "API_BASE_URL": "http://192.168.3.34",
+      "API_BASE_URL": "https://cresimotion.staging.mx",
       "eas": {
         "projectId": "3addbbcb-6772-4100-aeda-cc592300a1a4"
       }
