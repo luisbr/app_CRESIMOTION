@@ -14,6 +14,7 @@ import { normalizeTherapyNext } from './therapyUtils';
 import { isLimitReached } from '../../utils/apiError';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
+import {StackNav} from '../../navigation/NavigationKey';
 
 export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -254,7 +255,7 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
         onClose={() => setShowLimitModal(false)}
         onUpgrade={() => {
           setShowLimitModal(false);
-          safeNavigation.navigate('SubscriptionScreen');
+          safeNavigation.navigate(StackNav.Subscription);
         }}
         limitKey={currentLimitKey}
       />

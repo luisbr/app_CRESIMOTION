@@ -19,6 +19,7 @@ import ChecklistItem from '../components/ChecklistItem';
 import {getGroupId, saveGroupId, saveLastRoute} from '../utils';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
+import {StackNav} from '../../../navigation/NavigationKey';
 import {API_BASE_URL} from '../../../api/config';
 import {getSession, getMembresias} from '../../../api/auth';
 import {getOrCreateDeviceUUID} from '../../../utils/uuid';
@@ -668,7 +669,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         onClose={() => setShowLimitModal(false)}
         onUpgrade={() => {
           setShowLimitModal(false);
-          safeNavigation.navigate('SubscriptionScreen');
+          safeNavigation.navigate(StackNav.Subscription);
         }}
       />
       {SHOW_SCREEN_TOOLTIP && (
