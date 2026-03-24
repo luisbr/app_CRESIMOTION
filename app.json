@@ -2,6 +2,7 @@
   "expo": {
     "name": "CrestiMotion",
     "slug": "crestimotion",
+    "scheme": "cresimotion",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,7 +17,12 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Usamos tu ubicación para mostrarte teléfonos de emergencia cercanos en caso de riesgo.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["cresimotion"]
+          }
+        ]
       },
       "bundleIdentifier": "com.luis.buendiagmail.com.crestimotion"
     },
@@ -35,7 +41,19 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.luis.buendiagmail.com.crestimotion"
+      "package": "com.luis.buendiagmail.com.crestimotion",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "cresimotion"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
