@@ -207,7 +207,7 @@ export default function SubscriptionScreen({navigation}) {
       } else if (intent.tipo === 'upgrade') {
         Alert.alert(
           'Mejorar paquete',
-          `Se te cobrará la diferencia de $${intent.monto} USD para cambiar a ${pkg.nombre}. ¿Deseas continuar?`,
+          `Se te cobrará la diferencia de $${intent.monto} MXN para cambiar a ${pkg.nombre}. ¿Deseas continuar?`,
           [
             {text: 'Cancelar', style: 'cancel', onPress: () => setLoading(false)},
             {text: 'Pagar con Stripe', onPress: () => processPayment(intent.checkout_url)}
@@ -216,7 +216,7 @@ export default function SubscriptionScreen({navigation}) {
       } else {
         Alert.alert(
           'Nueva Suscripción',
-          `El costo es de $${intent.monto} USD por ${pkg.nombre}. ¿Deseas continuar?`,
+          `El costo es de $${intent.monto} MXN por ${pkg.nombre}. ¿Deseas continuar?`,
           [
             {text: 'Cancelar', style: 'cancel', onPress: () => setLoading(false)},
             {text: 'Pagar con Stripe', onPress: () => processPayment(intent.checkout_url)}
