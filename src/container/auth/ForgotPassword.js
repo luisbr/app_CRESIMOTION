@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 // custom import
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -23,6 +23,15 @@ export default function ForgotPassword({navigation, route}) {
   const [emailError, setEmailError] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [countdownSeconds, setCountdownSeconds] = useState(0);
+
+  useEffect(() => {
+    if (countdownSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setCountdownSeconds(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [countdownSeconds]);
 
   const onChangeEmail = val => {
     const {msg} = validateEmail(val.trim());
@@ -45,7 +54,7 @@ export default function ForgotPassword({navigation, route}) {
     try {
       const resp = await requestPasswordReset({correo: normalizedEmail});
       if (resp?.retry_in_seconds) {
-        setSubmitError(`Intenta de nuevo en ${resp.retry_in_seconds} s.`);
+        setCountdownSeconds(resp.retry_in_seconds);
         return;
       }
       if (resp && (resp.success === true || resp.status === true)) {
@@ -53,9 +62,9 @@ export default function ForgotPassword({navigation, route}) {
         safeNavigation.navigate(AuthNav.OtpScreen, {correo: normalizedEmail});
         return;
       }
-      setSubmitError(resp?.message || 'No se pudo enviar el codigo.');
+      setSubmitError(resp?.message || 'No se pudo enviar el código.');
     } catch (e) {
-      setSubmitError(e?.body?.message || e?.message || 'No se pudo enviar el codigo.');
+      setSubmitError(e?.body?.message || e?.message || 'No se pudo enviar el código.');
     } finally {
       if (didNavigate) return;
       setSubmitting(false);
@@ -85,7 +94,11 @@ export default function ForgotPassword({navigation, route}) {
           autoCapitalize={'none'}
           toGetTextFieldValue={onChangeEmail}
         />
-        {!!submitError && (
+        {countdownSeconds > 0 ? (
+          <CText type={'S14'} align={'center'} color={colors.redAlert}>
+            Intenta de nuevo en {countdownSeconds} segundos.
+          </CText>
+        ) : !!submitError && (
           <CText type={'S14'} align={'center'} color={colors.redAlert}>
             {submitError}
           </CText>

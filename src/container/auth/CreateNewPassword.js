@@ -63,7 +63,7 @@ export default function CreateNewPassword({navigation, route}) {
         setModalVisible(true);
         return;
       }
-      setSubmitError(resp?.message || 'No se pudo actualizar la contrasena.');
+      setSubmitError(resp?.message || 'No se pudo actualizar la contraseña.');
     } catch (e) {
       setSubmitError(e?.body?.message || e?.message || 'No se pudo actualizar la contrasena.');
     } finally {

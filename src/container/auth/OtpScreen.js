@@ -68,7 +68,7 @@ export default function OtpScreen({navigation, route}) {
     try {
       const resp = await requestPasswordReset({correo});
       if (resp?.retry_in_seconds) {
-        setResendError(`Intenta de nuevo en ${resp.retry_in_seconds} s.`);
+        setResendError(`Intenta de nuevo en ${resp.retry_in_seconds} segundos.`);
         setTimer(Number(resp.retry_in_seconds) || 60);
         return;
       }
