@@ -33,6 +33,10 @@ export default function Login({navigation}) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [termsVisible, setTermsVisible] = useState(false);
+  const [privacyModalVisible, setPrivacyModalVisible] = useState(false);
+  const [termsModalVisible, setTermsModalVisible] = useState(false);
+  const [importantModalVisible, setImportantModalVisible] = useState(false);
+  const [accessibilityModalVisible, setAccessibilityModalVisible] = useState(false);
 
   const onChangeEmail = val => {
     const {msg} = validateEmail(val.trim());
@@ -177,36 +181,49 @@ export default function Login({navigation}) {
             </TouchableOpacity>
           </View>
           {/* Social login removed */}
-          <TouchableOpacity onPress={() => setTermsVisible(true)}>
+          <View style={localStyles.legalLinksContainer}>
             <CText
               type={'S14'}
               align={'center'}
               color={colors.dark ? colors.labelColor : colors.grayScale4}>
               {strings.bySigningUpYouAgreeToOur + ' '}
-              <CText type={'S14'} color={colors.primary}>
-                {strings.privacy}
-                <CText
-                  type={'S14'}
-                  color={colors.dark ? colors.labelColor : colors.grayScale4}>
-                  ,{' ' + strings.the + ' '}
-                  <CText type={'S14'} color={colors.primary}>
-                    {strings.termsAndConditions}
-                  </CText>
-                  {' ' + strings.the2 + ' '}
-                </CText>
-                <CText type={'S14'} color={colors.primary}>
-                    {strings.importantNotice}
-                  </CText>
-               
-              </CText>
-                 {' ' + strings.andThe + ' '}
-                  <CText type={'S14'} color={colors.primary}>
-                    {strings.accessibilityNotice}.
-                  </CText>
             </CText>
-            
-          </TouchableOpacity>
-          <TermsModal visible={termsVisible} onClose={() => setTermsVisible(false)} />
+            <View style={localStyles.legalLinksRow}>
+              <TouchableOpacity onPress={() => setPrivacyModalVisible(true)}>
+                <CText type={'S14'} color={colors.primary}>
+                  {strings.privacy}
+                </CText>
+              </TouchableOpacity>
+              <CText type={'S14'} color={colors.dark ? colors.labelColor : colors.grayScale4}>
+                , {strings.the + ' '}
+              </CText>
+              <TouchableOpacity onPress={() => setTermsModalVisible(true)}>
+                <CText type={'S14'} color={colors.primary}>
+                  {strings.termsAndConditions}
+                </CText>
+              </TouchableOpacity>
+              <CText type={'S14'} color={colors.dark ? colors.labelColor : colors.grayScale4}>
+                {' ' + strings.the2 + ' '}
+              </CText>
+              <TouchableOpacity onPress={() => setImportantModalVisible(true)}>
+                <CText type={'S14'} color={colors.primary}>
+                  {strings.importantNotice}
+                </CText>
+              </TouchableOpacity>
+              <CText type={'S14'} color={colors.dark ? colors.labelColor : colors.grayScale4}>
+                {' ' + strings.andThe + ' '}
+              </CText>
+              <TouchableOpacity onPress={() => setAccessibilityModalVisible(true)}>
+                <CText type={'S14'} color={colors.primary}>
+                  {strings.accessibilityNotice}.
+                </CText>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <TermsModal visible={privacyModalVisible} onClose={() => setPrivacyModalVisible(false)} type="privacy" />
+          <TermsModal visible={termsModalVisible} onClose={() => setTermsModalVisible(false)} type="terms" />
+          <TermsModal visible={importantModalVisible} onClose={() => setImportantModalVisible(false)} type="important" />
+          <TermsModal visible={accessibilityModalVisible} onClose={() => setAccessibilityModalVisible(false)} type="accessibility" />
         </View>
       </KeyBoardAvoidWrapper>
     </CSafeAreaView>
@@ -235,6 +252,16 @@ const localStyles = StyleSheet.create({
   lineView: {
     width: moderateScale(62),
     height: moderateScale(1),
+  },
+  legalLinksContainer: {
+    alignItems: 'center',
+    marginTop: moderateScale(10),
+  },
+  legalLinksRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   // Social styles removed
 });

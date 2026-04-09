@@ -184,7 +184,7 @@ export default {
   emailCodeCooldown: "Puedes reenviar en {seconds}s",
   emailVerificationSent: "Te enviamos un código de verificación para completar tu registro",
   emailVerifiedDone: "Correo validado ✅",
-  emailVerificationLegend: "Te enviamos un código para comprobar tu correo. Ingresa el código para completar tu registro.",
+  emailVerificationLegend: "Para completar tu registro, escribe el código que acabamos de enviar a tu correo electrónico.",
   emailCodeCountdown: "Código vigente por {time}",
   emailCodeExpired: "El código expiró. Vuelve a registrar para reenviar.",
   emailConfirmMismatch: "El correo no coincide",

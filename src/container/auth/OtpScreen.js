@@ -20,7 +20,7 @@ export default function OtpScreen({navigation, route}) {
   const colors = useSelector(state => state.theme.theme);
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState('');
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(240);
   const [resendError, setResendError] = useState('');
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState('');
@@ -47,6 +47,10 @@ export default function OtpScreen({navigation, route}) {
       setOtpError('Ingresa el codigo de 4 digitos.');
       return;
     }
+    if (timer === 0) {
+      setOtpError('Este código ya venció; inténtalo de nuevo.');
+      return;
+    }
     setOtpError('');
     navigation.navigate(AuthNav.CreateNewPassword, {correo, token: trimmed});
   };
@@ -56,6 +60,8 @@ export default function OtpScreen({navigation, route}) {
       setResendError('Falta el correo para reenviar el codigo.');
       return;
     }
+    setOtp('');
+    setOtpError('');
     setResendError('');
     setResendSuccess('');
     setResending(true);
@@ -67,7 +73,7 @@ export default function OtpScreen({navigation, route}) {
         return;
       }
       if (resp && (resp.success === true || resp.status === true)) {
-        setTimer(60);
+        setTimer(240);
         setResendSuccess(resp?.success_message || 'Codigo reenviado.');
         return;
       }
@@ -95,7 +101,7 @@ export default function OtpScreen({navigation, route}) {
           onTextChange={onOtpChange}
           focusStickBlinkingDuration={500}
           keyboardAppearance={'light'}
-          secureTextEntry={true}
+          secureTextEntry={false}
           focusColor={colors.primary}
           theme={{
             containerStyle: localStyles.otpInputViewStyle,
@@ -123,8 +129,8 @@ export default function OtpScreen({navigation, route}) {
         />
         <CText type={'S14'} align={'center'} color={colors.labelColor}>
           {timer > 0
-            ? `El codigo vence en ${formattedTimer}`
-            : 'El codigo vencio, puedes reenviarlo'}
+            ? `El código vence en ${formattedTimer}`
+            : 'El código vencio, puedes reenviarlo'}
         </CText>
         {!!otpError && (
           <CText type={'S14'} align={'center'} color={colors.redAlert}>
@@ -145,11 +151,11 @@ export default function OtpScreen({navigation, route}) {
             </CText>
           </TouchableOpacity>
         </View>
-        {!!resendSuccess && (
+        {/* {!!resendSuccess && (
           <CText type={'S14'} align={'center'} color={colors.primary}>
             {resendSuccess}
           </CText>
-        )}
+        )} */}
         {!!resendError && (
           <CText type={'S14'} align={'center'} color={colors.redAlert}>
             {resendError}

@@ -1,4 +1,4 @@
-import {StyleSheet, View, Switch, TouchableOpacity, Linking} from 'react-native';
+import {StyleSheet, View, Switch, TouchableOpacity} from 'react-native';
 import React, {useState} from 'react';
 
 // custom import
@@ -23,6 +23,7 @@ import {
 import {moderateScale} from '../../common/constants';
 // Removed social login icons
 import {StackNav} from '../../navigation/NavigationKey';
+import TermsModal from '../../components/model/TermsModal';
 
 export default function Register({navigation}) {
   const colors = useSelector(state => state.theme.theme);
@@ -106,6 +107,10 @@ export default function Register({navigation}) {
   const [submitError, setSubmitError] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsAcceptedError, setTermsAcceptedError] = useState('');
+  const [privacyModalVisible, setPrivacyModalVisible] = useState(false);
+  const [termsModalVisible, setTermsModalVisible] = useState(false);
+  const [importantModalVisible, setImportantModalVisible] = useState(false);
+  const [accessibilityModalVisible, setAccessibilityModalVisible] = useState(false);
 
   const onChangeNombre = val => {
     const normalized = val.replace(/\s+/g, ' ');
@@ -680,7 +685,7 @@ export default function Register({navigation}) {
     if (!emailCodeSent) {
       const sent = await onRequestEmailCode();
       if (sent) {
-        setSubmitError(strings.emailVerificationSent);
+        // setSubmitError(strings.emailVerificationSent);
       }
       return;
     }
@@ -1307,25 +1312,25 @@ export default function Register({navigation}) {
               <CText type={'S14'} color={colors.labelColor} style={styles.mr5}>
                 {strings.termsAcceptanceLabel}
               </CText>
-              <TouchableOpacity onPress={() => Linking.openURL('https://ia.marketing/')}>
+              <TouchableOpacity onPress={() => setPrivacyModalVisible(true)}>
                 <CText type={'S14'} color={colors.primary} style={localStyles.linkInline}>
                   Aviso de privacidad
                 </CText>
               </TouchableOpacity>
               <CText type={'S14'} color={colors.labelColor}>, </CText>
-              <TouchableOpacity onPress={() => Linking.openURL('https://ia.marketing/')}>
+              <TouchableOpacity onPress={() => setTermsModalVisible(true)}>
                 <CText type={'S14'} color={colors.primary} style={localStyles.linkInline}>
                   Términos y condiciones
                 </CText>
               </TouchableOpacity>
               <CText type={'S14'} color={colors.labelColor}>, </CText>
-              <TouchableOpacity onPress={() => Linking.openURL('https://ia.marketing/')}>
+              <TouchableOpacity onPress={() => setImportantModalVisible(true)}>
                 <CText type={'S14'} color={colors.primary} style={localStyles.linkInline}>
                   Aviso importante
                 </CText>
               </TouchableOpacity>
               <CText type={'S14'} color={colors.labelColor}> y </CText>
-              <TouchableOpacity onPress={() => Linking.openURL('https://ia.marketing/')}>
+              <TouchableOpacity onPress={() => setAccessibilityModalVisible(true)}>
                 <CText type={'S14'} color={colors.primary} style={localStyles.linkInline}>
                   Aviso de accesibilidad
                 </CText>
@@ -1416,6 +1421,10 @@ export default function Register({navigation}) {
             </CText>
           )}
         </View>
+        <TermsModal visible={privacyModalVisible} onClose={() => setPrivacyModalVisible(false)} type="privacy" />
+        <TermsModal visible={termsModalVisible} onClose={() => setTermsModalVisible(false)} type="terms" />
+        <TermsModal visible={importantModalVisible} onClose={() => setImportantModalVisible(false)} type="important" />
+        <TermsModal visible={accessibilityModalVisible} onClose={() => setAccessibilityModalVisible(false)} type="accessibility" />
       </KeyBoardAvoidWrapper>
     </CSafeAreaView>
   );
