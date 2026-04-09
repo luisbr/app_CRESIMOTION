@@ -19,6 +19,7 @@ import {
   verifyEmailCode,
   requestTutorVerificationCode,
   verifyTutorCode,
+  checkAliasAvailability,
 } from '../../api/auth';
 import {moderateScale} from '../../common/constants';
 // Removed social login icons
@@ -55,6 +56,8 @@ export default function Register({navigation}) {
   const [countryCode, setCountryCode] = useState('+52');
   const [alias, setAlias] = useState('');
   const [aliasError, setAliasError] = useState('');
+  const [aliasChecking, setAliasChecking] = useState(false);
+  const [aliasCheckTimeout, setAliasCheckTimeout] = useState(null);
   const [genero, setGenero] = useState('');
   const [generoOption, setGeneroOption] = useState('');
   const [generoOtro, setGeneroOtro] = useState('');
@@ -190,7 +193,36 @@ export default function Register({navigation}) {
     const v = val.trim();
     const ok = /^[A-Za-z0-9_]{4,20}$/.test(v);
     setAlias(v);
-    setAliasError(ok ? '' : 'Alias no disponible (usar otro con 4-20 caracteres)');
+    if (aliasCheckTimeout) {
+      clearTimeout(aliasCheckTimeout);
+    }
+    if (!v) {
+      setAliasError('');
+      setAliasChecking(false);
+      return;
+    }
+    if (!ok) {
+      setAliasError('Alias no disponible (usar otro con 4-20 caracteres)');
+      setAliasChecking(false);
+      return;
+    }
+    setAliasError('');
+    setAliasChecking(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const resp = await checkAliasAvailability({alias: v});
+        if (resp && resp.available === false) {
+          setAliasError(resp.message || 'Este alias ya está registrado. Elige otro.');
+        } else {
+          setAliasError('');
+        }
+      } catch (e) {
+        setAliasError('');
+      } finally {
+        setAliasChecking(false);
+      }
+    }, 500);
+    setAliasCheckTimeout(timeout);
   };
   const onChangeGenero = item => {
     const v = item?.value || '';

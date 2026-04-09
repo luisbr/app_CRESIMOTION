@@ -127,6 +127,10 @@ const makeAlias = base => {
   return `${(base || 'user').replace(/\s+/g, '').toLowerCase()}${rnd}`;
 };
 
+export const checkAliasAvailability = async ({alias}) => {
+  return postJson(ENDPOINTS.CHECK_ALIAS, {alias});
+};
+
 export const register = async ({
   fullName,
   nombre,
