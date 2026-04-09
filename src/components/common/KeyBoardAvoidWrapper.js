@@ -14,7 +14,7 @@ const KeyBoardAvoidWrapper = ({
 }) => {
   return (
     <KeyboardAvoidingView
-      keyboardVerticalOffset={checkPlatform() === 'ios' ? moderateScale(80) : 0}
+      keyboardVerticalOffset={checkPlatform() === 'ios' ? moderateScale(40) : 0}
       style={[styles.flex, containerStyle]}
       behavior={isIOS ? 'padding' : 'height'}>
       <ScrollView

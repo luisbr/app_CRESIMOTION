@@ -949,9 +949,9 @@ export default function Register({navigation}) {
             isSecure
             required
           />
-          <CText type={'S12'} color={colors.labelColor} style={styles.mt5}>
+          {/* <CText type={'S12'} color={colors.labelColor} style={styles.mt5}>
             {strings.passwordHelp}
-          </CText>
+          </CText> */}
           <CInput
             label={strings.confirmPassword}
             placeHolder={strings.confirmYourPassword}

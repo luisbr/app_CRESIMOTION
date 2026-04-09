@@ -279,7 +279,7 @@ export default {
   enterValidLastName: "Por favor, ingresa un apellido válido",
   plsEnterPassword: "Por favor, ingresa una contraseña",
   validatePassword:
-    "La contraseña debe tener 8-40 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 caracter especial.",
+    "La contraseña debe tener 8-40 caracteres: 1 mayúscula, 1 minúscula, 1 número y 1 caracter especial.",
   confirmPassValidString: "Las contraseñas no coinciden.",
   validCardNumber: "Please Enter Valid Card Number",
   validCvv: "Please enter a valid cvv",
