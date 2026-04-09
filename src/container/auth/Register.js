@@ -185,7 +185,7 @@ export default function Register({navigation}) {
     const v = val.trim();
     const ok = /^[A-Za-z0-9_]{4,20}$/.test(v);
     setAlias(v);
-    setAliasError(ok ? '' : 'Alias inválido (4-20, letras/números/_ )');
+    setAliasError(ok ? '' : 'Alias no disponible (usar otro con 4-20 caracteres)');
   };
   const onChangeGenero = item => {
     const v = item?.value || '';
@@ -792,6 +792,9 @@ export default function Register({navigation}) {
           />
           <CText type={'M14'} color={colors.labelColor} style={styles.mt20}>
             {strings.birthDate}
+            <CText type={'M10'} color={'#FF927D'}>
+              {' *'}  
+            </CText>
           </CText>
           <CText type={'S12'} color={colors.labelColor} style={styles.mt5}>
             {strings.birthDateHelp}
@@ -866,6 +869,7 @@ export default function Register({navigation}) {
             _errorText={aliasError}
             autoCapitalize={'none'}
             toGetTextFieldValue={onChangeAlias}
+            required
           />
           <View style={localStyles.phoneRow}>
             <View style={localStyles.phoneCode}>

@@ -184,17 +184,27 @@ export default function Login({navigation}) {
               color={colors.dark ? colors.labelColor : colors.grayScale4}>
               {strings.bySigningUpYouAgreeToOur + ' '}
               <CText type={'S14'} color={colors.primary}>
-                {strings.terms}
+                {strings.privacy}
                 <CText
                   type={'S14'}
                   color={colors.dark ? colors.labelColor : colors.grayScale4}>
-                  {' ' + strings.and + ' '}
+                  ,{' ' + strings.the + ' '}
                   <CText type={'S14'} color={colors.primary}>
-                    {strings.conditionsOfUse}
+                    {strings.termsAndConditions}
                   </CText>
+                  {' ' + strings.the2 + ' '}
                 </CText>
+                <CText type={'S14'} color={colors.primary}>
+                    {strings.importantNotice}
+                  </CText>
+               
               </CText>
+                 {' ' + strings.andThe + ' '}
+                  <CText type={'S14'} color={colors.primary}>
+                    {strings.accessibilityNotice}.
+                  </CText>
             </CText>
+            
           </TouchableOpacity>
           <TermsModal visible={termsVisible} onClose={() => setTermsVisible(false)} />
         </View>
