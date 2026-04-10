@@ -8,6 +8,7 @@ import {Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
+import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import CInput from '../../../components/common/CInput';
@@ -193,6 +194,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
   const safeNavigation = useSafeNavigation(navigation);
   const drawer = useDrawer();
+  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const moduleKey: ModuleKey = route?.params?.module_key || 'motivos';
   const isFirstFlow = route?.params?.isFirstFlow;
   const preloadedSessionId = route?.params?.sessionId;
@@ -339,6 +341,11 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       mountedRef.current = false;
     };
   }, [moduleKey]);
+
+  useEffect(() => {
+    setIsDiagnosticoFlow(true);
+    return () => setIsDiagnosticoFlow(false);
+  }, [setIsDiagnosticoFlow]);
 
   useFocusEffect(
     React.useCallback(() => {

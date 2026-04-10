@@ -21,10 +21,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
+import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 
 export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
   const safeNavigation = useSafeNavigation(navigation);
+  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const sessionId: number = Number(route?.params?.sessionId);
   const moduleKey: ModuleKey = route?.params?.module_key || 'motivos';
   const isFirstFlow = route?.params?.isFirstFlow;
@@ -102,6 +104,11 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     setCurrentIndex(nextIdx === -1 ? selectedItems.length : nextIdx);
   }, [currentIndex, selectedItems, answeredIds]);
 
+  useEffect(() => {
+    setIsDiagnosticoFlow(true);
+    return () => setIsDiagnosticoFlow(false);
+  }, [setIsDiagnosticoFlow]);
+
   const introPrompt =
     moduleKey === 'motivos'
       ? 'Ahora cuéntanos cuál es el nivel de intensidad de tu estado emocional.'
@@ -134,11 +141,11 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       }, 80);
     }
     if (
-      currentItem?.response_type === 'pensamiento_extremo_planes' &&
-      (String(opt?.value ?? opt?.key).toLowerCase() === 'si' || String(opt?.key).toLowerCase() === 'si')
+      currentItem?.response_type?.startsWith('pensamiento_extremo')
     ) {
-      console.log('[Emergency] trigger by pensamiento_extremo_planes', {
+      console.log('[Emergency] trigger by pensamiento_extremo', {
         itemId: currentItem?.id,
+        responseType: currentItem?.response_type,
         optionKey: opt?.key,
         optionValue: opt?.value,
       });
@@ -434,7 +441,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
                 : moduleKey === 'sintomas_fisicos'
                 ? 'Sintomatología física'
                 : moduleKey === 'sintomas_emocionales'
-                ? 'Síntomas emocionales'
+                ? 'Sintomatología emocional'
                 : 'esta sección'
             }. ¡Gracias por compartirnos la información que nos permitirá acompañarte en tu proceso de sanación emocional!`}
           </CText>

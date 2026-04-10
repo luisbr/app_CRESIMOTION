@@ -13,6 +13,7 @@ import {getOpenSession} from '../api/sessionsApi';
 import type {ModuleKey} from '../types';
 import {FIRST_DIAGNOSTIC_COMPLETE, moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
+import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 import {getTherapyNext, getResumenMensual} from '../../../api/sesionTerapeutica';
 import {isTherapyRoute, normalizeTherapyNext} from '../../../screens/therapy/therapyUtils';
 import {getSession, getSuscripcionActual, getMembresias} from '../../../api/auth';
@@ -27,6 +28,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
   const safeNavigation = useSafeNavigation(navigation);
   const drawer = useDrawer();
+  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const [loading, setLoading] = useState(false);
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
   const [therapyNext, setTherapyNext] = useState<any | null>(null);
@@ -202,6 +204,11 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
       };
     }, [])
   );
+
+  useEffect(() => {
+    setIsDiagnosticoFlow(true);
+    return () => setIsDiagnosticoFlow(false);
+  }, [setIsDiagnosticoFlow]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {

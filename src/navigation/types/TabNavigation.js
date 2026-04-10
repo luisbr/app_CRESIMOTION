@@ -17,6 +17,7 @@ import TestsListScreen from '../../screens/tests/TestsListScreen';
 import WelcomeEmotionScreen from '../../screens/home/WelcomeEmotionScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {DrawerProvider, useDrawer} from '../DrawerContext';
+import {useDiagnosticoFlow} from '../DiagnosticoFlowContext';
 import {getSession} from '../../api/auth';
 import {clearSession} from '../../session/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,9 +25,10 @@ import {DEVICE_UUID} from '../../common/constants';
 
 const Tab = createBottomTabNavigator();
 
-function TabNavigation() {
+function TabNavigationContent() {
   const colors = useSelector(state => state.theme.theme);
   const audioLocked = useSelector(state => state.ui?.audioLocked);
+  const {isDiagnosticoFlow} = useDiagnosticoFlow();
 
   const TabText = memo(({iconName, label, focused}) => (
     <View style={localStyles.tabViewContainer}>
@@ -46,22 +48,22 @@ function TabNavigation() {
   ));
 
   return (
-    <View style={styles.flex}>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarHideOnKeyboard: true,
-          headerShown: false,
-          tabBarStyle: [
-            localStyles.tabBarStyle,
-            {backgroundColor: '#FFFFFF', borderTopWidth: 0, paddingHorizontal: 0},
-            audioLocked ? {opacity: 0.5} : null,
-          ],
-          tabBarShowLabel: false,
-          tabBarButton: props => (
-            <TouchableOpacity {...props} disabled={audioLocked} />
-          ),
-        }}
-        initialRouteName={TabNav.HomeTab}>
+      <View style={styles.flex}>
+        <Tab.Navigator
+          screenOptions={{
+            tabBarHideOnKeyboard: true,
+            headerShown: false,
+            tabBarStyle: [
+              localStyles.tabBarStyle,
+              {backgroundColor: '#FFFFFF', borderTopWidth: 0, paddingHorizontal: 0},
+              (audioLocked || isDiagnosticoFlow) ? {display: 'none'} : null,
+            ],
+            tabBarShowLabel: false,
+            tabBarButton: props => (
+              <TouchableOpacity {...props} disabled={audioLocked || isDiagnosticoFlow} />
+            ),
+          }}
+          initialRouteName={TabNav.HomeTab}>
         <Tab.Screen
           name={TabNav.HomeTab}
           component={HomeStack}
@@ -115,11 +117,13 @@ function TabNavigation() {
           }}
         />
       </Tab.Navigator>
-    </View>
+      </View>
   );
 }
 
-export default TabNavigation;
+export default function TabNavigation() {
+  return <TabNavigationContent />;
+}
 const localStyles = StyleSheet.create({
   tabBarStyle: {
     height: getHeight(80),

@@ -31,7 +31,10 @@ export const sortCatalogItems = (items: CatalogItem[]) => {
 
 export const normalizeOptions = (item: CatalogItem): CatalogOption[] => {
   if (item.response_type && item.response_type.startsWith('pensamiento_extremo')) {
-    return item.options || [];
+    const filteredOptions = (item.options || []).filter(
+      opt => opt.key !== 'nunca' && String(opt.value).toLowerCase() !== 'nunca'
+    );
+    return filteredOptions;
   }
   if (Array.isArray(item.options) && item.options.length) {
     return item.options;

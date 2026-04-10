@@ -2,6 +2,7 @@ import React from 'react';
 import {NavigationContainer, createNavigationContainerRef} from '@react-navigation/native';
 import StackNavigation from './types/StackNavigation';
 import {DrawerProvider} from './DrawerContext';
+import {DiagnosticoFlowProvider} from './DiagnosticoFlowContext';
 import DrawerMenu from './DrawerMenu';
 import {releaseNavigationLock} from './safeNavigation';
 import {resolveUnauthenticatedRoute, shouldRedirectUnauthenticatedRoute} from './authGuard';
@@ -39,13 +40,15 @@ export default function AppNavigator() {
 
   return (
     <DrawerProvider>
-      <NavigationContainer
-        ref={navigationRef}
-        onReady={handleNavigationStateChange}
-        onStateChange={handleNavigationStateChange}>
-        <StackNavigation />
-        <DrawerMenu />
-      </NavigationContainer>
+      <DiagnosticoFlowProvider>
+        <NavigationContainer
+          ref={navigationRef}
+          onReady={handleNavigationStateChange}
+          onStateChange={handleNavigationStateChange}>
+          <StackNavigation />
+          <DrawerMenu />
+        </NavigationContainer>
+      </DiagnosticoFlowProvider>
     </DrawerProvider>
   );
 }
