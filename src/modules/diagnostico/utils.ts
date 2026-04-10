@@ -12,6 +12,13 @@ export const standardIntensityOptions: CatalogOption[] = [
   {key: 'grave', label: 'Grave', value: 4, order: 4},
 ];
 
+export const emotionalIntensityOptions: CatalogOption[] = [
+  {key: 'bajo', label: 'Bajo', value: 1, order: 1},
+  {key: 'medio', label: 'Medio', value: 2, order: 2},
+  {key: 'alto', label: 'Alto', value: 3, order: 3},
+  {key: 'muy_alto', label: 'Muy alto', value: 4, order: 4},
+];
+
 export const getModuleLabel = (moduleKey: ModuleKey) => {
   if (moduleKey === 'motivos') return 'Motivos';
   if (moduleKey === 'sintomas_fisicos') return 'Fisica';
@@ -28,6 +35,10 @@ export const normalizeOptions = (item: CatalogItem): CatalogOption[] => {
   }
   if (Array.isArray(item.options) && item.options.length) {
     return item.options;
+  }
+  const title = String(item?.titulo || '').toLowerCase().trim();
+  if (title === 'insomnio') {
+    return emotionalIntensityOptions;
   }
   return standardIntensityOptions;
 };

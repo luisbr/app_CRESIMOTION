@@ -89,7 +89,7 @@ export default function BehaviorMessageCard({behavior}: Props) {
           <Image source={icon.source} style={localStyles.imageIconLarge} resizeMode="contain" />
           <View style={localStyles.textColumn}>
             <CText type={'S14'} color={colors.textColor}>
-              {behavior.text_below}
+              {(behavior.text_below || '').replace(/para la sanación/gi, 'de sanación')}
             </CText>
           </View>
         </View>
@@ -103,7 +103,7 @@ export default function BehaviorMessageCard({behavior}: Props) {
           />
           <View style={styles.flex}>
             <CText type={'S14'} color={colors.textColor}>
-              {behavior.text_below}
+              {(behavior.text_below || '').replace(/para la sanación/gi, 'de sanación')}
             </CText>
           </View>
         </>

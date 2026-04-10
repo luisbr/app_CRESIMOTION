@@ -56,7 +56,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     motivos:
       'Para ayudarte a entender cómo te sientes hoy y brindarte un servicio de calidad, por favor, cuéntanos cuáles son los motivos de tu estado emocional. Al final, recibirás tu resumen gráfico ',
     sintomas_fisicos:
-      'Para ayudarte a entender cómo te sientes hoy y brindarte un servicio de calidad, por favor, cuéntanos tu sintomatología física. Al final, recibirás tu resumen gráfico ',
+      'Para ayudarte a entender cómo te sientes hoy y brindarte un servicio de calidad, por favor, cuéntanos cuáles son tus síntomas físicos. Al final, recibirás tu resumen gráfico ',
     sintomas_emocionales:
       'Para ayudarte a entender cómo te sientes hoy y brindarte un servicio de calidad, por favor, cuéntanos tu sintomatología emocional. Al final, recibirás tu resumen gráfico ',
   };

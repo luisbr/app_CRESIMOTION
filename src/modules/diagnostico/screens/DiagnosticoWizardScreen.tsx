@@ -432,7 +432,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
               moduleKey === 'motivos'
                 ? 'Motivos de tu estado emocional'
                 : moduleKey === 'sintomas_fisicos'
-                ? 'Síntomas físicos'
+                ? 'Sintomatología física'
                 : moduleKey === 'sintomas_emocionales'
                 ? 'Síntomas emocionales'
                 : 'esta sección'

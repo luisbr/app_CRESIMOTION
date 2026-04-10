@@ -450,14 +450,14 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     moduleKey === 'motivos'
       ? 'Selecciona los motivos de tu estado emocional'
       : moduleKey === 'sintomas_fisicos'
-      ? 'Selecciona tus síntomas físicos'
+      ? 'Sintomatología física'
       : 'Selecciona tus síntomas emocionales';
 
   const introBody =
     moduleKey === 'motivos'
       ? `Cuéntanos cuáles son los motivos de tu estado emocional. (${moduleLimits.motivos.remaining} de ${moduleLimits.motivos.limit} disponibles)`
       : moduleKey === 'sintomas_fisicos'
-      ? 'Cuéntanos cuáles son tus síntomas físicos.'
+      ? 'Selecciona tus síntomas físicos.'
       : `Cuéntanos cuáles son tus síntomas emocionales. (${moduleLimits.sintomas_emocionales.remaining} de ${moduleLimits.sintomas_emocionales.limit} disponibles)`;
 
   return (
@@ -484,7 +484,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
             marginBottom: moderateScale(12),
           }}
         >
-          <CText type={'M16'} align={'center'} style={{marginBottom: moderateScale(4)}}>
+          <CText type={'B16'} align={'center'} style={{marginBottom: moderateScale(4)}}>
             {`${introTitle}`}
           </CText>
           <CText type={'S13'} align={'center'} color={colors.labelColor}>
@@ -529,7 +529,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
               <View style={{marginBottom: moderateScale(10)}}>
                 <CInput
                   _value={searchQuery}
-                  placeHolder={'Buscar sintoma'}
+                  placeHolder={'Buscar síntoma'}
                   toGetTextFieldValue={setSearchQuery}
                   insideLeftIcon={() => (
                     <Ionicons

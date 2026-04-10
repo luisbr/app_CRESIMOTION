@@ -263,6 +263,9 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
                     },
                   ]}
                 >
+                  <CText type={'B16'} align={'center'} style={styles.mb10}>
+                    {moduleTitle}
+                  </CText>
                 <View style={[styles.rowCenter, styles.mb10]}>
                   {availableViews.map(key => (
                     <TouchableOpacity
