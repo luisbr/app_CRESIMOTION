@@ -8,6 +8,11 @@ import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import {styles} from '../../theme';
 import {moderateScale} from '../../common/constants';
+
+// Importar badges de planes
+import BadgeBasico from '../../assets/images/badges/CM_Badge__Basico_icn.svg';
+import BadgePlata from '../../assets/images/badges/CM_Badge__Plata_icn.svg';
+import BadgeOro from '../../assets/images/badges/CM_Badge__Oro_icn.svg';
 import {
   getMembresias,
   getSuscripcionActual,
@@ -285,9 +290,26 @@ export default function SubscriptionScreen({navigation}) {
     );
   };
 
+  // Función para obtener el badge correspondiente al plan
+  const getPlanBadge = (nombrePlan) => {
+    if (!nombrePlan) return null;
+    const nombre = nombrePlan.toLowerCase();
+    if (nombre.includes('básic') || nombre.includes('basic')) {
+      return BadgeBasico;
+    } else if (nombre.includes('plata') || nombre.includes('silver')) {
+      return BadgePlata;
+    } else if (nombre.includes('oro') || nombre.includes('gold')) {
+      return BadgeOro;
+    }
+    return null;
+  };
+
   const renderPackage = (pkg) => {
     const isCurrent = currentSub && parseInt(currentSub.membresia_id) === parseInt(pkg.id);
     const hasConcepts = pkg.conceptos && pkg.conceptos.length > 0;
+    
+    // Obtener el badge del plan
+    const PlanBadge = getPlanBadge(pkg.nombre);
     
     // Verificar si este paquete tiene descuento de apoyo financiero
     const tieneDescuentoApoyo = codigoApoyoInfo && codigoApoyoInfo.membresia && 
@@ -314,9 +336,10 @@ export default function SubscriptionScreen({navigation}) {
           </View>
         )}
         
-        {/* Encabezado: Título y Precio */}
+        {/* Encabezado: Badge, Título y Precio */}
         <View style={localStyles.cardHeader}>
-          <View style={styles.flex}>
+          <View style={[styles.flex, styles.flexRow, styles.itemsCenter]}>
+            {PlanBadge && <PlanBadge width={moderateScale(28)} height={moderateScale(28)} style={{marginRight: moderateScale(8)}} />}
             <CText type={"B22"} color={colors.textColor}>{pkg.nombre}</CText>
           </View>
           <View style={localStyles.priceBox}>
