@@ -11,7 +11,7 @@ import {styles} from '../../../theme';
 import {clearLastRoute, getLastRoute, saveGroupId} from '../utils';
 import {getOpenSession} from '../api/sessionsApi';
 import type {ModuleKey} from '../types';
-import {moderateScale} from '../../../common/constants';
+import {FIRST_DIAGNOSTIC_COMPLETE, moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
 import {getTherapyNext, getResumenMensual} from '../../../api/sesionTerapeutica';
 import {isTherapyRoute, normalizeTherapyNext} from '../../../screens/therapy/therapyUtils';
@@ -31,6 +31,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
   const [therapyNext, setTherapyNext] = useState<any | null>(null);
   const [hasNewNotifs, setHasNewNotifs] = useState(false);
+  const [hasCompletedFirstFlow, setHasCompletedFirstFlow] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isCheckingRef = useRef(false);
   const [navigating, setNavigating] = useState(false);
@@ -188,7 +189,14 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
           }
         }
       };
+      const checkFirstFlow = async () => {
+        const val = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
+        if (isActive) {
+          setHasCompletedFirstFlow(val === 'true');
+        }
+      };
       checkSessionAndNotifs();
+      checkFirstFlow();
       return () => {
         isActive = false;
       };
@@ -400,6 +408,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             style={null}
             textStyle={null}
             borderColor={null}
+            disabled={!hasCompletedFirstFlow}
           />
         </View>
       </ScrollView>
