@@ -34,7 +34,7 @@ export default function LimitReachedModal({visible, onClose, onUpgrade, limitKey
             {message}
           </CText>
           <CButton
-            title={'Ver Planes'}
+            title={'Ver planes'}
             onPress={onUpgrade}
             containerStyle={styles.mb10}
           />
