@@ -315,7 +315,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
       >
         <View>
           <Image
-            source={require('../../../assets/images/home.png')}
+            source={require('../../../assets/images/CM_Pic_MisEvaluaciones.png')}
             style={{ width: '100%', height: moderateScale(180) }}
             resizeMode="cover"
           />
