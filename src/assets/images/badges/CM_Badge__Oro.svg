@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.16 11.12">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #324b6c;
+        font-family: SFPro-Bold, 'SF Pro';
+        font-size: 4.92px;
+        font-variation-settings: 'opsz' 28, 'wght' 700;
+        font-weight: 700;
+      }
+
+      .cls-2 {
+        fill: #ecaf24;
+      }
+
+      .cls-3 {
+        fill: #ffd068;
+      }
+
+      .cls-4 {
+        fill: #fff;
+        stroke: #09a692;
+        stroke-miterlimit: 10;
+        stroke-width: .75px;
+      }
+
+      .cls-5 {
+        fill: #febf19;
+      }
+
+      .cls-6 {
+        letter-spacing: -.02em;
+      }
+    </style>
+  </defs>
+  <rect class="cls-4" x=".37" y=".38" width="23.41" height="10.37" rx="5.18" ry="5.18"/>
+  <text class="cls-1" transform="translate(11.59 7.27)"><tspan x="0" y="0">O</tspan><tspan class="cls-6" x="3.7" y="0">r</tspan><tspan x="5.41" y="0">o</tspan></text>
+  <g>
+    <g>
+      <path class="cls-3" d="M4.08,3.51s0,0,0-.01c.1-.18.29-.28.49-.28h4.64c.2,0,.39.11.49.28,0,0,0,0,0,0l.71-.39s0-.01-.01-.02c-.25-.43-.69-.69-1.19-.69h-4.64c-.5,0-.94.26-1.19.69,0,0,0,.02-.01.02l.71.39Z"/>
+      <path class="cls-5" d="M3.39,4.47l1.11,1.93,1.21,2.1c.25.43.69.69,1.19.69.02,0,.04,0,.06,0v-.81s-.04,0-.06,0c-.2,0-.39-.11-.49-.28l-1.2-2.08-1.12-1.94c-.1-.17-.1-.38,0-.56l-.71-.39c-.24.43-.23.93.01,1.35Z"/>
+      <path class="cls-2" d="M8.09,8.5l1.21-2.09,1.12-1.93c.25-.43.25-.93.01-1.36l-.71.39c.1.18.1.39,0,.56l-1.12,1.94-1.2,2.08c-.09.16-.25.26-.43.28v.81c.47-.02.9-.27,1.13-.69Z"/>
+    </g>
+    <g>
+      <path class="cls-3" d="M8.04,4.57s-.08-.07-.13-.07h-2.01c-.05,0-.1.03-.13.06l1.15.6,1.12-.6Z"/>
+      <path class="cls-5" d="M5.77,4.56c-.04.05-.05.12-.01.19l1.01,1.74c.04.07.12.09.18.08l-.02-1.4-1.15-.6Z"/>
+      <path class="cls-2" d="M8.04,4.57l-1.12.6.02,1.4s.08-.04.1-.08l1.01-1.74c.04-.06.03-.13-.01-.18Z"/>
+    </g>
+  </g>
+</svg>

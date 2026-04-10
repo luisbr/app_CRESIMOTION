@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34.94 11.12">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+
+      .cls-2 {
+        fill: #324b6c;
+        font-family: SFPro-Bold, 'SF Pro';
+        font-size: 4.92px;
+        font-variation-settings: 'opsz' 28, 'wght' 700;
+        font-weight: 700;
+      }
+
+      .cls-3 {
+        fill: #7cafde;
+      }
+
+      .cls-4 {
+        fill: #bcdaf3;
+      }
+
+      .cls-5 {
+        fill: #4993cf;
+      }
+
+      .cls-6 {
+        fill: #8abae4;
+      }
+
+      .cls-7 {
+        fill: #fff;
+        stroke: #09a692;
+        stroke-miterlimit: 10;
+        stroke-width: .75px;
+      }
+
+      .cls-8 {
+        fill: #98c0e6;
+      }
+
+      .cls-9 {
+        fill: #daebf9;
+      }
+
+      .cls-10 {
+        fill: #b6d4ef;
+      }
+
+      .cls-11 {
+        fill: #cfebfa;
+      }
+
+      .cls-12 {
+        fill: #b3d6f2;
+      }
+
+      .cls-13 {
+        fill: #d9eaf8;
+      }
+    </style>
+  </defs>
+  <rect class="cls-7" x=".37" y=".38" width="34.19" height="10.37" rx="5.18" ry="5.18"/>
+  <text class="cls-2" transform="translate(11.59 7.27)"><tspan x="0" y="0">Platinum</tspan></text>
+  <g>
+    <g>
+      <path class="cls-9" d="M4.1,3.27s0,0,0-.01c.1-.18.29-.28.49-.28h4.64c.2,0,.39.11.49.28,0,0,0,0,0,0l.71-.39s0-.01-.01-.02c-.25-.43-.69-.69-1.19-.69h-4.64c-.5,0-.94.26-1.19.69,0,0,0,.02-.01.02l.71.39Z"/>
+      <path class="cls-10" d="M3.4,4.24l1.11,1.93,1.21,2.1c.25.43.69.69,1.19.69.02,0,.04,0,.06,0v-.81s-.04,0-.06,0c-.2,0-.39-.11-.49-.28l-1.2-2.08-1.12-1.94c-.1-.17-.1-.38,0-.56l-.71-.39c-.24.43-.23.93.01,1.35Z"/>
+      <path class="cls-6" d="M8.11,8.26l1.21-2.09,1.12-1.93c.25-.43.25-.93.01-1.36l-.71.39c.1.18.1.39,0,.56l-1.12,1.94-1.2,2.08c-.09.16-.25.26-.43.28v.81c.47-.02.9-.27,1.13-.69Z"/>
+    </g>
+    <g>
+      <polygon class="cls-1" points="6.13 4.52 6.13 4.52 6.21 4.52 6.13 4.52 6.13 4.52"/>
+      <polygon class="cls-1" points="7.7 4.52 7.7 4.52 7.67 4.49 7.7 4.52"/>
+      <polygon class="cls-6" points="6.21 4.52 6.13 4.52 6.92 6.51 7.7 4.52 6.21 4.52"/>
+      <polygon class="cls-13" points="5.91 3.81 5.35 4.52 6.13 4.52 5.91 3.81"/>
+      <polygon class="cls-3" points="6.91 3.81 6.91 3.81 5.91 3.81 6.91 3.81 6.91 3.81"/>
+      <polygon class="cls-3" points="7.92 3.81 7.7 4.52 7.7 4.52 7.7 4.52 7.7 4.52 8.49 4.52 7.93 3.81 6.93 3.81 6.92 3.81 6.92 3.81 7.92 3.81"/>
+      <polygon class="cls-4" points="6.13 4.52 5.35 4.52 5.35 4.52 6.92 6.51 6.13 4.52 6.13 4.52"/>
+      <polygon class="cls-5" points="8.49 4.52 7.7 4.52 7.7 4.52 7.7 4.52 6.92 6.51 8.49 4.52 8.49 4.52"/>
+      <polygon class="cls-8" points="7.7 4.52 7.71 4.5 7.92 3.81 6.92 3.81 7.67 4.49 7.7 4.52"/>
+      <polygon class="cls-11" points="6.13 4.52 6.91 3.81 5.91 3.81 6.13 4.52 6.13 4.52"/>
+      <polygon class="cls-8" points="7.7 4.52 7.7 4.52 7.92 3.81 7.71 4.5 7.7 4.52"/>
+      <polygon class="cls-12" points="7.7 4.52 7.7 4.52 7.67 4.49 6.92 3.82 6.13 4.52 6.21 4.52 6.21 4.52 7.7 4.52"/>
+      <polygon class="cls-12" points="6.92 3.8 6.91 3.81 6.92 3.81 6.92 3.8"/>
+      <rect class="cls-12" x="6.95" y="3.77" width="0" height="1.5" transform="translate(-.04 .06) rotate(-.52)"/>
+      <polygon class="cls-12" points="7.7 4.52 7.7 4.52 7.7 4.52 7.7 4.52"/>
+      <rect class="cls-12" x="6.91" y="3.81" width="0" height="0" transform="translate(-.56 6.36) rotate(-47.67)"/>
+      <rect class="cls-12" x="7.7" y="4.52" width="0" height="0"/>
+      <polygon class="cls-12" points="7.67 4.49 6.92 3.81 6.91 3.81 6.13 4.52 6.92 3.82 7.67 4.49"/>
+    </g>
+  </g>
+</svg>
