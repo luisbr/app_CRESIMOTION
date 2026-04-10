@@ -28,12 +28,12 @@ import {
 const EMOTIONS = [
   {
     id: 1,
-    label: 'Muy bien',
+    label: 'Muy feliz',
     icon: require('../../assets/iconos_emociones/excelente.png'),
   },
   {
     id: 2,
-    label: 'Bien',
+    label: 'Feliz',
     icon: require('../../assets/iconos_emociones/bien.png'),
   },
   {
@@ -135,58 +135,77 @@ export default function WelcomeEmotionScreen() {
 
 
   const renderWelcomeSection = () => (
-    <View style={localStyles.welcomeSection}>
+    <View style={localStyles.welcomeCard}>
       {isLoggedIn && userName && (
-        <CText type="B24" color={colors.primary} align="center" style={styles.mb10}>
-          ¡Hola, {userName}!
+        <CText type="B24" color={colors.primary} align="center" style={localStyles.welcomeTitle}>
+          ¡Hola {userName}!
         </CText>
       )}
-      <CText type="B20" color={colors.primary2} align="center" style={styles.mb20}>
+      <CText type="B18" color={colors.primary2} align="center" style={localStyles.welcomeSubtitle}>
         ¿Cómo te sientes hoy?
       </CText>
-
-      <View style={localStyles.avatarContainer}>
-        {/* Placeholder for the avatar/illustration */}
-        <Image
-          source={require('../../assets/images/home.png')} 
-          style={localStyles.avatarImage}
-          resizeMode="contain"
-        />
-      </View>
     </View>
   );
 
   const renderEmotionSelector = () => (
     <View style={localStyles.emotionSection}>
-      <CText type="B18" color={colors.textColor} align="center" style={styles.mb15}>
+      <CText type="B18" color={colors.textColor} align="center" style={localStyles.emotionTitle}>
         ¿Te gustaría contarnos algunos motivos que podrían estar influyendo en cómo te sientes hoy?
       </CText>
       <CText type="R14" color={colors.textColor} align="center" style={localStyles.supportingCopy}>
         Con esta información podremos ofrecerte un enfoque positivo y una sesión de sanación emocional para ayudarte a sentirte mejor.
       </CText>
-      <View style={localStyles.emojisRow}>
-        {EMOTIONS.map((emo) => {
-          const isSelected = selectedEmotion === emo.id;
-          return (
-            <TouchableOpacity
-              key={emo.id}
-              style={[
-                localStyles.emojiItem,
-                isSelected && localStyles.emojiItemSelected,
-              ]}
-              onPress={() => handleSelectEmotion(emo.id)}
-            >
-              <Image
-                source={emo.icon}
-                style={localStyles.emotionIcon}
-                resizeMode="contain"
-              />
-              <CText type="M12" color={colors.textColor} align="center" style={localStyles.emotionLabel}>
-                {emo.label}
-              </CText>
-            </TouchableOpacity>
-          );
-        })}
+      <View style={localStyles.emojisContainer}>
+        {/* First row - 3 emotions */}
+        <View style={localStyles.emojisRow}>
+          {EMOTIONS.slice(0, 3).map((emo) => {
+            const isSelected = selectedEmotion === emo.id;
+            return (
+              <TouchableOpacity
+                key={emo.id}
+                style={[
+                  localStyles.emojiItem,
+                  isSelected && localStyles.emojiItemSelected,
+                ]}
+                onPress={() => handleSelectEmotion(emo.id)}
+              >
+                <Image
+                  source={emo.icon}
+                  style={localStyles.emotionIcon}
+                  resizeMode="contain"
+                />
+                <CText type="M12" color={colors.textColor} align="center" style={localStyles.emotionLabel}>
+                  {emo.label}
+                </CText>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {/* Second row - 2 emotions */}
+        <View style={localStyles.emojisRowSecond}>
+          {EMOTIONS.slice(3, 5).map((emo) => {
+            const isSelected = selectedEmotion === emo.id;
+            return (
+              <TouchableOpacity
+                key={emo.id}
+                style={[
+                  localStyles.emojiItem,
+                  isSelected && localStyles.emojiItemSelected,
+                ]}
+                onPress={() => handleSelectEmotion(emo.id)}
+              >
+                <Image
+                  source={emo.icon}
+                  style={localStyles.emotionIcon}
+                  resizeMode="contain"
+                />
+                <CText type="M12" color={colors.textColor} align="center" style={localStyles.emotionLabel}>
+                  {emo.label}
+                </CText>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
      
@@ -218,7 +237,15 @@ export default function WelcomeEmotionScreen() {
   );
 
   return (
-    <CSafeAreaView style={{backgroundColor: '#F3FAFA'}} color={null}>
+    <CSafeAreaView style={localStyles.container} color={null}>
+      {/* Background Image with Overlay */}
+      <Image
+        source={require('../../assets/images/CM_Home (1).png')}
+        style={localStyles.backgroundImage}
+        resizeMode="cover"
+      />
+      <View style={localStyles.overlay} />
+      
       <CMainAppBar mode="main" />
       <ScrollView
         contentContainerStyle={[localStyles.scrollContent, {paddingBottom: insets.bottom + 20}]}
@@ -232,6 +259,27 @@ export default function WelcomeEmotionScreen() {
 }
 
 const localStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F3FAFA',
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    width: getWidth(375),
+    height: getHeight(450),
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    width: getWidth(375),
+    height: getHeight(450),
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+  },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -284,37 +332,49 @@ const localStyles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: moderateScale(20),
-    paddingTop: moderateScale(20),
+    paddingTop: moderateScale(10),
   },
-  welcomeSection: {
+  welcomeCard: {
     alignItems: 'center',
-  },
-  avatarContainer: {
-    width: getWidth(280),
-    height: getHeight(200),
-    backgroundColor: '#E8F5F2',
+    marginBottom: moderateScale(15),
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
     borderRadius: moderateScale(20),
-    ...styles.center,
-    ...styles.mb20,
-    overflow: 'hidden',
+    paddingVertical: moderateScale(15),
+    paddingHorizontal: moderateScale(25),
+    marginHorizontal: moderateScale(20),
   },
-  avatarImage: {
-    width: '80%',
-    height: '80%',
+  welcomeTitle: {
+    marginBottom: moderateScale(5),
+    color: '#3EB8A5',
+  },
+  welcomeSubtitle: {
+    color: '#5A7A8A',
   },
   emotionSection: {
-    backgroundColor: '#F0F5EE', // light greenish tint
+    backgroundColor: '#FFFFFF',
     borderRadius: moderateScale(20),
     padding: moderateScale(20),
     ...styles.mb30,
     borderWidth: 1,
     borderColor: '#E2E7EB',
   },
+  emotionTitle: {
+    marginBottom: moderateScale(12),
+    lineHeight: moderateScale(24),
+  },
+  emojisContainer: {
+    marginTop: moderateScale(10),
+    ...styles.mb20,
+  },
   emojisRow: {
     ...styles.flexRow,
     ...styles.justifyEvenly,
-    flexWrap: 'wrap',
-    ...styles.mb20,
+    marginBottom: moderateScale(12),
+  },
+  emojisRowSecond: {
+    ...styles.flexRow,
+    justifyContent: 'center',
+    gap: moderateScale(20),
   },
   emojiItem: {
     width: '30%',
@@ -341,7 +401,7 @@ const localStyles = StyleSheet.create({
     lineHeight: moderateScale(16),
   },
   supportingCopy: {
-    marginBottom: moderateScale(18),
+    marginBottom: moderateScale(20),
     lineHeight: moderateScale(20),
   },
   responderBtn: {
