@@ -27,6 +27,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const safeNavigation = useSafeNavigation(navigation);
   const sessionId: number = Number(route?.params?.sessionId);
   const moduleKey: ModuleKey = route?.params?.module_key || 'motivos';
+  const isFirstFlow = route?.params?.isFirstFlow;
   const initialItems: CatalogItem[] = route?.params?.items || [];
   const [items, setItems] = useState<CatalogItem[]>(initialItems);
   const selectedIds: number[] =
@@ -323,7 +324,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       console.log('[DiagnosticoWizard] complete response', resp);
       await saveLastRoute({session_id: sessionId, module_key: moduleKey, screen: 'Results'});
       didNavigate = true;
-      safeNavigation.replace('DiagnosticoResults', {sessionId, module_key: moduleKey});
+      safeNavigation.replace('DiagnosticoResults', {sessionId, module_key: moduleKey, isFirstFlow: !!isFirstFlow});
     } catch (e: any) {
       console.log('[DiagnosticoWizard] complete error', e?.body || e?.message || e);
       setError(e?.body?.message || e?.message || 'No se pudo completar.');
@@ -358,6 +359,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
         mode="sub"
         title={currentItem ? currentItem.titulo : 'Completando autoevaluación'}
         onPressBack={onPressBack}
+        hideBackButton={!!isFirstFlow}
       />
       <View style={[styles.p20, {paddingBottom: 120, paddingTop: moderateScale(10)}]}>
         {!!currentItem && totalItems > 0 && (

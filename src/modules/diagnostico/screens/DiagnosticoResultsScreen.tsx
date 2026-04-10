@@ -1,6 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {ActivityIndicator, Modal, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CMainAppBar from '../../../components/common/CMainAppBar';
 import CText from '../../../components/common/CText';
@@ -11,7 +12,7 @@ import {clearGroupId, clearLastRoute, getChartView, getGroupId, saveChartView, s
 import {getResults, startSession} from '../api/sessionsApi';
 import {getTherapyNext} from '../../../api/sesionTerapeutica';
 import Svg, {G, Text as SvgText, Rect, Path, Polygon, Circle, TSpan} from 'react-native-svg';
-import {moderateScale} from '../../../common/constants';
+import {FIRST_DIAGNOSTIC_COMPLETE, moderateScale} from '../../../common/constants';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 
 export default function DiagnosticoResultsScreen({navigation, route}: any) {
@@ -180,14 +181,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
   };
 
   const onPressNextModule = async () => {
-    // if (moduleKey === 'motivos') {
-    //   navigation.replace('DiagnosticoSelection', {module_key: 'sintomas_fisicos'});
-    //   return;
-    // }
-    // if (moduleKey === 'sintomas_fisicos') {
-    //   navigation.replace('DiagnosticoSelection', {module_key: 'sintomas_emocionales'});
-    //   return;
-    // }
+    const isFirstFlow = route?.params?.isFirstFlow;
     if (moduleKey === 'motivos' || moduleKey === 'sintomas_fisicos') {
       const targetModule: ModuleKey =
         moduleKey === 'motivos' ? 'sintomas_fisicos' : 'sintomas_emocionales';
@@ -198,7 +192,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
         if (resp?.session?.group_id) {
           await saveGroupId(Number(resp.session.group_id));
         }
-        navigation.replace('DiagnosticoHome');
+        navigation.replace('DiagnosticoSelection', {module_key: targetModule, isFirstFlow: !!isFirstFlow});
       } catch (e: any) {
         setError(e?.body?.message || e?.message || 'No se pudo continuar.');
       } finally {
@@ -208,6 +202,13 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
     }
     if (moduleKey === 'sintomas_emocionales') {
       try {
+        if (isFirstFlow) {
+          await AsyncStorage.setItem(FIRST_DIAGNOSTIC_COMPLETE, 'true');
+          await clearLastRoute();
+          await clearGroupId();
+          navigation.replace('DiagnosticoHome');
+          return;
+        }
         const s = await (await import('../../../api/auth')).getSession();
         const userId = s?.id ? String(s.id) : null;
         if (!userId) throw new Error('No se encontró una sesión activa.');

@@ -28,12 +28,12 @@ import {
 const EMOTIONS = [
   {
     id: 1,
-    label: 'Muy feliz',
+    label: 'Muy bien',
     icon: require('../../assets/iconos_emociones/excelente.png'),
   },
   {
     id: 2,
-    label: 'Feliz',
+    label: 'Bien',
     icon: require('../../assets/iconos_emociones/bien.png'),
   },
   {
@@ -296,8 +296,8 @@ const localStyles = StyleSheet.create({
     overflow: 'hidden',
   },
   avatarImage: {
-    width: '100%',
-    height: '100%',
+    width: '80%',
+    height: '80%',
   },
   emotionSection: {
     backgroundColor: '#F0F5EE', // light greenish tint

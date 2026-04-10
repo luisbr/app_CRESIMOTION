@@ -193,6 +193,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const safeNavigation = useSafeNavigation(navigation);
   const drawer = useDrawer();
   const moduleKey: ModuleKey = route?.params?.module_key || 'motivos';
+  const isFirstFlow = route?.params?.isFirstFlow;
   const preloadedSessionId = route?.params?.sessionId;
   const preloadedSelection = route?.params?.selection || [];
   const preloadedAnswers = route?.params?.answers || [];
@@ -391,6 +392,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         items,
         selectedIds,
         answers,
+        isFirstFlow: !!isFirstFlow,
       });
     } catch (e: any) {
       console.log('[DiagnosticoSelection] saveSelection error', e?.body || e?.message || e);
@@ -461,7 +463,8 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
             : moduleKey === 'sintomas_emocionales'
             ? 'Sintomatología emocional'
             : capitalizeSentence(moduleKey.replace('_', ' '))
-        } 
+        }
+        hideBackButton={!!isFirstFlow}
       />
       <View style={[styles.flex, styles.p20, {position: 'relative', paddingTop: moderateScale(10)}]}>
         <View

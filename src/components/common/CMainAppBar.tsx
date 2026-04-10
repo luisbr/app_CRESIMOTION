@@ -24,6 +24,7 @@ interface CMainAppBarProps {
   title?: string;
   onPressBack?: () => void;
   containerStyle?: ViewStyle;
+  hideBackButton?: boolean;
 }
 
 const CMainAppBar: React.FC<CMainAppBarProps> = ({
@@ -31,6 +32,7 @@ const CMainAppBar: React.FC<CMainAppBarProps> = ({
   title,
   onPressBack,
   containerStyle,
+  hideBackButton = false,
 }) => {
   const colors = useSelector((state: any) => state.theme.theme);
   const navigation = useNavigation<any>();
@@ -100,11 +102,11 @@ const CMainAppBar: React.FC<CMainAppBarProps> = ({
             onPress={() => drawer.open()}>
             <Ionicons name="menu-outline" size={26} color={colors.textColor} />
           </TouchableOpacity>
-        ) : (
+        ) : !hideBackButton ? (
           <TouchableOpacity style={localStyles.iconButton} onPress={goBack}>
             <Ionicons name="arrow-back" size={26} color={colors.textColor} />
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       {/* Center side */}

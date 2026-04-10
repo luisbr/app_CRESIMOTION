@@ -51,6 +51,7 @@ export function moderateScale(size) {
 
 //AsyncStorage keys
 export const ON_BOARDING = 'ON_BOARDING';
+export const FIRST_DIAGNOSTIC_COMPLETE = 'first_diagnostic_complete';
 export const ACCESS_TOKEN = 'ACCESS_TOKEN';
 export const THEME = 'THEME';
 export const AUTH_ID = 'AUTH_ID';

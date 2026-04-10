@@ -18,6 +18,8 @@ import HealthNeedMoreSheet from "../../components/model/HealthNeedMoreSheet";
 import DrProfileComponent from "../../components/home/DrProfileComponent";
 import { StackNav } from "../../navigation/NavigationKey";
 import { getSession } from "../../api/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FIRST_DIAGNOSTIC_COMPLETE } from "../../common/constants";
 import { migrate } from "../../db";
 import { getInProgressForUser, listSelectedReasons, listUnansweredMotivoIds, listAllProgress, listReasonsForProgress, listIntensitiesForProgress, debugLogFlow } from "../../repositories/formsRepo";
 import { getEncuestaById } from "../../api/encuestas";
@@ -160,9 +162,17 @@ loadHomeState();
     }*/
   };
 
-  useEffect(() => {
-    navigation.navigate('DiagnosticoHome');
-  }, [navigation]);
+useEffect(() => {
+  const checkFirstFlow = async () => {
+    const firstDiagnosticComplete = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
+    if (!firstDiagnosticComplete) {
+      navigation.navigate('DiagnosticoSelection', { module_key: 'motivos', isFirstFlow: true });
+    } else {
+      navigation.navigate('DiagnosticoHome');
+    }
+  };
+  checkFirstFlow();
+}, [navigation]);
 
   const onPressNotification = () => {};
 
