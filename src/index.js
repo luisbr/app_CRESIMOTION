@@ -4,7 +4,6 @@ import {useSelector, useDispatch} from 'react-redux';
 import AppNavigator from './navigation';
 import {styles} from './theme';
 import {usePushNotifications} from './hooks/usePushNotifications';
-import {useAgendaNotifications} from './hooks/useAgendaNotifications';
 import {savePushToken, getSession} from './api/auth';
 import {StackNav} from './navigation/NavigationKey';
 
@@ -25,7 +24,6 @@ const App = () => {
   }, [dispatch]);
 
   const { expoPushToken } = usePushNotifications(handleNotificationTap);
-  useAgendaNotifications(); // sync local notifications from agenda
 
   React.useEffect(() => {
     const sendToken = async () => {
