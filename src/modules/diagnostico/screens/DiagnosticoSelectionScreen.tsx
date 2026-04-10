@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, ScrollView, View, StyleSheet, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
+import {useFocusEffect} from '@react-navigation/native';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CMainAppBar from '../../../components/common/CMainAppBar';
 import {Image, TouchableOpacity} from 'react-native';
@@ -215,6 +216,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     sintomas_emocionales: { used: 0, limit: 0, remaining: 0 },
   });
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitsLoaded, setLimitsLoaded] = useState(false);
   const [resumenMotivoIds, setResumenMotivoIds] = useState<number[]>([]);
   const [resumenEmocionIds, setResumenEmocionIds] = useState<number[]>([]);
 
@@ -317,6 +319,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           motivos: { used: motivoUsed, limit: motivoLimit, remaining: Math.max(0, motivoLimit - motivoUsed) },
           sintomas_emocionales: { used: emocionUsed, limit: emocionLimit, remaining: Math.max(0, emocionLimit - emocionUsed) },
         });
+        setLimitsLoaded(true);
       } catch (e) {
         console.log('[DiagnosticoSelectionScreen] Error fetching limits:', e);
       }
@@ -337,13 +340,19 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     };
   }, [moduleKey]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setSavingSelection(false);
+      savingSelectionRef.current = false;
+    }, [])
+  );
+
   const toggleId = (id: number) => {
     if (moduleKey === 'sintomas_emocionales' || moduleKey === 'motivos') {
       const limitInfo = moduleLimits[moduleKey];
-      if (limitInfo) {
+      if (limitInfo && limitsLoaded) {
         const isCurrentlySelected = selectedIds.includes(id);
         const alreadyInResumen = isInResumen(id);
-        // Permitir selección si ya está en el resumen o si hay espacios disponibles
         if (!isCurrentlySelected && !alreadyInResumen && limitInfo.remaining <= 0) {
           setShowLimitModal(true);
           return;
@@ -551,47 +560,40 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
                   </CText>
                 )
               ) : filteredCategories.length ? (
-                (() => {
-                  const visibleCategories =
-                    expandedCategoryIds.length > 0
-                      ? filteredCategories.filter(category =>
-                          expandedCategoryIds.includes(Number(category.id))
-                        )
-                      : filteredCategories;
-                  return visibleCategories.map(category => {
-                    const isExpanded = expandedCategoryIds.includes(Number(category.id));
-                    return (
-                      <View key={`category-${category.id}`} style={{marginBottom: moderateScale(14)}}>
-                        <TouchableOpacity
-                          onPress={() => toggleCategory(Number(category.id))}
-                          style={[
-                            styles.rowSpaceBetween,
-                            {
-                              paddingVertical: moderateScale(10),
-                              paddingHorizontal: moderateScale(12),
-                              backgroundColor: colors.inputBg,
-                              borderRadius: moderateScale(12),
-                            },
-                          ]}
-                        >
-                          <View style={{flex: 1, paddingRight: moderateScale(8)}}>
-                            <CText type={'M16'} style={{marginBottom: category.descripcion ? moderateScale(2) : 0}}>
-                              {capitalizeSentence(String(category.nombre || ''))}
+                filteredCategories.map(category => {
+                  const isExpanded = expandedCategoryIds.includes(Number(category.id));
+                  return (
+                    <View key={`category-${category.id}`} style={{marginBottom: moderateScale(14)}}>
+                      <TouchableOpacity
+                        onPress={() => toggleCategory(Number(category.id))}
+                        style={[
+                          styles.rowSpaceBetween,
+                          {
+                            paddingVertical: moderateScale(10),
+                            paddingHorizontal: moderateScale(12),
+                            backgroundColor: colors.inputBg,
+                            borderRadius: moderateScale(12),
+                          },
+                        ]}
+                      >
+                        <View style={{flex: 1, paddingRight: moderateScale(8)}}>
+                          <CText type={'M16'} style={{marginBottom: category.descripcion ? moderateScale(2) : 0}}>
+                            {capitalizeSentence(String(category.nombre || ''))}
+                          </CText>
+                          {!!category.descripcion && (
+                            <CText type={'S12'} color={colors.labelColor}>
+                              {capitalizeSentence(String(category.descripcion || ''))}
                             </CText>
-                            {!!category.descripcion && (
-                              <CText type={'S12'} color={colors.labelColor}>
-                                {capitalizeSentence(String(category.descripcion || ''))}
-                              </CText>
-                            )}
-                          </View>
-                          <Ionicons
-                            name={isExpanded ? 'chevron-up-outline' : 'chevron-down-outline'}
-                            size={moderateScale(20)}
-                            color={colors.textColor}
-                          />
-                        </TouchableOpacity>
-                        {isExpanded &&
-                          (category.motivos || []).map(item => (
+                          )}
+                        </View>
+                        <Ionicons
+                          name={isExpanded ? 'chevron-up-outline' : 'chevron-down-outline'}
+                          size={moderateScale(20)}
+                          color={colors.textColor}
+                        />
+                      </TouchableOpacity>
+                      {isExpanded &&
+                        (category.motivos || []).map(item => (
                             <ChecklistItem
                               key={String(item.id)}
                               title={capitalizeSentence(String(item.titulo || ''))}
@@ -602,8 +604,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
                           ))}
                       </View>
                     );
-                  });
-                })()
+                  })
               ) : (
                 <CText type={'S14'} align={'center'} color={colors.labelColor}>
                   No encontramos motivos con esa busqueda.
