@@ -104,10 +104,10 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
 
   const introPrompt =
     moduleKey === 'motivos'
-      ? 'Ahora cuéntanos cuál es la intensidad de tu estado emocional.'
+      ? 'Ahora cuéntanos cuál es el nivel de intensidad de tu estado emocional.'
       : moduleKey === 'sintomas_fisicos'
-      ? 'Ahora cuéntanos cuál es la intensidad de tu sintomatología física.'
-      : 'Ahora cuéntanos cuál es la intensidad de tu sintomatología emocional.';
+      ? 'Ahora cuéntanos cuál es el nivel de intensidad de tu sintomatología física.'
+      : 'Ahora cuéntanos cuál es el nivel de intensidad de tu sintomatología emocional.';
   const currentTitle = String(currentItem?.titulo || '').toLowerCase().trim();
   const isOtherAddictionsItem =
     currentTitle === 'adicciones otras' || currentTitle === 'otras adicciones';
@@ -436,7 +436,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
                 : moduleKey === 'sintomas_emocionales'
                 ? 'Síntomas emocionales'
                 : 'esta sección'
-            }.`}
+            }. ¡Gracias por compartirnos la información que nos permitirá acompañarte en tu proceso de sanación emocional!`}
           </CText>
         )}
         {!!error && (
@@ -571,7 +571,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       >
         {currentItem ? (
           <CButton
-            title={'Siguiente ...'}
+            title={'Siguiente'}
             onPress={onPressNext}
             disabled={savingAnswer || !selectedOption || (isOtherAddictionsItem && !specialValue.trim())}
             loading={savingAnswer}

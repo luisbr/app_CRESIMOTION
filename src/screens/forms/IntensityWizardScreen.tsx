@@ -91,7 +91,7 @@ export default function IntensityWizardScreen({ navigation, route }: any) {
     <CSafeAreaView>
       <CHeader title={'Intensidad'} />
       <View style={[styles.ph20, styles.pv20]}>
-      <CText type={'B18'}>Ahora cuéntanos cuál es la intensidad de tu {encuestaTitle || encuestaId}</CText>
+      <CText type={'B18'}>Ahora cuéntanos cuál es el nivel de intensidad de tu {encuestaTitle || encuestaId}</CText>
       <CText type={'S14'} style={styles.mt5}>{`${index + 1}/${motivos.length}`}</CText>
       <CText type={'B16'} style={styles.mt10}>{motivo?.motivo}</CText>
       <View style={styles.mt20}>
