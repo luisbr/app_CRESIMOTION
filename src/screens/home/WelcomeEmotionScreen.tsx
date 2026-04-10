@@ -189,7 +189,18 @@ export default function WelcomeEmotionScreen() {
         })}
       </View>
 
-      {selectedEmotion !== null && (
+     
+
+      {selectedPhrase && (
+        <View style={[localStyles.phraseBox, {backgroundColor: '#F3D2ED'}]}>
+          <CText type="M14" color={colors.textColor} align="center" style={localStyles.phraseText}>
+            {selectedPhrase}
+          </CText>
+        </View>
+      )}
+
+
+       {selectedEmotion !== null && (
         <CButton
           title="Hacer test"
           type="S16"
@@ -202,14 +213,6 @@ export default function WelcomeEmotionScreen() {
           containerStyle={[localStyles.responderBtn, {backgroundColor: '#7CD992', borderColor: '#7CD992'}]}
           textStyle={{color: colors.textColor}}
         />
-      )}
-
-      {selectedPhrase && (
-        <View style={[localStyles.phraseBox, {backgroundColor: '#F3D2ED'}]}>
-          <CText type="M14" color={colors.textColor} align="center" style={localStyles.phraseText}>
-            {selectedPhrase}
-          </CText>
-        </View>
       )}
     </View>
   );
@@ -347,7 +350,7 @@ const localStyles = StyleSheet.create({
     height: getHeight(40),
     borderRadius: moderateScale(10),
     marginBottom: moderateScale(15),
-    marginTop: 0, // overriding default margin
+    marginTop: moderateScale(15),
   },
   phraseBox: {
     ...styles.flexRow,
