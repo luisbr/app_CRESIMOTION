@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {ActivityIndicator, Modal, ScrollView, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Modal, ScrollView, TouchableOpacity, View, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
@@ -206,7 +206,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
           await AsyncStorage.setItem(FIRST_DIAGNOSTIC_COMPLETE, 'true');
           await clearLastRoute();
           await clearGroupId();
-          navigation.replace('DiagnosticoHome');
+          navigation.replace('WelcomeEmotion');
           return;
         }
         const s = await (await import('../../../api/auth')).getSession();

@@ -20,6 +20,8 @@ import {StackNav} from '../../navigation/NavigationKey';
 import {useDrawer} from '../../navigation/DrawerContext';
 import {getStoredNotifications} from '../../utils/notificationStorage';
 import CMainAppBar from '../../components/common/CMainAppBar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {FIRST_DIAGNOSTIC_COMPLETE} from '../../common/constants';
 import {
   MOTIVATIONAL_PHRASES,
   PAINFUL_PHRASES,
@@ -76,6 +78,7 @@ export default function WelcomeEmotionScreen() {
   const [selectedEmotion, setSelectedEmotion] = useState<number | null>(null);
   const [selectedPhrase, setSelectedPhrase] = useState<string | null>(null);
   const [hasNewNotifs, setHasNewNotifs] = useState(false);
+  const [checkingDiagnostic, setCheckingDiagnostic] = useState(true);
 
   useEffect(() => {
     if (pendingNavigation) {
@@ -89,6 +92,15 @@ export default function WelcomeEmotionScreen() {
       let isActive = true;
       const checkSession = async () => {
         try {
+          const firstDiagnosticComplete = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
+          if (isActive) {
+            if (!firstDiagnosticComplete) {
+              navigation.replace('DiagnosticoHome');
+              return;
+            }
+            setCheckingDiagnostic(false);
+          }
+
           const session = await getSession();
           if (isActive) {
             if (session?.token) {
@@ -146,6 +158,16 @@ export default function WelcomeEmotionScreen() {
       </CText>
     </View>
   );
+
+  if (checkingDiagnostic) {
+    return (
+      <CSafeAreaView style={[localStyles.container, {justifyContent: 'center', alignItems: 'center'}]} color={null}>
+        <CText type="B18" color={colors.primary} align="center" style={null}>
+          Cargando...
+        </CText>
+      </CSafeAreaView>
+    );
+  }
 
   const renderEmotionSelector = () => (
     <View style={localStyles.emotionSection}>
