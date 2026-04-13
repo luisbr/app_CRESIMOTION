@@ -54,8 +54,8 @@ export default function Splash({ navigation }) {
               console.log('Splash navigating to TabNavigation');
               navigation.reset({ index: 0, routes: [{ name: StackNav.TabNavigation, state: { routes: [{ name: TabNav.HomeTab }] } }] });
             } else if (!!onBoardingValue) {
-              console.log('Splash navigating to WelcomeEmotion');
-              navigation.reset({ index: 0, routes: [{ name: StackNav.WelcomeEmotion }] });
+              console.log('Splash navigating to AuthNavigation');
+              navigation.reset({ index: 0, routes: [{ name: StackNav.AuthNavigation }] });
             } else {
               console.log('Splash navigating to OnBoarding');
               navigation.reset({ index: 0, routes: [{ name: StackNav.OnBoarding }] });

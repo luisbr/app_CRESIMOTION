@@ -92,33 +92,43 @@ export default function WelcomeEmotionScreen() {
       let isActive = true;
       const checkSession = async () => {
         try {
-          const firstDiagnosticComplete = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
+          const session = await getSession();
+          
           if (isActive) {
+            if (!session?.token) {
+              setIsLoggedIn(false);
+              setCheckingDiagnostic(false);
+              // Send directly to login/register if no session
+              navigation.reset({
+                index: 0,
+                routes: [{name: StackNav.AuthNavigation}],
+              });
+              return;
+            }
+
+            setIsLoggedIn(true);
+            setUserName(session.nombre || session.alias || 'Usuario');
+
+            const firstDiagnosticComplete = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
             if (!firstDiagnosticComplete) {
               navigation.replace('DiagnosticoHome');
               return;
             }
             setCheckingDiagnostic(false);
-          }
-
-          const session = await getSession();
-          if (isActive) {
-            if (session?.token) {
-              setIsLoggedIn(true);
-              setUserName(session.nombre || session.alias || 'Usuario');
-              
-              const notifs = await getStoredNotifications();
-              const hasNew = notifs.some(n => n.isNew && !n.isDeleted && !n.isArchived);
-              setHasNewNotifs(hasNew);
-            } else {
-              setIsLoggedIn(false);
-              setUserName(null);
-            }
+            
+            const notifs = await getStoredNotifications();
+            const hasNew = notifs.some(n => n.isNew && !n.isDeleted && !n.isArchived);
+            setHasNewNotifs(hasNew);
           }
         } catch (e) {
           if (isActive) {
             setIsLoggedIn(false);
             setUserName(null);
+            setCheckingDiagnostic(false);
+            navigation.reset({
+              index: 0,
+              routes: [{name: StackNav.AuthNavigation}],
+            });
           }
         }
       };
