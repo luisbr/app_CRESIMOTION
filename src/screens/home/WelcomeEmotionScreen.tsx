@@ -20,6 +20,8 @@ import {StackNav} from '../../navigation/NavigationKey';
 import {useDrawer} from '../../navigation/DrawerContext';
 import {getStoredNotifications} from '../../utils/notificationStorage';
 import CMainAppBar from '../../components/common/CMainAppBar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {FIRST_DIAGNOSTIC_COMPLETE} from '../../common/constants';
 import {
   MOTIVATIONAL_PHRASES,
   PAINFUL_PHRASES,
@@ -76,6 +78,7 @@ export default function WelcomeEmotionScreen() {
   const [selectedEmotion, setSelectedEmotion] = useState<number | null>(null);
   const [selectedPhrase, setSelectedPhrase] = useState<string | null>(null);
   const [hasNewNotifs, setHasNewNotifs] = useState(false);
+  const [checkingDiagnostic, setCheckingDiagnostic] = useState(true);
 
   useEffect(() => {
     if (pendingNavigation) {
@@ -90,23 +93,42 @@ export default function WelcomeEmotionScreen() {
       const checkSession = async () => {
         try {
           const session = await getSession();
+          
           if (isActive) {
-            if (session?.token) {
-              setIsLoggedIn(true);
-              setUserName(session.nombre || session.alias || 'Usuario');
-              
-              const notifs = await getStoredNotifications();
-              const hasNew = notifs.some(n => n.isNew && !n.isDeleted && !n.isArchived);
-              setHasNewNotifs(hasNew);
-            } else {
+            if (!session?.token) {
               setIsLoggedIn(false);
-              setUserName(null);
+              setCheckingDiagnostic(false);
+              // Send directly to login/register if no session
+              navigation.reset({
+                index: 0,
+                routes: [{name: StackNav.AuthNavigation}],
+              });
+              return;
             }
+
+            setIsLoggedIn(true);
+            setUserName(session.nombre || session.alias || 'Usuario');
+
+            const firstDiagnosticComplete = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
+            if (!firstDiagnosticComplete) {
+              navigation.replace('DiagnosticoHome');
+              return;
+            }
+            setCheckingDiagnostic(false);
+            
+            const notifs = await getStoredNotifications();
+            const hasNew = notifs.some(n => n.isNew && !n.isDeleted && !n.isArchived);
+            setHasNewNotifs(hasNew);
           }
         } catch (e) {
           if (isActive) {
             setIsLoggedIn(false);
             setUserName(null);
+            setCheckingDiagnostic(false);
+            navigation.reset({
+              index: 0,
+              routes: [{name: StackNav.AuthNavigation}],
+            });
           }
         }
       };
@@ -146,6 +168,16 @@ export default function WelcomeEmotionScreen() {
       </CText>
     </View>
   );
+
+  if (checkingDiagnostic) {
+    return (
+      <CSafeAreaView style={[localStyles.container, {justifyContent: 'center', alignItems: 'center'}]} color={null}>
+        <CText type="B18" color={colors.primary} align="center" style={null}>
+          Cargando...
+        </CText>
+      </CSafeAreaView>
+    );
+  }
 
   const renderEmotionSelector = () => (
     <View style={localStyles.emotionSection}>
