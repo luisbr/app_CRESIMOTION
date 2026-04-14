@@ -25,6 +25,7 @@ import {moderateScale} from '../../common/constants';
 // Removed social login icons
 import {StackNav} from '../../navigation/NavigationKey';
 import TermsModal from '../../components/model/TermsModal';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function Register({navigation}) {
   const colors = useSelector(state => state.theme.theme);
@@ -107,13 +108,27 @@ export default function Register({navigation}) {
   const [tutorCodeRemaining, setTutorCodeRemaining] = useState(0);
   const [tutorExpiryTimer, setTutorExpiryTimer] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsAcceptedError, setTermsAcceptedError] = useState('');
   const [privacyModalVisible, setPrivacyModalVisible] = useState(false);
   const [termsModalVisible, setTermsModalVisible] = useState(false);
   const [importantModalVisible, setImportantModalVisible] = useState(false);
   const [accessibilityModalVisible, setAccessibilityModalVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorModalTitle, setErrorModalTitle] = useState('');
+  const [errorModalMessage, setErrorModalMessage] = useState('');
+
+  const showErrorPopup = (message, title) => {
+    setErrorModalTitle(title || 'Error');
+    setErrorModalMessage(message);
+    setErrorModalVisible(true);
+  };
+
+  const hideErrorPopup = () => {
+    setErrorModalVisible(false);
+    setErrorModalTitle('');
+    setErrorModalMessage('');
+  };
 
   const onChangeNombre = val => {
     const normalized = val.replace(/\s+/g, ' ');
@@ -640,7 +655,7 @@ export default function Register({navigation}) {
     if (idiomaMissing) setIdiomaError(strings.requiredField);
     if (confirmMissing) setConfirmPasswordError(strings.requiredField);
     if (isUnder13) {
-      setSubmitError(strings.birthDateUnder13);
+      showErrorPopup(strings.birthDateUnder13, 'Edad no permitida');
       return false;
     }
     if (
@@ -713,7 +728,10 @@ export default function Register({navigation}) {
 
   const onPressRegister = async () => {
     const ok = runBaseValidation(true);
-    if (!ok) return;
+    if (!ok) {
+      showErrorPopup('Por favor completa todos los campos obligatorios correctamente.', 'Campos incompletos');
+      return;
+    }
     if (!emailCodeSent) {
       const sent = await onRequestEmailCode();
       if (sent) {
@@ -726,7 +744,6 @@ export default function Register({navigation}) {
       return;
     }
     setSubmitting(true);
-    setSubmitError('');
     try {
       const verifyResp = await verifyEmailCode({correo: email, codigo: emailCode});
       if (!(verifyResp && verifyResp.ok === true && verifyResp.valid === true)) {
@@ -770,10 +787,10 @@ export default function Register({navigation}) {
       if (resp && (resp.success === true || resp.status === true)) {
         navigation.reset({index: 0, routes: [{name: StackNav.ThankYou}]});
       } else {
-        setSubmitError((resp && (resp.success_message || resp.message)) || 'Error al registrarse');
+        showErrorPopup((resp && (resp.success_message || resp.message)) || 'Error al registrarse', 'Error de registro');
       }
     } catch (e) {
-      setSubmitError('Error de red');
+      showErrorPopup('Error de red. Verifica tu conexión e intenta de nuevo.', 'Error de conexión');
     } finally {
       setSubmitting(false);
     }
@@ -1447,16 +1464,17 @@ export default function Register({navigation}) {
             </CText>
           )
           )}
-          {!!submitError && (
-            <CText type={'S14'} align={'center'} color={colors.redAlert}>
-              {submitError}
-            </CText>
-          )}
         </View>
         <TermsModal visible={privacyModalVisible} onClose={() => setPrivacyModalVisible(false)} type="privacy" />
         <TermsModal visible={termsModalVisible} onClose={() => setTermsModalVisible(false)} type="terms" />
         <TermsModal visible={importantModalVisible} onClose={() => setImportantModalVisible(false)} type="important" />
         <TermsModal visible={accessibilityModalVisible} onClose={() => setAccessibilityModalVisible(false)} type="accessibility" />
+        <ErrorPopup
+          visible={errorModalVisible}
+          title={errorModalTitle}
+          message={errorModalMessage}
+          onClose={hideErrorPopup}
+        />
       </KeyBoardAvoidWrapper>
     </CSafeAreaView>
   );
