@@ -78,7 +78,7 @@ export async function getSession(): Promise<Session> {
 }
 
 export async function clearSession() {
-  await AsyncStorage.multiRemove([AUTH_ID, AUTH_UUID, AUTH_NAME, AUTH_ALIAS, ACCESS_TOKEN]);
+  await AsyncStorage.multiRemove([AUTH_ID, AUTH_UUID, AUTH_NAME, AUTH_ALIAS, ACCESS_TOKEN, 'EXPO_PUSH_TOKEN']);
   for (const k of secureKeys) {
     await SecureStore.deleteItemAsync(k);
   }

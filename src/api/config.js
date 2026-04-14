@@ -41,6 +41,7 @@ export const ENDPOINTS = {
   SUSCRIPCION_CONFIRMAR: '/api/ws/suscripcion/confirmar',
   SUSCRIPCION_CANCELAR: '/api/ws/suscripcion/cancelar',
   ACTUALIZAR_PUSH_TOKEN: '/api/ws/actualizarPushToken',
+  ELIMINAR_PUSH_TOKEN: '/api/ws/eliminarPushToken',
   SUSCRIPCION_METODO_PAGO: '/api/ws/suscripcion/metodo-pago',
   SUSCRIPCION_HISTORIAL: '/api/ws/suscripcion/historial',
   SUSCRIPCION_ACTUALIZAR_METODO: '/api/ws/suscripcion/actualizar-metodo',

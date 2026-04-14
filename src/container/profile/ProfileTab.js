@@ -26,7 +26,7 @@ import {changeThemeAction} from '../../redux/action/themeAction';
 import {colors} from '../../theme/colors';
 import {StackNav} from '../../navigation/NavigationKey';
 import LogOutModel from '../../components/model/LogOutModel';
-import {getSession, getProfile, updateProfile} from '../../api/auth';
+import {getSession, getProfile, updateProfile, clearPushToken} from '../../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AUTH_ALIAS, AUTH_HASH, AUTH_ID, AUTH_NAME, AUTH_TOKEN, AUTH_UUID, ACCESS_TOKEN, DEVICE_UUID} from '../../common/constants';
 import * as ImagePicker from 'expo-image-picker';
@@ -202,6 +202,12 @@ export default function ProfileTab({navigation}) {
   };
   const onPressLOut = async () => {
     setIsModalVisible(false);
+    try {
+      // Borrar el token de push notifications del servidor primero (requiere auth)
+      await clearPushToken();
+    } catch (e) {
+      console.log('Error clearing push token:', e);
+    }
     try {
       await clearSession();
       // Si quieres borrar el DEVICE_UUID también, mantenemos esta línea:
