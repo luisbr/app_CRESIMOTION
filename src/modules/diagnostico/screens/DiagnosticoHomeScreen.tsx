@@ -9,9 +9,9 @@ import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import {styles} from '../../../theme';
 import {clearLastRoute, getLastRoute, saveGroupId} from '../utils';
-import {getOpenSession} from '../api/sessionsApi';
+import {getOpenSession, checkFirstDiagnosticComplete} from '../api/sessionsApi';
 import type {ModuleKey} from '../types';
-import {FIRST_DIAGNOSTIC_COMPLETE, moderateScale} from '../../../common/constants';
+import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
 import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 import {getTherapyNext, getResumenMensual} from '../../../api/sesionTerapeutica';
@@ -192,9 +192,9 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
         }
       };
       const checkFirstFlow = async () => {
-        const val = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
+        const val = await checkFirstDiagnosticComplete();
         if (isActive) {
-          setHasCompletedFirstFlow(val === 'true');
+          setHasCompletedFirstFlow(val);
         }
       };
       checkSessionAndNotifs();

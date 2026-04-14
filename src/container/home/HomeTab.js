@@ -18,8 +18,7 @@ import HealthNeedMoreSheet from "../../components/model/HealthNeedMoreSheet";
 import DrProfileComponent from "../../components/home/DrProfileComponent";
 import { StackNav } from "../../navigation/NavigationKey";
 import { getSession } from "../../api/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FIRST_DIAGNOSTIC_COMPLETE } from "../../common/constants";
+import { checkFirstDiagnosticComplete } from "../../modules/diagnostico/api/sessionsApi";
 import { migrate } from "../../db";
 import { getInProgressForUser, listSelectedReasons, listUnansweredMotivoIds, listAllProgress, listReasonsForProgress, listIntensitiesForProgress, debugLogFlow } from "../../repositories/formsRepo";
 import { getEncuestaById } from "../../api/encuestas";
@@ -164,7 +163,7 @@ loadHomeState();
 
 useEffect(() => {
   const checkFirstFlow = async () => {
-    const firstDiagnosticComplete = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
+    const firstDiagnosticComplete = await checkFirstDiagnosticComplete();
     if (!firstDiagnosticComplete) {
       navigation.navigate('DiagnosticoSelection', { module_key: 'motivos', isFirstFlow: true });
     } else {

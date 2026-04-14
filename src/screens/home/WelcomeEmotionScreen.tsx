@@ -20,8 +20,7 @@ import {StackNav} from '../../navigation/NavigationKey';
 import {useDrawer} from '../../navigation/DrawerContext';
 import {getStoredNotifications} from '../../utils/notificationStorage';
 import CMainAppBar from '../../components/common/CMainAppBar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {FIRST_DIAGNOSTIC_COMPLETE} from '../../common/constants';
+import {checkFirstDiagnosticComplete} from '../../modules/diagnostico/api/sessionsApi';
 import {
   MOTIVATIONAL_PHRASES,
   PAINFUL_PHRASES,
@@ -109,7 +108,7 @@ export default function WelcomeEmotionScreen() {
             setIsLoggedIn(true);
             setUserName(session.nombre || session.alias || 'Usuario');
 
-            const firstDiagnosticComplete = await AsyncStorage.getItem(FIRST_DIAGNOSTIC_COMPLETE);
+            const firstDiagnosticComplete = await checkFirstDiagnosticComplete();
             if (!firstDiagnosticComplete) {
               navigation.replace('DiagnosticoHome');
               return;
