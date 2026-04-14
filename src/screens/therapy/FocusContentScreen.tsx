@@ -12,7 +12,7 @@ import { styles } from '../../theme';
 import { canSkipAudio, getAudioTitle, getAudioUrl, getMotivoId, getMotivoLabel, getSkipLabel, normalizeTherapyNext } from './therapyUtils';
 import { completeTherapyStep } from '../../api/sesionTerapeutica';
 import { getDebugTailPosition } from '../../utils/audioDebug';
-import { API_BASE_URL } from '../../api/config';
+import { API_BASE_URL, ENABLE_FORWARD_BUTTON } from '../../api/config';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 export default function FocusContentScreen({ navigation, route }: any) {
@@ -316,7 +316,7 @@ export default function FocusContentScreen({ navigation, route }: any) {
             <View style={{ flex: 1 }}>
               <CButton title={playing ? ' ll ' : 'Reproducir'} onPress={onPlay} />
             </View>
-            <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />
+            {ENABLE_FORWARD_BUTTON && <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />}
           </View>
           <View style={[styles.rowSpaceBetween, { marginTop: 8 }]}>
             <CText type={'S14'}>{fmt(positionMillis)}</CText>

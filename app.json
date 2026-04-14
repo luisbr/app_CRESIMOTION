@@ -60,6 +60,7 @@
     },
     "extra": {
       "API_BASE_URL": "https://cresimotion.staging.mx",
+      "ENABLE_FORWARD_BUTTON": true,
       "eas": {
         "projectId": "3addbbcb-6772-4100-aeda-cc592300a1a4"
       }

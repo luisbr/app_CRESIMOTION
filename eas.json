@@ -6,17 +6,24 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "ENABLE_FORWARD_BUTTON": "false"
+      }
     },
     "preview": {
       "ios": {
         "simulator": true
+      },
+      "env": {
+        "ENABLE_FORWARD_BUTTON": "false"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "API_BASE_URL": "https://cresimotion.staging.mx"
+        "API_BASE_URL": "https://cresimotion.staging.mx",
+        "ENABLE_FORWARD_BUTTON": "false"
       }
     }
   },

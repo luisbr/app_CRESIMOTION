@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {ActivityIndicator, Modal, ScrollView, TouchableOpacity, View, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CMainAppBar from '../../../components/common/CMainAppBar';
 import CText from '../../../components/common/CText';
@@ -12,7 +11,7 @@ import {clearGroupId, clearLastRoute, getChartView, getGroupId, saveChartView, s
 import {getResults, startSession} from '../api/sessionsApi';
 import {getTherapyNext} from '../../../api/sesionTerapeutica';
 import Svg, {G, Text as SvgText, Rect, Path, Polygon, Circle, TSpan} from 'react-native-svg';
-import {FIRST_DIAGNOSTIC_COMPLETE, moderateScale} from '../../../common/constants';
+import {moderateScale} from '../../../common/constants';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 
 export default function DiagnosticoResultsScreen({navigation, route}: any) {
@@ -203,7 +202,6 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
     if (moduleKey === 'sintomas_emocionales') {
       try {
         if (isFirstFlow) {
-          await AsyncStorage.setItem(FIRST_DIAGNOSTIC_COMPLETE, 'true');
           await clearLastRoute();
           await clearGroupId();
           navigation.replace('WelcomeEmotion');

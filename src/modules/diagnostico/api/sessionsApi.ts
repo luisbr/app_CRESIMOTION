@@ -117,6 +117,19 @@ export const getOpenSession = async () => {
   return parseJson(res);
 };
 
+export const checkFirstDiagnosticComplete = async () => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  console.log(
+    '[Diagnostico] curl first-complete',
+    `curl -X GET '${API_BASE_URL}/api/v1/evaluations/sessions/first-complete' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}'`
+  );
+  const res = await authFetch('/api/v1/evaluations/sessions/first-complete');
+  const json = await parseJson(res);
+  console.log('[Diagnostico] first-complete response', JSON.stringify(json, null, 2));
+  return json?.completed ?? false;
+};
+
 export const getPostWork = async (groupId: number) => {
   const res = await authFetch(`/api/v1/evaluations/groups/${groupId}/post-work`);
   return parseJson(res);
