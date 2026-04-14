@@ -390,6 +390,10 @@ export const savePushToken = async (expo_push_token) => {
   return authPost(ENDPOINTS.ACTUALIZAR_PUSH_TOKEN, { expo_push_token });
 };
 
+export const clearPushToken = async () => {
+  return authPost(ENDPOINTS.ELIMINAR_PUSH_TOKEN, {});
+};
+
 export const getPaymentMethod = async () => {
   const session = await getSession();
   const url = `${API_BASE_URL}${ENDPOINTS.SUSCRIPCION_METODO_PAGO}?id=${session.id}`;

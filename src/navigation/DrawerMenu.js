@@ -10,7 +10,7 @@ import CText from '../components/common/CText';
 import {getHeight, getWidth} from '../common/constants';
 import {StackNav, TabNav} from './NavigationKey';
 import {useDrawer} from './DrawerContext';
-import {getSession} from '../api/auth';
+import {getSession, clearPushToken} from '../api/auth';
 import {clearSession} from '../session/storage';
 import {DEVICE_UUID} from '../common/constants';
 
@@ -127,6 +127,12 @@ function DrawerMenu() {
 
   const onPressLogout = async () => {
     close();
+    try {
+      // Borrar el token de push notifications del servidor primero (requiere auth)
+      await clearPushToken();
+    } catch (e) {
+      console.log('Error clearing push token:', e);
+    }
     try {
       await clearSession();
       await AsyncStorage.removeItem(DEVICE_UUID);
