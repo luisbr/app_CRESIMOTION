@@ -19,6 +19,7 @@ const resolveBaseUrl = () => {
 };
 
 export const API_BASE_URL = resolveBaseUrl();
+export const ENABLE_FORWARD_BUTTON = extra.ENABLE_FORWARD_BUTTON !== false;
 export const ENDPOINTS = {
   REGISTER: '/api/ws/registro',
   LOGIN: '/api/ws/login',

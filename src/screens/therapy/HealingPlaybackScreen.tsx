@@ -11,7 +11,7 @@ import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { completeTherapyStep, sendPlaybackEvent } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
-import { API_BASE_URL } from '../../api/config';
+import { API_BASE_URL, ENABLE_FORWARD_BUTTON } from '../../api/config';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 type PlaybackItem =
@@ -543,7 +543,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
                 disabled={preloading || playing}
               />
             </View>
-            <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />
+            {ENABLE_FORWARD_BUTTON && <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />}
           </View>
           <View style={styles.mt10}>
             {/* 
