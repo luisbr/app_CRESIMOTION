@@ -16,7 +16,7 @@ import CButton from '../../components/common/CButton';
 import {styles} from '../../theme';
 import {getHeight, getWidth, moderateScale} from '../../common/constants';
 import {getSession} from '../../api/auth';
-import {StackNav} from '../../navigation/NavigationKey';
+import {StackNav, TabNav} from '../../navigation/NavigationKey';
 import {useDrawer} from '../../navigation/DrawerContext';
 import {getStoredNotifications} from '../../utils/notificationStorage';
 import CMainAppBar from '../../components/common/CMainAppBar';
@@ -110,7 +110,12 @@ export default function WelcomeEmotionScreen() {
 
             const firstDiagnosticComplete = await checkFirstDiagnosticComplete();
             if (!firstDiagnosticComplete) {
-              navigation.replace('DiagnosticoHome');
+              navigation.navigate(StackNav.TabNavigation, {
+                screen: TabNav.HomeTab,
+                params: {
+                  screen: 'DiagnosticoHome',
+                },
+              });
               return;
             }
             setCheckingDiagnostic(false);

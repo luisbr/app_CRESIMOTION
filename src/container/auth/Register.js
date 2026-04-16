@@ -312,10 +312,11 @@ export default function Register({navigation}) {
     }
   };
   const onChangeComoSeEnteroOtro = val => {
-    const v = val.trim();
+    const normalized = val.replace(/\s+/g, ' ');
+    const v = normalized.replace(/^\s+/, '');
     setComoSeEnteroOtro(v);
     if (comoSeEnteroOption === 'Otro') {
-      setComoSeEntero(v);
+      setComoSeEntero(v.trim());
     }
   };
   const onChangeBirthDay = item => {
@@ -1043,22 +1044,22 @@ export default function Register({navigation}) {
             placeholder={strings.selectGender}
             value={generoOption}
             data={[
-              {label: 'Femenino', value: 'Femenino'},
-              {label: 'Masculino', value: 'Masculino'},
-              {label: 'No binario', value: 'No binario'},
-              {label: 'Género fluido', value: 'Género fluido'},
-              {label: 'Transgénero (MtF)', value: 'Transgénero (MtF)'},
-              {label: 'Transgénero (FtM)', value: 'Transgénero (FtM)'},
               {label: 'Agénero', value: 'Agénero'},
-              {label: 'Bigénero', value: 'Bigénero'},
-              {label: 'Pangénero', value: 'Pangénero'},
-              {label: 'Demigénero', value: 'Demigénero'},
-              {label: 'Cisgénero', value: 'Cisgénero'},
-              {label: 'Intergénero', value: 'Intergénero'},
               {label: 'Andrógino', value: 'Andrógino'},
+              {label: 'Bigénero', value: 'Bigénero'},
+              {label: 'Cisgénero', value: 'Cisgénero'},
+              {label: 'Demigénero', value: 'Demigénero'},
+              {label: 'Femenino', value: 'Femenino'},
+              {label: 'Género fluido', value: 'Género fluido'},
+              {label: 'Intergénero', value: 'Intergénero'},
+              {label: 'Masculino', value: 'Masculino'},
               {label: 'Neutro', value: 'Neutro'},
+              {label: 'No binario', value: 'No binario'},
               {label: 'Otro', value: 'Otro'},
+              {label: 'Pangénero', value: 'Pangénero'},
               {label: 'Prefiero no especificar', value: 'Prefiero no especificar'},
+              {label: 'Transgénero (FtM)', value: 'Transgénero (FtM)'},
+              {label: 'Transgénero (MtF)', value: 'Transgénero (MtF)'},
             ]}
             onChange={onChangeGenero}
             required
@@ -1126,6 +1127,8 @@ export default function Register({navigation}) {
               placeHolder={strings.howDidYouHearOtherInputPlaceholder}
               keyBoardType={'default'}
               _value={comoSeEnteroOtro}
+              autoCorrect
+              spellCheck
               autoCapitalize={'sentences'}
               toGetTextFieldValue={onChangeComoSeEnteroOtro}
               multiline
