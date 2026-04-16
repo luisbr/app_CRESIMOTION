@@ -24,7 +24,7 @@ export default function HealingStartScreen({ navigation }: any) {
 
   const introText = 'A partir de este momento, inicias tu proceso de sanación. Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:';
   const options = useMemo(() => [
-    'Dispongo de al menos media hora para estar a solas, en un lugar tranquilo, libre de ruidos excesivos, distracciones o interrupciones externas, dedicando toda la atención a mi salud emocional.',
+    'Recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia:Para esta fase dispongo de al menos 15 minutos a solas y sin interrupciones.',
     'Cuento con una óptima conexión a internet para evitar interrupciones.',
     'Me encuentro en un espacio cómodo donde puedo recostarme o relajarme completamente.',
     'He entendido estas recomendaciones. No volver a mostrar.',
