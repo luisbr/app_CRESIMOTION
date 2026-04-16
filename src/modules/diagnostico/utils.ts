@@ -9,7 +9,7 @@ export const standardIntensityOptions: CatalogOption[] = [
   {key: 'bajo', label: 'Bajo', value: 1, order: 1},
   {key: 'moderado', label: 'Moderado', value: 2, order: 2},
   {key: 'alto', label: 'Alto', value: 3, order: 3},
-  {key: 'grave', label: 'Grave', value: 4, order: 4},
+  {key: 'grave', label: 'Muy Alto', value: 4, order: 4},
 ];
 
 export const emotionalIntensityOptions: CatalogOption[] = [

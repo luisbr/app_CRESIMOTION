@@ -406,7 +406,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             </CButton>
           )}
           <CButton
-            title={'Mis autoevaluaciones'}
+            title={'Mis sesiones terápeuticas'}
             type="B16"
             onPress={onPressHistory}
             bgColor={colors.inputBg}
