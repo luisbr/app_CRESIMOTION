@@ -44,7 +44,7 @@ export default function OtpScreen({navigation, route}) {
   const onPressContinue = () => {
     const trimmed = (otp || '').trim();
     if (trimmed.length < 4) {
-      setOtpError('Ingresa el codigo de 4 digitos.');
+      setOtpError('Ingresa el código de 4 digitos.');
       return;
     }
     if (timer === 0) {
@@ -57,7 +57,7 @@ export default function OtpScreen({navigation, route}) {
   const onPressResend = async () => {
     if (resending) return;
     if (!correo) {
-      setResendError('Falta el correo para reenviar el codigo.');
+      setResendError('Falta el correo para reenviar el código.');
       return;
     }
     setOtp('');
@@ -74,12 +74,12 @@ export default function OtpScreen({navigation, route}) {
       }
       if (resp && (resp.success === true || resp.status === true)) {
         setTimer(240);
-        setResendSuccess(resp?.success_message || 'Codigo reenviado.');
+        setResendSuccess(resp?.success_message || 'Código reenviado.');
         return;
       }
-      setResendError(resp?.message || 'No se pudo reenviar el codigo.');
+      setResendError(resp?.message || 'No se pudo reenviar el código.');
     } catch (e) {
-      setResendError(e?.body?.message || e?.message || 'No se pudo reenviar el codigo.');
+      setResendError(e?.body?.message || e?.message || 'No se pudo reenviar el código.');
     } finally {
       setResending(false);
     }
