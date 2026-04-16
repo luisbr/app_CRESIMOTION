@@ -125,6 +125,10 @@ export default function StackNavigation() {
         name={StackNav.ApoyoAceptado}
         component={StackRoute.ApoyoAceptado}
       />
+      <Stack.Screen
+        name={StackNav.FAQ}
+        component={StackRoute.FAQ}
+      />
     </Stack.Navigator>
   );
 }

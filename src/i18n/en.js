@@ -8,13 +8,13 @@ export default {
   onBoardingDesc1:
     "Tu espacio para sanar, crecer y sentirte mejor.",
   onBoardingDesc2:
-    "Trabaja tus emociones con prácticas diarias y sesiones guiadas.",
+    "Regula tus emociones con prácticas diarias y sesiones guiadas.",
   onBoardingDesc3:
-    "Evalúate, mejora tus áreas de vida y conéctate con tu red de apoyo.",
+    "Evalúate y mejora tus áreas de vida.",
   onBoardingDesc4:
     "Recibe alertas útiles y accede a herramientas según tu plan.",
   onBoardingDesc5:
-    "Ya conoces las herramientas. Es momento de practicar y vivir tu proceso de sanación.",
+    "Es momento de practicar y vivir tu proceso de sanación.",
   next: "Siguiente",
   getStarted: "Siguiente",
   signIn: "Iniciar sesión",
@@ -193,7 +193,7 @@ export default {
   howDidYouHearFamily: "Familia",
   howDidYouHearFriends: "Amistades",
   howDidYouHearAds: "Publicidad",
-  howDidYouHearOther: "Otro (escribir)",
+  howDidYouHearOther: "Otro",
   howDidYouHearOtherInputLabel: "Especifica",
   howDidYouHearOtherInputPlaceholder: "Cuéntanos dónde nos conociste",
   birthDateHelp: "Formato: DD/MM/AAAA",
@@ -275,6 +275,7 @@ export default {
   otherLanguages: "Other Languages",
   thisFieldIsMandatory: "Este campo es obligatorio",
   enterValidEmail: "Por favor, ingresa un correo válido",
+  emailAlreadyRegistered: "Este correo ya está registrado. Usa otro correo o inicia sesión.",
   enterValidName: "Por favor, ingresa un nombre válido",
   enterValidLastName: "Por favor, ingresa un apellido válido",
   plsEnterPassword: "Por favor, ingresa una contraseña",

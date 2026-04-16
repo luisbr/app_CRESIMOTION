@@ -538,7 +538,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
           <View style={[styles.rowSpaceBetween, styles.g10]}>
             <View style={{ flex: 1 }}>
               <CButton
-                title={playbackStatus.positionMillis === 0 ? 'Iniciar' : 'Reanudar'}
+                title={playbackStatus.positionMillis === 0 ? 'Iniciar' : 'Reproducción'}
                 onPress={onPlay}
                 disabled={preloading || playing}
               />

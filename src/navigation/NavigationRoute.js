@@ -54,6 +54,7 @@ import AboutDetailScreen from '../screens/home/AboutDetailScreen';
 import WellnessNetworkScreen from '../screens/home/WellnessNetworkScreen';
 import ApoyoFinancieroScreen from '../screens/home/ApoyoFinancieroScreen';
 import ApoyoAceptadoScreen from '../screens/home/ApoyoAceptadoScreen';
+import FAQScreen from '../screens/home/FAQScreen';
 import TestsListScreen from '../screens/tests/TestsListScreen';
 import TestDetailScreen from '../screens/tests/TestDetailScreen';
 import TestResultScreen from '../screens/tests/TestResultScreen';
@@ -118,6 +119,7 @@ export const StackRoute = {
   Profile: ProfileTab,
   ApoyoFinanciero: ApoyoFinancieroScreen,
   ApoyoAceptado: ApoyoAceptadoScreen,
+  FAQ: FAQScreen,
 };
 
 export const AuthRoute = {

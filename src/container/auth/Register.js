@@ -1,5 +1,5 @@
 import {StyleSheet, View, Switch, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 // custom import
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -20,6 +20,7 @@ import {
   requestTutorVerificationCode,
   verifyTutorCode,
   checkAliasAvailability,
+  checkEmailAvailability,
 } from '../../api/auth';
 import {moderateScale} from '../../common/constants';
 // Removed social login icons
@@ -29,12 +30,24 @@ import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function Register({navigation}) {
   const colors = useSelector(state => state.theme.theme);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (emailCheckTimeout) clearTimeout(emailCheckTimeout);
+      if (aliasCheckTimeout) clearTimeout(aliasCheckTimeout);
+      if (emailExpiryTimer) clearInterval(emailExpiryTimer);
+      if (tutorExpiryTimer) clearInterval(tutorExpiryTimer);
+    };
+  }, []);
   const [nombre, setNombre] = useState('');
   const [nombreError, setNombreError] = useState('');
   const [apellido, setApellido] = useState('');
   const [apellidoError, setApellidoError] = useState('');
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [emailChecking, setEmailChecking] = useState(false);
+  const [emailCheckTimeout, setEmailCheckTimeout] = useState(null);
   const [emailConfirm, setEmailConfirm] = useState('');
   const [emailConfirmError, setEmailConfirmError] = useState('');
   const [emailCode, setEmailCode] = useState('');
@@ -65,7 +78,6 @@ export default function Register({navigation}) {
   const [generoError, setGeneroError] = useState('');
   const [idioma, setIdioma] = useState('');
   const [idiomaOption, setIdiomaOption] = useState('');
-  const [idiomaOtro, setIdiomaOtro] = useState('');
   const [idiomaError, setIdiomaError] = useState('');
   const [comoSeEntero, setComoSeEntero] = useState('');
   const [comoSeEnteroOption, setComoSeEnteroOption] = useState('');
@@ -148,8 +160,8 @@ export default function Register({navigation}) {
   };
 
   const onChangeEmail = val => {
-    const {msg} = validateEmail(val.trim());
     const v = val.trim();
+    const {msg} = validateEmail(v);
     setEmail(v);
     setEmailError(msg);
     if (emailConfirm && v !== emailConfirm) {
@@ -167,6 +179,29 @@ export default function Register({navigation}) {
     setEmailCodeRemaining(0);
     if (emailExpiryTimer) clearInterval(emailExpiryTimer);
     setEmailExpiryTimer(null);
+
+    // Check email availability if format is valid
+    if (emailCheckTimeout) {
+      clearTimeout(emailCheckTimeout);
+    }
+    if (!v || msg) {
+      setEmailChecking(false);
+      return;
+    }
+    setEmailChecking(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const resp = await checkEmailAvailability({correo: v});
+        if (resp && resp.available === false) {
+          setEmailError(resp.message || strings.emailAlreadyRegistered);
+        }
+      } catch (e) {
+        // Silently fail on network errors
+      } finally {
+        setEmailChecking(false);
+      }
+    }, 500);
+    setEmailCheckTimeout(timeout);
   };
 
   const onChangeEmailConfirm = val => {
@@ -262,22 +297,8 @@ export default function Register({navigation}) {
   const onChangeIdioma = item => {
     const v = item?.value || '';
     setIdiomaOption(v);
-    if (v && v !== 'Otro') {
-      setIdioma(v);
-    } else if (v === 'Otro') {
-      setIdioma(idiomaOtro);
-    } else {
-      setIdioma('');
-    }
+    setIdioma(v);
     setIdiomaError(v ? '' : strings.requiredField);
-  };
-  const onChangeIdiomaOtro = val => {
-    const v = val.trim();
-    setIdiomaOtro(v);
-    if (idiomaOption === 'Otro') {
-      setIdioma(v);
-      setIdiomaError(v ? '' : strings.requiredField);
-    }
   };
   const onChangeComoSeEntero = item => {
     const v = item?.value || '';
@@ -1022,15 +1043,25 @@ export default function Register({navigation}) {
             placeholder={strings.selectGender}
             value={generoOption}
             data={[
-              {label: strings.genderFemale, value: strings.genderFemale},
-              {label: strings.genderMale, value: strings.genderMale},
-              {label: strings.genderLesbian, value: strings.genderLesbian},
-              {label: strings.genderGay, value: strings.genderGay},
-              {label: strings.genderBiPan, value: strings.genderBiPan},
-              {label: strings.genderOther, value: 'Otro'},
-              {label: strings.genderNoSpecify, value: strings.genderNoSpecify},
+              {label: 'Femenino', value: 'Femenino'},
+              {label: 'Masculino', value: 'Masculino'},
+              {label: 'No binario', value: 'No binario'},
+              {label: 'Género fluido', value: 'Género fluido'},
+              {label: 'Transgénero (MtF)', value: 'Transgénero (MtF)'},
+              {label: 'Transgénero (FtM)', value: 'Transgénero (FtM)'},
+              {label: 'Agénero', value: 'Agénero'},
+              {label: 'Bigénero', value: 'Bigénero'},
+              {label: 'Pangénero', value: 'Pangénero'},
+              {label: 'Demigénero', value: 'Demigénero'},
+              {label: 'Cisgénero', value: 'Cisgénero'},
+              {label: 'Intergénero', value: 'Intergénero'},
+              {label: 'Andrógino', value: 'Andrógino'},
+              {label: 'Neutro', value: 'Neutro'},
+              {label: 'Otro', value: 'Otro'},
+              {label: 'Prefiero no especificar', value: 'Prefiero no especificar'},
             ]}
             onChange={onChangeGenero}
+            required
           />
           {!!generoError && (
             <CText type={'S12'} color={colors.alertColor} style={styles.ml5}>
@@ -1055,31 +1086,27 @@ export default function Register({navigation}) {
             value={idiomaOption}
             data={[
               {label: 'Español', value: 'Español'},
-              {label: 'Inglés', value: 'Inglés'},
-              {label: 'Portugués', value: 'Portugués'},
-              {label: 'Francés', value: 'Francés'},
-              {label: 'Italiano', value: 'Italiano'},
               {label: 'Alemán', value: 'Alemán'},
-              {label: strings.languageOther, value: 'Otro'},
+              {label: 'Árabe', value: 'Árabe'},
+              {label: 'Chino (Mandarín)', value: 'Chino (Mandarín)'},
+              {label: 'Coreano', value: 'Coreano'},
+              {label: 'Francés', value: 'Francés'},
+              {label: 'Hindi', value: 'Hindi'},
+              {label: 'Inglés', value: 'Inglés'},
+              {label: 'Italiano', value: 'Italiano'},
+              {label: 'Japonés', value: 'Japonés'},
+              {label: 'Polaco', value: 'Polaco'},
+              {label: 'Portugués', value: 'Portugués'},
+              {label: 'Ruso', value: 'Ruso'},
+              {label: 'Turco', value: 'Turco'},
             ]}
             onChange={onChangeIdioma}
+            required
           />
           {!!idiomaError && (
             <CText type={'S12'} color={colors.alertColor} style={styles.ml5}>
               {idiomaError}
             </CText>
-          )}
-          {idiomaOption === 'Otro' && (
-            <CInput
-              label={strings.languageOtherInputLabel}
-              placeHolder={strings.languageOtherInputPlaceholder}
-              keyBoardType={'default'}
-              _value={idiomaOtro}
-              _errorText={idiomaError}
-              autoCapitalize={'words'}
-              toGetTextFieldValue={onChangeIdiomaOtro}
-              required
-            />
           )}
           <CDropdown
             label={strings.howDidYouHear}

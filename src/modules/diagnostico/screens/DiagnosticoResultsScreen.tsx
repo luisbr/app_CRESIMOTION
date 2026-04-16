@@ -336,7 +336,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
                 {!!extremeItems.length && (
                   <View style={[styles.mt15, styles.pt10, {borderTopWidth: 1, borderTopColor: colors.grayScale2}]}>
                     <CText type={'S16'} align={'center'} style={styles.mb10}>
-                      Pensamientos extremos
+                      Pensamiento extremo
                     </CText>
                     {view === 'bar' ? (
                       <BarChartSVG

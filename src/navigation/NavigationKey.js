@@ -36,6 +36,7 @@ export const StackNav = {
   Profile: 'Profile',
   ApoyoFinanciero: 'ApoyoFinanciero',
   ApoyoAceptado: 'ApoyoAceptado',
+  FAQ: 'FAQ',
 };
 
 export const AuthNav = {

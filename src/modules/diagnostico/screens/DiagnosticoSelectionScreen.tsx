@@ -455,17 +455,17 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
 
   const introTitle =
     moduleKey === 'motivos'
-      ? 'Selecciona los motivos de tu estado emocional'
+      ? 'Motivos de tu estado emocional'
       : moduleKey === 'sintomas_fisicos'
       ? 'Sintomatología física'
       : 'Selecciona tus síntomas emocionales';
 
   const introBody =
     moduleKey === 'motivos'
-      ? `Cuéntanos cuáles son los motivos de tu estado emocional. (${moduleLimits.motivos.remaining} de ${moduleLimits.motivos.limit} disponibles)`
+      ? `Selecciona los motivos de tu estado emocional.`
       : moduleKey === 'sintomas_fisicos'
       ? 'Selecciona tus síntomas físicos.'
-      : `Cuéntanos cuáles son tus síntomas emocionales. (${moduleLimits.sintomas_emocionales.remaining} de ${moduleLimits.sintomas_emocionales.limit} disponibles)`;
+      : `Selecciona cuáles son tus síntomas emocionales.`;
 
   return (
     <CSafeAreaView>

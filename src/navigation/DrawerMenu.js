@@ -74,6 +74,14 @@ const MENU_OPTIONS = [
     screenName: StackNav.About,
     requiresSession: false,
   },
+  {
+    id: 'faq',
+    label: 'Preguntas frecuentes',
+    icon: 'help-circle-outline',
+    kind: 'root',
+    screenName: StackNav.FAQ,
+    requiresSession: false,
+  },
 ];
 
 function DrawerMenu() {

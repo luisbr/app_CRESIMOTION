@@ -72,7 +72,7 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   const continuingRef = useRef(false);
 
   const postEvalMessage = nextResponse?.post_eval_message || null;
-  const title = postEvalMessage?.message_title || 'Evaluación de la Sesión terapéutica';
+  const title = postEvalMessage?.message_title || '';
   const message = postEvalMessage?.message_body ||
     `¿Cómo percibes ahora la emoción de ${resolvedEmotionLabel || `#${emocionId || ''}` }? Selecciona la opción que mejor describa cómo te sientes ahora.`;
 

@@ -24,6 +24,7 @@ export const ENDPOINTS = {
   REGISTER: '/api/ws/registro',
   LOGIN: '/api/ws/login',
   CHECK_ALIAS: '/api/ws/checkAlias',
+  CHECK_EMAIL: '/api/ws/checkEmail',
   REQUEST_PWD_RESET: '/api/ws/solicitudCambioPwd',
   UPDATE_PWD: '/api/ws/actualizaPwd',
   TUTOR_REQUEST_CODE: '/api/ws/tutor/solicitudCodigo',

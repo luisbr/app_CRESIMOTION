@@ -29,12 +29,12 @@ import {
 const EMOTIONS = [
   {
     id: 1,
-    label: 'Muy feliz',
+    label: 'Muy bien',
     icon: require('../../assets/iconos_emociones/excelente.png'),
   },
   {
     id: 2,
-    label: 'Feliz',
+    label: 'Bien',
     icon: require('../../assets/iconos_emociones/bien.png'),
   },
   {

@@ -131,6 +131,10 @@ export const checkAliasAvailability = async ({alias}) => {
   return postJson(ENDPOINTS.CHECK_ALIAS, {alias});
 };
 
+export const checkEmailAvailability = async ({correo}) => {
+  return postJson(ENDPOINTS.CHECK_EMAIL, {correo});
+};
+
 export const register = async ({
   fullName,
   nombre,

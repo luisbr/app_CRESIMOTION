@@ -19,16 +19,20 @@ export default function CDropdown(props) {
     contentContainerStyle,
     label,
     style,
+    required = false,
   } = props;
   return (
     <View>
-      <View>
+      <View style={localStyles.labelRow}>
         <CText
           type={'M14'}
           style={localStyles.titleText}
           color={colors.labelColor}>
           {label}
         </CText>
+        {required && (
+          <CText style={{color: colors.alertColor}}>{' *'}</CText>
+        )}
       </View>
       <View
         style={[
@@ -74,6 +78,12 @@ export default function CDropdown(props) {
   );
 }
 const localStyles = StyleSheet.create({
+  labelRow: {
+    ...styles.flexRow,
+    ...styles.mt10,
+    ...styles.ml5,
+    ...styles.mb5,
+  },
   containerStyle: {
     ...styles.ph5,
     width: '100%',
@@ -98,8 +108,6 @@ const localStyles = StyleSheet.create({
     ...typography.fontWeights.Medium,
   },
   titleText: {
-    ...styles.mt10,
-    ...styles.ml5,
-    ...styles.mb5,
+    // Los márgenes están en labelRow para alinear correctamente el asterisco
   },
 });
