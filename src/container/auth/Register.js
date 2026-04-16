@@ -1057,7 +1057,7 @@ export default function Register({navigation}) {
               {label: 'Intergénero', value: 'Intergénero'},
               {label: 'Andrógino', value: 'Andrógino'},
               {label: 'Neutro', value: 'Neutro'},
-              {label: 'Otro (escribir)', value: 'Otro'},
+              {label: 'Otro', value: 'Otro'},
               {label: 'Prefiero no especificar', value: 'Prefiero no especificar'},
             ]}
             onChange={onChangeGenero}
