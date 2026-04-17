@@ -102,12 +102,12 @@ export const ABOUT_SECTIONS = [
       {
         type: 'bullets',
         items: [
-          'Accesibilidad universal. Creemos que el bienestar emocional debe estar al alcance de todas las personas, sin importar su situación económica, idioma o lugar de residencia.',
-          'Cuidado consciente. Tratamos cada experiencia emocional con respeto, humanidad y compromiso ético, acompañando sin juzgar.',
-          'Transformación integral. Nuestras herramientas están diseñadas para generar sanación emocional real y transformación integral, con un enfoque claro, positivo y útil para la vida diaria.',
-          'Autonomía y autoconocimiento. Acompañamos a las personas a conocerse mejor y a construir sus propias respuestas, fortaleciendo su sabiduría interior.',
-          'Innovación constante. Evolucionamos cada día con base en la experiencia de quienes usan la plataforma, investigamos y aplicamos enfoques y técnicas de última generación.',
-          'Comunidad viva. Fomentamos la creación de espacios compartidos de intercambio, escucha y colaboración, porque creemos que sanar en comunidad es más poderoso que sanar en solitario.',
+          {bold: 'Accesibilidad universal.', normal: ' Creemos que el bienestar emocional debe estar al alcance de todas las personas, sin importar su situación económica, idioma o lugar de residencia.'},
+          {bold: 'Cuidado consciente.', normal: ' Tratamos cada experiencia emocional con respeto, humanidad y compromiso ético, acompañando sin juzgar.'},
+          {bold: 'Transformación integral.', normal: ' Nuestras herramientas están diseñadas para generar sanación emocional real y transformación integral, con un enfoque claro, positivo y útil para la vida diaria.'},
+          {bold: 'Autonomía y autoconocimiento.', normal: ' Acompañamos a las personas a conocerse mejor y a construir sus propias respuestas, fortaleciendo su sabiduría interior.'},
+          {bold: 'Innovación constante.', normal: ' Evolucionamos cada día con base en la experiencia de quienes usan la plataforma, investigamos y aplicamos enfoques y técnicas de última generación.'},
+          {bold: 'Comunidad viva.', normal: ' Fomentamos la creación de espacios compartidos de intercambio, escucha y colaboración, porque creemos que sanar en comunidad es más poderoso que sanar en solitario.'},
         ],
       },
     ],
