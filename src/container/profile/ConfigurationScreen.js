@@ -164,9 +164,18 @@ export default function ConfigurationScreen({navigation}) {
         { text: "Cancelar", style: "cancel" },
         { text: "Suspender", style: "destructive", onPress: async () => {
             try {
-              await suspendAccount();
-              navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] });
-            } catch (e) { Alert.alert("Error", "No se pudo suspender la cuenta."); }
+              const resp = await suspendAccount();
+              if (resp && resp.success) {
+                Alert.alert("Cuenta suspendida", "Tu cuenta ha sido suspendida. Puedes reactivarla en cualquier momento.", [
+                  { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
+                ]);
+              } else {
+                Alert.alert("Error", resp?.message || "No se pudo suspender la cuenta.");
+              }
+            } catch (e) {
+              console.log('Suspend error:', e);
+              Alert.alert("Error", e?.body?.message || e?.message || "No se pudo suspender la cuenta.");
+            }
         }}
       ]
     );
@@ -180,9 +189,18 @@ export default function ConfigurationScreen({navigation}) {
         { text: "Cancelar", style: "cancel" },
         { text: "Eliminar", style: "destructive", onPress: async () => {
             try {
-              await deleteAccount();
-              navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] });
-            } catch (e) { Alert.alert("Error", "No se pudo eliminar la cuenta."); }
+              const resp = await deleteAccount();
+              if (resp && resp.success) {
+                Alert.alert("Cuenta eliminada", "Tu cuenta ha sido eliminada.", [
+                  { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
+                ]);
+              } else {
+                Alert.alert("Error", resp?.message || "No se pudo eliminar la cuenta.");
+              }
+            } catch (e) {
+              console.log('Delete error:', e);
+              Alert.alert("Error", e?.body?.message || e?.message || "No se pudo eliminar la cuenta.");
+            }
         }}
       ]
     );

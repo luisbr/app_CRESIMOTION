@@ -361,6 +361,14 @@ export const deleteAccount = async () => {
   return authPostWithHeaders(ENDPOINTS.PROFILE_DELETE, {});
 };
 
+export const requestReactivate = async (correo) => {
+  return postJson(ENDPOINTS.PROFILE_REQUEST_REACTIVATE, {correo});
+};
+
+export const confirmReactivate = async ({correo, codigo}) => {
+  return postJson(ENDPOINTS.PROFILE_CONFIRM_REACTIVATE, {correo, codigo});
+};
+
 export const getMembresias = async () => {
   const url = `${API_BASE_URL}${ENDPOINTS.MEMBRESIAS}`;
   const res = await fetch(url);

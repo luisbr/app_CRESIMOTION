@@ -46,6 +46,14 @@ export default function Welcome() {
           containerStyle={localStyles.fullWidthBtn}
           onPress={() => navigation.navigate(AuthNav.Register)}
         />
+        <TouchableOpacity
+          style={styles.mt20}
+          onPress={() => navigation.navigate(AuthNav.ReactivateAccount)}
+        >
+          <CText type={'M14'} align={'center'} color={'#0aa693'}>
+            ¿Ya tienes una cuenta suspendida? Reactivala aquí
+          </CText>
+        </TouchableOpacity>
         <CButton
           title={'Regresar'}
           bgColor={'#EEF3F6'}

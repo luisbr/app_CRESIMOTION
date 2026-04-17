@@ -37,6 +37,8 @@ export const ENDPOINTS = {
   PROFILE_PASSWORD: '/api/v1/profile/password',
   PROFILE_SUSPEND: '/api/v1/profile/suspend',
   PROFILE_DELETE: '/api/v1/profile/delete',
+  PROFILE_REQUEST_REACTIVATE: '/api/v1/profile/request-reactivate',
+  PROFILE_CONFIRM_REACTIVATE: '/api/v1/profile/confirm-reactivate',
   MEMBRESIAS: '/api/ws/membresias',
   SUSCRIPCION_ACTUAL: '/api/ws/obtenerSuscripcion',
   SUSCRIPCION_INTENT: '/api/ws/suscripcion/intent',
