@@ -17,7 +17,7 @@ import { API_BASE_URL } from '../../api/config';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 const DEFAULT_TEXT =
-  'Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:';
+  'Recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia:';
 const DEFAULT_TEXT_HIGHLIGHT = 'dos fases';
 
 export default function HealingIntroScreen({ navigation, route }: any) {
@@ -35,7 +35,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const required = Array.isArray(data?.checkboxes_required) ? data.checkboxes_required : [];
   const optional = data?.checkbox_optional || null;
   const introText = postWork
-    ? 'Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:'
+    ? 'Recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia:'
     : (data?.text || data?.texto || DEFAULT_TEXT);
   const isDefaultIntro = introText === DEFAULT_TEXT;
   const audioUrl = getAudioUrl(data?.audio || data);
@@ -215,7 +215,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
             <>
               {introText.split(DEFAULT_TEXT_HIGHLIGHT)[0]}
               <CText type={'B14'} color={colors.labelColor}>
-                {DEFAULT_TEXT_HIGHLIGHT}
+                {/* {DEFAULT_TEXT_HIGHLIGHT} */}
               </CText>
               {introText.split(DEFAULT_TEXT_HIGHLIGHT)[1]}
             </>
