@@ -20,12 +20,12 @@ export const ABOUT_SECTIONS = [
       {
         type: 'bullets',
         items: [
-          'Community – Comunidad para crecer en acompañamiento.',
-          'Renewal – Renovación emocional y mental.',
-          'Emotional – Centro en las emociones humanas.',
-          'Support – Acompañamiento humano y constante.',
-          'Intelligent – Estrategias inteligentes y efectivas.',
-          'MOTION – Movimiento hacia la mejora y la optimización de tu bienestar.',
+          {bold: 'Community.', normal: ' Comunidad para crecer en acompañamiento.'},
+          {bold: 'Renewal.', normal: ' Renovación emocional y mental.'},
+          {bold: 'Emotional.', normal: ' Centro en las emociones humanas.'},
+          {bold: 'Support.', normal: ' Acompañamiento humano y constante.'},
+          {bold: 'Intelligent.', normal: ' Estrategias inteligentes y efectivas.'},
+          {bold: 'Motion.', normal: ' Movimiento hacia la mejora y la optimización de tu bienestar.'},
         ],
       },
       {

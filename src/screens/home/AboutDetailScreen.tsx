@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -33,12 +33,19 @@ function renderBlock(block: any, colors: any) {
   if (block.type === 'bullets') {
     return (
       <View style={localStyles.bulletsWrap}>
-        {block.items.map((item: string, index: number) => (
-          <View key={`${item}-${index}`} style={localStyles.bulletRow}>
+        {block.items.map((item: string | {bold: string; normal: string}, index: number) => (
+          <View key={`${typeof item === 'string' ? item : item.bold}-${index}`} style={localStyles.bulletRow}>
             <View style={[localStyles.bulletDot, {backgroundColor: colors.primary}]} />
-            <CText type="R15" color={colors.textColor} style={localStyles.bulletText}>
-              {item}
-            </CText>
+            {typeof item === 'string' ? (
+              <CText type="R15" color={colors.textColor} style={localStyles.bulletText}>
+                {item}
+              </CText>
+            ) : (
+              <Text style={localStyles.bulletText}>
+                <Text style={{fontWeight: 'bold'}}>{item.bold}</Text>
+                <Text>{item.normal}</Text>
+              </Text>
+            )}
           </View>
         ))}
       </View>
