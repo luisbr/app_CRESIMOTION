@@ -27,6 +27,7 @@ export const ENDPOINTS = {
   CHECK_EMAIL: '/api/ws/checkEmail',
   REQUEST_PWD_RESET: '/api/ws/solicitudCambioPwd',
   UPDATE_PWD: '/api/ws/actualizaPwd',
+  VALIDAR_CODIGO_OTP: '/api/ws/validarCodigoOtp',
   TUTOR_REQUEST_CODE: '/api/ws/tutor/solicitudCodigo',
   TUTOR_VERIFY_CODE: '/api/ws/tutor/validarCodigo',
   REGISTER_REQUEST_CODE: '/api/ws/registro/solicitudCodigo',
