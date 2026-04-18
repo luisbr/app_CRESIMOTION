@@ -105,6 +105,11 @@ export const requestPasswordReset = async ({correo}) => {
   return postJson(ENDPOINTS.REQUEST_PWD_RESET, {correo: (correo || '').toLowerCase(), uuid});
 };
 
+export const validarCodigoOtp = async ({correo, token}) => {
+  const uuid = await getOrCreateDeviceUUID();
+  return postJson(ENDPOINTS.VALIDAR_CODIGO_OTP, {correo: (correo || '').toLowerCase(), uuid, token});
+};
+
 export const updatePassword = async ({correo, token, contrasena}) => {
   const uuid = await getOrCreateDeviceUUID();
   return postJson(ENDPOINTS.UPDATE_PWD, {
@@ -354,6 +359,14 @@ export const suspendAccount = async () => {
 
 export const deleteAccount = async () => {
   return authPostWithHeaders(ENDPOINTS.PROFILE_DELETE, {});
+};
+
+export const requestReactivate = async (correo) => {
+  return postJson(ENDPOINTS.PROFILE_REQUEST_REACTIVATE, {correo});
+};
+
+export const confirmReactivate = async ({correo, codigo}) => {
+  return postJson(ENDPOINTS.PROFILE_CONFIRM_REACTIVATE, {correo, codigo});
 };
 
 export const getMembresias = async () => {

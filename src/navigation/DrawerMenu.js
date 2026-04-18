@@ -82,6 +82,14 @@ const MENU_OPTIONS = [
     screenName: StackNav.FAQ,
     requiresSession: false,
   },
+  {
+    id: 'thank-you',
+    label: 'Pantalla de gracias',
+    icon: 'checkmark-circle-outline',
+    kind: 'root',
+    screenName: StackNav.ThankYou,
+    requiresSession: false,
+  },
 ];
 
 function DrawerMenu() {

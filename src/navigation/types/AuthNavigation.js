@@ -8,6 +8,7 @@ import Login from '../../container/auth/Login';
 import OtpScreen from '../../container/auth/OtpScreen';
 import Register from '../../container/auth/Register';
 import Welcome from '../../container/auth/Welcome';
+import ReactivateAccount from '../../container/auth/ReactivateAccount';
 
 const Stack = createStackNavigator();
 export default function AuthNavigation() {
@@ -28,6 +29,10 @@ export default function AuthNavigation() {
       <Stack.Screen
         name={AuthNav.CreateNewPassword}
         component={CreateNewPassword}
+      />
+      <Stack.Screen
+        name={AuthNav.ReactivateAccount}
+        component={ReactivateAccount}
       />
     </Stack.Navigator>
   );

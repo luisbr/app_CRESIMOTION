@@ -46,6 +46,7 @@ export const AuthNav = {
   ForgotPassword: 'ForgotPassword',
   OtpScreen: 'OtpScreen',
   CreateNewPassword: 'CreateNewPassword',
+  ReactivateAccount: 'ReactivateAccount',
 };
 
 export const TabNav = {

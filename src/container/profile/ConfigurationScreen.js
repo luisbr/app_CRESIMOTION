@@ -158,15 +158,24 @@ export default function ConfigurationScreen({navigation}) {
 
   const onSuspend = () => {
     Alert.alert(
-      "Suspender Cuenta",
+      "Suspender cuenta",
       "¿Estás seguro de que deseas suspender tu cuenta temporalmente?",
       [
         { text: "Cancelar", style: "cancel" },
         { text: "Suspender", style: "destructive", onPress: async () => {
             try {
-              await suspendAccount();
-              navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] });
-            } catch (e) { Alert.alert("Error", "No se pudo suspender la cuenta."); }
+              const resp = await suspendAccount();
+              if (resp && resp.success) {
+                Alert.alert("Cuenta suspendida", "Tu cuenta ha sido suspendida. Puedes reactivarla en cualquier momento.", [
+                  { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
+                ]);
+              } else {
+                Alert.alert("Error", resp?.message || "No se pudo suspender la cuenta.");
+              }
+            } catch (e) {
+              console.log('Suspend error:', e);
+              Alert.alert("Error", e?.body?.message || e?.message || "No se pudo suspender la cuenta.");
+            }
         }}
       ]
     );
@@ -174,15 +183,24 @@ export default function ConfigurationScreen({navigation}) {
 
   const onDelete = () => {
     Alert.alert(
-      "Eliminar Cuenta",
+      "Eliminar cuenta",
       "Esta acción es irreversible. ¿Deseas eliminar permanentemente tu cuenta y todos tus datos?",
       [
         { text: "Cancelar", style: "cancel" },
         { text: "Eliminar", style: "destructive", onPress: async () => {
             try {
-              await deleteAccount();
-              navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] });
-            } catch (e) { Alert.alert("Error", "No se pudo eliminar la cuenta."); }
+              const resp = await deleteAccount();
+              if (resp && resp.success) {
+                Alert.alert("Cuenta eliminada", "Tu cuenta ha sido eliminada.", [
+                  { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
+                ]);
+              } else {
+                Alert.alert("Error", resp?.message || "No se pudo eliminar la cuenta.");
+              }
+            } catch (e) {
+              console.log('Delete error:', e);
+              Alert.alert("Error", e?.body?.message || e?.message || "No se pudo eliminar la cuenta.");
+            }
         }}
       ]
     );
@@ -267,8 +285,8 @@ export default function ConfigurationScreen({navigation}) {
             <CDivider style={localStyles.divider} />
             
             <CText type="b14" style={{marginBottom: moderateScale(10)}}>Contraste</CText>
-            {renderRadioOption("Estándar (Modo Claro)", preferences.accesibilidad_contraste === 'estandar', () => handleContrastChange('estandar'))}
-            {renderRadioOption("Alto contraste (Modo Oscuro)", preferences.accesibilidad_contraste === 'alto_contraste', () => handleContrastChange('alto_contraste'))}
+            {renderRadioOption("Estándar (modo claro)", preferences.accesibilidad_contraste === 'estandar', () => handleContrastChange('estandar'))}
+            {renderRadioOption("Alto contraste (modo oscuro)", preferences.accesibilidad_contraste === 'alto_contraste', () => handleContrastChange('alto_contraste'))}
           </View>
 
           {/* Notificaciones Section */}
@@ -276,13 +294,13 @@ export default function ConfigurationScreen({navigation}) {
           <View style={[localStyles.card, {backgroundColor: currentTheme.backgroundColor}]}>
             {renderCheckOption("Correo electrónico", preferences.notificaciones_correo === 1, () => toggleBoolean('notificaciones_correo'))}
             <CDivider style={localStyles.divider} />
-            {renderCheckOption("Notificaciones Push", preferences.notificaciones_push === 1, () => toggleBoolean('notificaciones_push'))}
+            {renderCheckOption("Notificaciones push", preferences.notificaciones_push === 1, () => toggleBoolean('notificaciones_push'))}
           </View>
 
           {/* Reproduccion y Descarga Section */}
           <CText type="B16" style={localStyles.sectionTitle}>Reproducción y descarga</CText>
           <View style={[localStyles.card, {backgroundColor: currentTheme.backgroundColor}]}>
-            {renderCheckOption("Descarga solo con Wifi", preferences.descarga_wifi === 1, () => toggleBoolean('descarga_wifi'))}
+            {renderCheckOption("Descarga solo con wifi", preferences.descarga_wifi === 1, () => toggleBoolean('descarga_wifi'))}
           </View>
 
           {/* Soporte y ayuda Section */}

@@ -362,3 +362,22 @@ export const getResumenMensual = async () => {
   }
   return json;
 };
+
+export const saveUserPreference = async (key, value) => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  const payload = { preference_key: key, preference_value: value };
+  console.log(
+    '[THERAPY] curl save-user-preference',
+    `curl -X POST '${API_BASE_URL}/api/app/sesion-terapeutica/save-user-preference' -H 'Content-Type: application/json' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}' -d '${JSON.stringify(payload)}'`
+  );
+  const res = await authFetch('/api/app/sesion-terapeutica/save-user-preference', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  const json = await safeJson(res);
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudo guardar la preferencia.');
+  }
+  return json;
+};

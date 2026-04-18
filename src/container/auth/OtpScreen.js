@@ -14,7 +14,7 @@ import {moderateScale} from '../../common/constants';
 import typography from '../../theme/typography';
 import CButton from '../../components/common/CButton';
 import {AuthNav} from '../../navigation/NavigationKey';
-import {requestPasswordReset} from '../../api/auth';
+import {requestPasswordReset, validarCodigoOtp} from '../../api/auth';
 
 export default function OtpScreen({navigation, route}) {
   const colors = useSelector(state => state.theme.theme);
@@ -24,6 +24,7 @@ export default function OtpScreen({navigation, route}) {
   const [resendError, setResendError] = useState('');
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState('');
+  const [validating, setValidating] = useState(false);
   const correo = route?.params?.correo || '';
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function OtpScreen({navigation, route}) {
   }, [timer]);
 
   const onOtpChange = text => setOtp(text);
-  const onPressContinue = () => {
+  const onPressContinue = async () => {
     const trimmed = (otp || '').trim();
     if (trimmed.length < 4) {
       setOtpError('Ingresa el código de 4 digitos.');
@@ -51,8 +52,21 @@ export default function OtpScreen({navigation, route}) {
       setOtpError('Este código ya venció; inténtalo de nuevo.');
       return;
     }
+    if (validating) return;
     setOtpError('');
-    navigation.navigate(AuthNav.CreateNewPassword, {correo, token: trimmed});
+    setValidating(true);
+    try {
+      const resp = await validarCodigoOtp({correo, token: trimmed});
+      if (resp && (resp.success === true || resp.status === true)) {
+        navigation.navigate(AuthNav.CreateNewPassword, {correo, token: trimmed});
+      } else {
+        setOtpError(resp?.message || 'El código no es válido.');
+      }
+    } catch (e) {
+      setOtpError(e?.body?.message || e?.message || 'No se pudo validar el código.');
+    } finally {
+      setValidating(false);
+    }
   };
   const onPressResend = async () => {
     if (resending) return;
@@ -137,7 +151,7 @@ export default function OtpScreen({navigation, route}) {
             {otpError}
           </CText>
         )}
-        <CButton title={strings.continue} onPress={onPressContinue} />
+        <CButton title={strings.continue} onPress={onPressContinue} disabled={validating} loading={validating} />
         <View style={localStyles.bottomContainer}>
           <CText type={'M16'} color={colors.grayScale1}>
             {strings.didReceiveCode}
