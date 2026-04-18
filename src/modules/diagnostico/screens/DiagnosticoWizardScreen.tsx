@@ -140,8 +140,13 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
         scrollRef.current?.scrollToEnd({animated: true});
       }, 80);
     }
+    const emergenciaRecentKeys = ['desde_hace_pocos_meses', 'desde_hace_varios_dias_o_semanas'];
+    const isRecentEmergencyOption = emergenciaRecentKeys.some(k =>
+      String(opt?.key || '').toLowerCase().includes(k)
+    );
     if (
-      currentItem?.response_type?.startsWith('pensamiento_extremo')
+      currentItem?.response_type?.startsWith('pensamiento_extremo') &&
+      isRecentEmergencyOption
     ) {
       console.log('[Emergency] trigger by pensamiento_extremo', {
         itemId: currentItem?.id,
