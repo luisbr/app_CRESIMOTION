@@ -102,12 +102,36 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     if (!selectedItems.length) return;
     const nextIdx = selectedItems.findIndex(i => !answeredIds.has(Number(i.id)));
     setCurrentIndex(nextIdx === -1 ? selectedItems.length : nextIdx);
-  }, [currentIndex, selectedItems, answeredIds]);
+  }, [selectedItems, answeredIds]);
 
   useEffect(() => {
     setIsDiagnosticoFlow(true);
-    return () => setIsDiagnosticoFlow(false);
+    return () => {
+      console.log('[DiagnosticoWizard] unmounting, resetting isDiagnosticoFlow');
+      setIsDiagnosticoFlow(false);
+    };
   }, [setIsDiagnosticoFlow]);
+
+  useEffect(() => {
+    console.log('[DiagnosticoWizard] beforeRemove listener registered', {
+      currentIndex,
+      totalItems,
+      sessionId,
+    });
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      console.log('[DiagnosticoWizard] beforeRemove event', {
+        actionType: e.data.action.type,
+        currentIndex,
+        totalItems,
+      });
+      if (e.data.action.type === 'GO_BACK' && currentIndex != null && currentIndex > 0) {
+        console.log('[DiagnosticoWizard] preventing hardware back, going to previous item');
+        e.preventDefault();
+        onPressBack();
+      }
+    });
+    return unsubscribe;
+  }, [navigation, currentIndex]);
 
   const introPrompt =
     moduleKey === 'motivos'
@@ -140,8 +164,13 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
         scrollRef.current?.scrollToEnd({animated: true});
       }, 80);
     }
+    const emergenciaRecentKeys = ['desde_hace_pocos_meses', 'desde_hace_varios_dias_o_semanas'];
+    const isRecentEmergencyOption = emergenciaRecentKeys.some(k =>
+      String(opt?.key || '').toLowerCase().includes(k)
+    );
     if (
-      currentItem?.response_type?.startsWith('pensamiento_extremo')
+      currentItem?.response_type?.startsWith('pensamiento_extremo') &&
+      isRecentEmergencyOption
     ) {
       console.log('[Emergency] trigger by pensamiento_extremo', {
         itemId: currentItem?.id,
@@ -343,8 +372,14 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   };
 
   const onPressBack = () => {
-    if (currentIndex == null) return;
-    if (currentIndex <= 0) {
+    console.log('[DiagnosticoWizard] onPressBack called', {
+      currentIndex,
+      totalItems,
+      sessionId,
+      timestamp: Date.now(),
+    });
+    if (currentIndex == null || currentIndex <= 0) {
+      console.log('[DiagnosticoWizard] onPressBack: navigating to DiagnosticoSelection');
       safeNavigation.navigate('DiagnosticoSelection', {
         module_key: moduleKey,
         sessionId,
@@ -353,7 +388,8 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       });
       return;
     }
-    setCurrentIndex(prev => (prev == null ? 0 : Math.max(0, prev - 1)));
+    console.log('[DiagnosticoWizard] onPressBack: going to previous item', currentIndex - 1);
+    setCurrentIndex(Math.max(0, currentIndex - 1));
     setSelectedOption(null);
     setShowSpecialInput(false);
     setSpecialValue('');

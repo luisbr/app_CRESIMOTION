@@ -225,7 +225,7 @@ const CMainAppBar: React.FC<CMainAppBarProps> = ({
           </TouchableOpacity>
         ) : (
           <View style={{flex: 1, paddingRight: moderateScale(8)}}>
-            <CText type="B18" color={colors.textColor} align="left" style={{flexWrap: 'wrap'}} numberOfLines={3}>
+            <CText type="B12" color={colors.textColor} align="left" style={{flexWrap: 'wrap'}} numberOfLines={3}>
               {title}
             </CText>
           </View>
