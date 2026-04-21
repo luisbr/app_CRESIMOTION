@@ -2,6 +2,7 @@ import { API_BASE_URL } from './config';
 import { getSession } from './auth';
 import { getOrCreateDeviceUUID } from '../utils/uuid';
 import { createApiError } from '../utils/apiError';
+import { setHideTherapyRecommendations } from '../utils/AsyncStorage';
 
 const authFetch = async (path, init) => {
   const session = await getSession();
@@ -378,6 +379,13 @@ export const saveUserPreference = async (key, value) => {
   const json = await safeJson(res);
   if (!res.ok || (json && json.ok === false)) {
     throw new Error(json?.message || 'No se pudo guardar la preferencia.');
+  }
+  if (key === 'hide_therapy_recommendations') {
+    try {
+      await setHideTherapyRecommendations(value);
+    } catch (e) {
+      console.log('[THERAPY] AsyncStorage sync error', e);
+    }
   }
   return json;
 };

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ACCESS_TOKEN, ON_BOARDING, THEME} from '../common/constants';
+import {ACCESS_TOKEN, ON_BOARDING, THEME, HIDE_THERAPY_RECOMMENDATIONS} from '../common/constants';
 
 //get Value
 const initialValueGet = async () => {
@@ -53,6 +53,16 @@ const initialStorageValueGet = async () => {
   const accessTokenValue = JSON.parse(asyncData[2][1]);
   return {themeColor, onBoardingValue, accessTokenValue};
 };
+
+const getHideTherapyRecommendations = async () => {
+  const data = await AsyncStorage.getItem(HIDE_THERAPY_RECOMMENDATIONS);
+  return data !== null ? JSON.parse(data) : null;
+};
+
+const setHideTherapyRecommendations = async value => {
+  await AsyncStorage.setItem(HIDE_THERAPY_RECOMMENDATIONS, JSON.stringify(value));
+};
+
 export {
   initialValueGet,
   setAuthToken,
@@ -61,4 +71,6 @@ export {
   setAsyncStorageData,
   getAsyncStorageData,
   removeAsyncStorageData,
+  getHideTherapyRecommendations,
+  setHideTherapyRecommendations,
 };

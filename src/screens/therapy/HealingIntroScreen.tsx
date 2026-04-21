@@ -14,6 +14,7 @@ import { getAudioUrl, getAudioTitle, normalizeTherapyNext } from './therapyUtils
 import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL } from '../../api/config';
 import { useSafeNavigation } from '../../navigation/safeNavigation';
+import { getHideTherapyRecommendations } from '../../utils/AsyncStorage';
 
 const DEFAULT_TEXT =
   'Recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia:';
@@ -70,20 +71,34 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   }, [required, optional?.key]);
 
   useEffect(() => {
-    if (initialized) return;
-    const hideFromApi = data?.user_preferences?.hide_therapy_recommendations ?? false;
-    setRecommendationsCollapsed(hideFromApi);
-    const nextChecks: Record<string, boolean> = {};
-    required.forEach((opt: any, idx: number) => {
-      const key = opt?.key || String(idx);
-      nextChecks[key] = true;
-    });
-    if (optional?.key) {
-      nextChecks[optional.key] = true;
+    const init = async () => {
+      console.log('[DEBUG] data object:', JSON.stringify(data?.user_preferences));
+      const apiValue = data?.user_preferences?.hide_therapy_recommendations;
+      const stored = await getHideTherapyRecommendations();
+      console.log('[DEBUG] apiValue:', apiValue, 'stored:', stored);
+      let shouldCollapse = true;
+      if (apiValue !== undefined && apiValue !== null) {
+        shouldCollapse = apiValue;
+      } else if (stored !== null) {
+        shouldCollapse = stored;
+      }
+      console.log('[DEBUG] shouldCollapse:', shouldCollapse);
+      setRecommendationsCollapsed(shouldCollapse);
+      const nextChecks: Record<string, boolean> = {};
+      required.forEach((opt: any, idx: number) => {
+        const key = opt?.key || String(idx);
+        nextChecks[key] = true;
+      });
+      if (optional?.key) {
+        nextChecks[optional.key] = true;
+      }
+      setChecks(nextChecks);
+      setInitialized(true);
+    };
+    if (!initialized) {
+      init();
     }
-    setChecks(nextChecks);
-    setInitialized(true);
-  }, [initialized, data?.user_preferences?.hide_therapy_recommendations, required, optional?.key]);
+  }, [initialized, required, optional?.key, data?.user_preferences?.hide_therapy_recommendations]);
 
   const toggleRecommendations = async () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
