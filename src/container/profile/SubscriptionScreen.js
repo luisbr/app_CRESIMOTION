@@ -13,6 +13,7 @@ import {moderateScale} from '../../common/constants';
 import BadgeBasico from '../../assets/images/badges/CM_Badge__Basico_icn.svg';
 import BadgePlata from '../../assets/images/badges/CM_Badge__Plata_icn.svg';
 import BadgeOro from '../../assets/images/badges/CM_Badge__Oro_icn.svg';
+import ConfirmCancelModal from '../../components/model/ConfirmCancelModal';
 import {
   getMembresias,
   getSuscripcionActual,
@@ -33,6 +34,8 @@ export default function SubscriptionScreen({navigation}) {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [codigoApoyoInfo, setCodigoApoyoInfo] = useState(null);
+  const [cancelModalVisible, setCancelModalVisible] = useState(false);
+  const [cancelMessage, setCancelMessage] = useState('');
 
   useEffect(() => {
     loadData();
@@ -264,30 +267,34 @@ export default function SubscriptionScreen({navigation}) {
 
   const handleCancel = async () => {
     if (!currentSub) return;
-    
-    const fechaFin = new Date(currentSub.fecha_fin);
-    const hoy = new Date();
-    const dif = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
-    const diasRestantes = dif > 0 ? dif : 0;
 
-    Alert.alert(
-      '¿Estás seguro?',
-      `Si cancelas, perderás el acceso al terminar tu ciclo actual. Te restan ${diasRestantes} días de tu paquete. ¿Confirmas la cancelación?`,
-      [
-        {text: 'No', style: 'cancel'},
-        {text: 'Sí, cancelar', style: 'destructive', onPress: async () => {
-          setLoading(true);
-          const res = await cancelarSuscripcion();
-          if (res.success) {
-            Alert.alert('Cancelada', 'Tu suscripción ha sido cancelada.');
-            loadData();
-          } else {
-            Alert.alert('Error', res.message || 'No se pudo cancelar');
-          }
-          setLoading(false);
-        }}
-      ]
-    );
+    const currentPkg = packages.find(p => parseInt(p.id) === parseInt(currentSub.membresia_id));
+    const isBasic = currentPkg && (parseFloat(currentPkg.precio) === 0 ||
+      (currentPkg.nombre && currentPkg.nombre.toLowerCase().includes('básic')));
+
+    if (isBasic) {
+      setCancelMessage('Si cancelas, perderás el acceso a tu plan actual. ¿Confirmas la cancelación?');
+    } else {
+      const fechaFin = new Date(currentSub.fecha_fin);
+      const hoy = new Date();
+      const dif = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
+      const diasRestantes = dif > 0 ? dif : 0;
+      setCancelMessage(`Si cancelas, perderás el acceso al terminar tu ciclo actual. Te restan ${diasRestantes} días de tu paquete. ¿Confirmas la cancelación?`);
+    }
+    setCancelModalVisible(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    setCancelModalVisible(false);
+    setLoading(true);
+    const res = await cancelarSuscripcion();
+    if (res.success) {
+      Alert.alert('Cancelada', 'Tu suscripción ha sido cancelada.');
+      loadData();
+    } else {
+      Alert.alert('Error', res.message || 'No se pudo cancelar');
+    }
+    setLoading(false);
   };
 
   // Función para obtener el badge correspondiente al plan
@@ -485,9 +492,17 @@ export default function SubscriptionScreen({navigation}) {
               </View>
             )}
           </>
-        )}
-      </ScrollView>
-    </CSafeAreaView>
+)}
+          </ScrollView>
+
+          <ConfirmCancelModal
+            visible={cancelModalVisible}
+            title="¿Deseas cancelar?"
+            message={cancelMessage}
+            onCancel={() => setCancelModalVisible(false)}
+            onConfirm={handleConfirmCancel}
+          />
+        </CSafeAreaView>
   );
 }
 

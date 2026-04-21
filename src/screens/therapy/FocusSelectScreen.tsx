@@ -86,7 +86,7 @@ export default function FocusSelectScreen({ navigation, route }: any) {
         >
           <CText type={'B18'}>Enfoque positivo, constructivo e inteligente con la metodología de última generación CresiMotion</CText>
           <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-            Elige el motivo de tu estado emocional que más te está afectando en este momento. 
+            Te acompañamos para transformar el enfoque de lo negativo, doloroso o traumático hacia uno más positivo e inteligente, para reducir la intensidad del evento vivido. Sabemos que estás atravesando un momento difícil, y queremos que sepas que estamos aquí para apoyarte. Sin embargo, también queremos recordarte que este es un proceso de crecimiento y aprendizaje. Cada experiencia, incluso la más desafiante, nos ofrece la oportunidad de conocernos mejor y de entender lo que necesitamos en nuestras relaciones más significativas. Reproduce el audio y escúchalo con atención.
           </CText>
         </View>
         {motivos.length === 0 ? (

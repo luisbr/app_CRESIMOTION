@@ -50,6 +50,7 @@ export default function ApoyoFinancieroScreen() {
   const [config, setConfig] = useState<Record<string, string>>({});
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
   const [respuestas, setRespuestas] = useState<Record<number, number>>({});
+  const [mostrarSubMenu, setMostrarSubMenu] = useState<Record<number, boolean>>({});
 
   const cargarFormulario = useCallback(async () => {
     try {
@@ -64,7 +65,21 @@ export default function ApoyoFinancieroScreen() {
         try {
           const respuestasGuardadas = await AsyncStorage.getItem(STORAGE_KEY);
           if (respuestasGuardadas) {
-            setRespuestas(JSON.parse(respuestasGuardadas));
+            const parsed = JSON.parse(respuestasGuardadas);
+            setRespuestas(parsed);
+            
+            // Inicializar el estado de mostrarSubMenu basado en las respuestas guardadas
+            const initialSubMenuState: Record<number, boolean> = {};
+            data.preguntas.forEach(preg => {
+              const idxOtro = preg.opciones.findIndex(op => op.texto.trim() === 'Otro');
+              if (idxOtro !== -1 && parsed[preg.id]) {
+                const isSubOpcionSeleccionada = preg.opciones.findIndex(op => op.id === parsed[preg.id]) > idxOtro;
+                if (isSubOpcionSeleccionada) {
+                  initialSubMenuState[preg.id] = true;
+                }
+              }
+            });
+            setMostrarSubMenu(initialSubMenuState);
           }
         } catch (e) {
           console.log('Error cargando respuestas guardadas:', e);
@@ -222,29 +237,90 @@ export default function ApoyoFinancieroScreen() {
           )}
 
           {/* Preguntas dinámicas */}
-          {preguntas.map(preg => (
-            <View key={preg.id} style={localStyles.preguntaCard}>
-              <CText type="S16" style={localStyles.preguntaText}>{preg.texto}</CText>
-              {preg.opciones.map(op => {
-                const seleccionada = respuestas[preg.id] === op.id;
-                return (
-                  <TouchableOpacity
-                    key={op.id}
-                    style={[
-                      localStyles.opcion,
-                      seleccionada && localStyles.opcionSeleccionada,
-                    ]}
-                    onPress={() => seleccionarOpcion(preg.id, op.id)}
-                    activeOpacity={0.7}>
-                    <View style={[localStyles.radio, seleccionada && localStyles.radioSelected]}>
-                      {seleccionada && <View style={localStyles.radioDot} />}
+          {preguntas.map(preg => {
+            const idxOtro = preg.opciones.findIndex(op => op.texto.trim() === 'Otro');
+            const tieneOtro = idxOtro !== -1;
+            const opcionesPrincipales = tieneOtro ? preg.opciones.slice(0, idxOtro + 1) : preg.opciones;
+            const subOpciones = tieneOtro ? preg.opciones.slice(idxOtro + 1) : [];
+            const subMenuAbierto = mostrarSubMenu[preg.id] || false;
+            
+            // Verificar si la respuesta actual es una de las sub-opciones
+            const isSubOpcionSeleccionada = subOpciones.some(op => op.id === respuestas[preg.id]);
+            const isOtroOpcionSeleccionada = respuestas[preg.id] === preg.opciones[idxOtro]?.id || isSubOpcionSeleccionada;
+
+            return (
+              <View key={preg.id} style={localStyles.preguntaCard}>
+                <CText type="S16" style={localStyles.preguntaText}>{preg.texto}</CText>
+                {opcionesPrincipales.map(op => {
+                  const esLaOpcionOtro = op.texto.trim() === 'Otro';
+                  // Si es la opción "Otro", la consideramos seleccionada si se eligió ella misma o alguna de sus sub-opciones
+                  const seleccionada = esLaOpcionOtro ? isOtroOpcionSeleccionada : respuestas[preg.id] === op.id;
+                  
+                  return (
+                    <View key={op.id}>
+                      <TouchableOpacity
+                        style={[
+                          localStyles.opcion,
+                          seleccionada && localStyles.opcionSeleccionada,
+                        ]}
+                        onPress={() => {
+                          if (esLaOpcionOtro) {
+                            // Si toca "Otro", abrimos/cerramos el submenú
+                            setMostrarSubMenu(prev => ({...prev, [preg.id]: !prev[preg.id]}));
+                            // Si no hay ninguna subopción seleccionada, seleccionamos la propia opción "Otro" temporalmente
+                            if (!isSubOpcionSeleccionada) {
+                              seleccionarOpcion(preg.id, op.id);
+                            }
+                          } else {
+                            seleccionarOpcion(preg.id, op.id);
+                            // Cerramos submenú si elige otra opción principal
+                            setMostrarSubMenu(prev => ({...prev, [preg.id]: false}));
+                          }
+                        }}
+                        activeOpacity={0.7}>
+                        <View style={[localStyles.radio, seleccionada && localStyles.radioSelected]}>
+                          {seleccionada && <View style={localStyles.radioDot} />}
+                        </View>
+                        <CText type="R15" style={localStyles.opcionText}>{op.texto}</CText>
+                        
+                        {esLaOpcionOtro && subOpciones.length > 0 && (
+                          <Ionicons 
+                            name={subMenuAbierto ? "chevron-up" : "chevron-down"} 
+                            size={20} 
+                            color={seleccionada ? "#0aa693" : "#666"} 
+                          />
+                        )}
+                      </TouchableOpacity>
+
+                      {/* Renderizar Sub-opciones si es la opción "Otro" y el menú está abierto */}
+                      {esLaOpcionOtro && subMenuAbierto && subOpciones.length > 0 && (
+                        <View style={localStyles.subMenuContainer}>
+                          {subOpciones.map(subOp => {
+                            const subSeleccionada = respuestas[preg.id] === subOp.id;
+                            return (
+                              <TouchableOpacity
+                                key={subOp.id}
+                                style={[
+                                  localStyles.subOpcion,
+                                  subSeleccionada && localStyles.subOpcionSeleccionada
+                                ]}
+                                onPress={() => seleccionarOpcion(preg.id, subOp.id)}
+                                activeOpacity={0.7}>
+                                <View style={[localStyles.radio, subSeleccionada && localStyles.radioSelected]}>
+                                  {subSeleccionada && <View style={localStyles.radioDot} />}
+                                </View>
+                                <CText type="R14" style={localStyles.opcionText}>{subOp.texto}</CText>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+                      )}
                     </View>
-                    <CText type="R15" style={localStyles.opcionText}>{op.texto}</CText>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          ))}
+                  );
+                })}
+              </View>
+            );
+          })}
 
           {/* Botón Siguiente */}
           <TouchableOpacity
@@ -329,34 +405,45 @@ const localStyles = StyleSheet.create({
     marginBottom: 4,
   },
   opcionSeleccionada: {
-    backgroundColor: '#e0f5f3',
+    borderColor: '#0aa693',
+    backgroundColor: '#e6fcf8',
   },
   radio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#999',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
+    width: 20, height: 20, borderRadius: 10,
+    borderWidth: 2, borderColor: '#ccc',
+    marginRight: 10, justifyContent: 'center', alignItems: 'center',
   },
   radioSelected: {
     borderColor: '#0aa693',
   },
   radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 10, height: 10, borderRadius: 5,
     backgroundColor: '#0aa693',
   },
-  opcionText: {color: '#333'},
+  opcionText: {
+    flex: 1, color: '#444',
+  },
+  subMenuContainer: {
+    marginTop: 4,
+    marginBottom: 8,
+    marginLeft: 30, // Sangría para las subopciones
+    borderLeftWidth: 2,
+    borderLeftColor: '#e0e0e0',
+    paddingLeft: 10,
+  },
+  subOpcion: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#fafafa',
+    borderWidth: 1, borderColor: '#eee',
+    borderRadius: 8, padding: 12, marginBottom: 8,
+  },
+  subOpcionSeleccionada: {
+    borderColor: '#0aa693',
+    backgroundColor: '#e6fcf8',
+  },
   btn: {
-    backgroundColor: '#0aa693',
-    borderRadius: 30,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 8,
+    backgroundColor: '#0aa693', borderRadius: 30,
+    paddingVertical: 16, alignItems: 'center', marginVertical: 20,
     shadowColor: '#0aa693',
     shadowOpacity: 0.35,
     shadowRadius: 10,

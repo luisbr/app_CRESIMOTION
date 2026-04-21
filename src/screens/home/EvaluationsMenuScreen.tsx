@@ -19,7 +19,7 @@ import {StackNav, TabNav} from '../../navigation/NavigationKey';
 const EVALUATION_OPTIONS = [
   {
     id: 'history',
-    title: 'Historial de evaluaciones',
+    title: 'Historial de Autoevaluaciones',
     description:
       'Abre tu historial de autoevaluaciones para revisar el seguimiento que llevas hasta ahora.',
     icon: 'pulse-outline',
@@ -31,7 +31,7 @@ const EVALUATION_OPTIONS = [
     id: 'tests',
     title: 'Mis test',
     description:
-      'Consulta tu historial de resultados de tests y revisa lo que ya has contestado.',
+      'Consulta tu historial de resultados de Test y revisa lo que ya has contestado.',
     icon: 'clipboard-outline',
     accent: '#6C63A8',
     background: '#F1EEFB',
@@ -46,7 +46,7 @@ export default function EvaluationsMenuScreen() {
 
   return (
     <CSafeAreaView color="#F7FBF8" style={localStyles.safeArea}>
-      <CMainAppBar mode="sub" title="Evaluaciones" />
+      <CMainAppBar mode="sub" title="Autoevaluaciones" />
       <ScrollView
         contentContainerStyle={[
           localStyles.content,
@@ -62,7 +62,7 @@ export default function EvaluationsMenuScreen() {
           </CText>
           <CText type="R14" color={colors.textColor} style={localStyles.heroText}>
             Aquí reunimos tus accesos de evaluación para que entres más rápido al
-            flujo terapéutico o a la sección de tests cuando lo necesites.
+            flujo terapéutico o a la sección de Test cuando lo necesites.
           </CText>
         </View>
 

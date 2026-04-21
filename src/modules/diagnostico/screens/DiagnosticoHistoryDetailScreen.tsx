@@ -10,9 +10,11 @@ import {getChartView, saveChartView, getModuleLabel} from '../utils';
 import Svg, {G, Text as SvgText, Rect, Path, Polygon, Circle, TSpan} from 'react-native-svg';
 import {moderateScale} from '../../../common/constants';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
+import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 
 export default function DiagnosticoHistoryDetailScreen({route}: any) {
   const colors = useSelector(state => state.theme.theme);
+  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const groupItems: any[] = route?.params?.groupItems || [];
   const initialIndex = Number(route?.params?.startIndex || 0);
   const [index, setIndex] = useState(initialIndex);
@@ -144,6 +146,11 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
       mounted = false;
     };
   }, [currentSessionId]);
+
+  useEffect(() => {
+    setIsDiagnosticoFlow(true);
+    return () => setIsDiagnosticoFlow(false);
+  }, [setIsDiagnosticoFlow]);
 
   useEffect(() => {
     let mounted = true;

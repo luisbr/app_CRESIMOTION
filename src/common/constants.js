@@ -61,3 +61,4 @@ export const AUTH_HASH = 'AUTH_HASH';
 export const DEVICE_UUID = 'DEVICE_UUID';
 export const AUTH_NAME = 'AUTH_NAME';
 export const AUTH_ALIAS = 'AUTH_ALIAS';
+export const HIDE_THERAPY_RECOMMENDATIONS = 'hide_therapy_recommendations';

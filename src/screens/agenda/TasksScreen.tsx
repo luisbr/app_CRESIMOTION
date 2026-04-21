@@ -12,7 +12,7 @@ import { getAgendaItems } from '../../api/sesionTerapeutica';
 import CMainAppBar from '../../components/common/CMainAppBar';
 import { StackNav, TabNav } from '../../navigation/NavigationKey';
 
-const daysHeader = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+const daysHeader = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 const WEEK_DAY_MAP: Record<string, number> = {
   sun: 0,
@@ -29,8 +29,11 @@ const toDateKey = (d: Date) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-const formatMonth = (d: Date) =>
-  d.toLocaleString('es-MX', { month: 'long', year: 'numeric' });
+const capitalizeFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const formatMonth = (d: Date) => {
+  const raw = d.toLocaleString('es-MX', { month: 'long', year: 'numeric' });
+  return capitalizeFirst(raw);
+};
 
 type AgendaEvent = {
   id: string;
@@ -47,6 +50,14 @@ const addDays = (date: Date, amount: number) => {
   return next;
 };
 
+const addMinutesToTime = (time: string, minutes: number): string => {
+  const [h, m] = time.split(':').map(Number);
+  const totalMins = h * 60 + m + minutes;
+  const newH = Math.floor(totalMins / 60) % 24;
+  const newM = totalMins % 60;
+  return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+};
+
 const parseLocalDate = (value?: string | null) => {
   if (!value) return null;
   if (value.includes('T')) {
@@ -61,6 +72,7 @@ const parseLocalDate = (value?: string | null) => {
 
 const expandAgendaEvents = (items: any[]) => {
   const map = new Map<string, AgendaEvent[]>();
+  const timeCountMap = new Map<string, number>();
   items.forEach(item => {
     const startDate = parseLocalDate(item?.start_date);
     if (!startDate) return;
@@ -92,11 +104,16 @@ const expandAgendaEvents = (items: any[]) => {
       if (shouldInclude) {
         for (let repeat = 0; repeat < timesPerDay; repeat += 1) {
           const dateKey = toDateKey(current);
+          const timeSlotKey = `${dateKey}-${time}`;
+          const count = timeCountMap.get(timeSlotKey) || 0;
+          const offsetMinutes = count * 15;
+          const displayTime = offsetMinutes > 0 ? addMinutesToTime(time, offsetMinutes) : time;
+          timeCountMap.set(timeSlotKey, count + 1);
           const event: AgendaEvent = {
             id: `${item?.id ?? title}-${dateKey}-${repeat}`,
             title,
             dateKey,
-            time,
+            time: displayTime,
             durationMinutes,
             originalItem: item,
           };
@@ -203,6 +220,9 @@ export default function TasksScreen({ navigation }: any) {
                   style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
                 >
                   <CText type={'S16'}>{event.title}</CText>
+                  {event.originalItem?.info && (
+                    <CText type={'R12'} color={colors.gray} style={styles.mt2}>{event.originalItem.info}</CText>
+                  )}
                   <CText type={'R12'} color={colors.labelColor}>
                     {!!event.time ? `${event.time}` : 'Horario libre'}
                     {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}
@@ -280,6 +300,9 @@ export default function TasksScreen({ navigation }: any) {
                 style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
               >
                 <CText type={'S16'}>{event.title}</CText>
+                {event.originalItem?.info && (
+                  <CText type={'R12'} color={colors.gray} style={styles.mt2}>{event.originalItem.info}</CText>
+                )}
                 <CText type={'R12'} color={colors.labelColor}>
                   {!!event.time ? `${event.time}` : 'Horario libre'}
                   {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}

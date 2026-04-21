@@ -103,7 +103,7 @@ export default function TestDetailScreen() {
         {/* Descripción / Objetivo card */}
         {!!test.descripcion && (
           <View style={[localStyles.infoCard, {backgroundColor: '#E3F7F1', borderColor: '#A8D8CB'}]}>
-            <CText type="B14" color={colors.primary} style={styles.mb5} align="left">🎯 Descripción</CText>
+            <CText type="B14" color={colors.primary} style={styles.mb5} align="left">🎯 Propósito</CText>
             <CText type="R14" color={colors.textColor} align="left" style={{}}>{test.descripcion}</CText>
           </View>
         )}

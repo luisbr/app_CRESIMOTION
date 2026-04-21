@@ -211,6 +211,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<number[]>([]);
   const [savingSelection, setSavingSelection] = useState(false);
   const savingSelectionRef = useRef(false);
+  const isNavigatingRef = useRef(false);
   const [resumenMensual, setResumenMensual] = useState<any>(null);
   const [emotionCatalog, setEmotionCatalog] = useState<CatalogItem[]>([]);
   const [moduleLimits, setModuleLimits] = useState<Record<string, {used: number; limit: number; remaining: number}>>({
@@ -344,7 +345,11 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
 
   useEffect(() => {
     setIsDiagnosticoFlow(true);
-    return () => setIsDiagnosticoFlow(false);
+    return () => {
+      if (!isNavigatingRef.current) {
+        setIsDiagnosticoFlow(false);
+      }
+    };
   }, [setIsDiagnosticoFlow]);
 
   useFocusEffect(
@@ -402,6 +407,8 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       console.log('[DiagnosticoSelection] saveSelection response', resp);
       await saveLastRoute({session_id: sessionId, module_key: moduleKey, screen: 'Wizard'});
       didNavigate = true;
+      isNavigatingRef.current = true;
+      setIsDiagnosticoFlow(true);
       safeNavigation.navigate('DiagnosticoWizard', {
         sessionId,
         module_key: moduleKey,
@@ -652,23 +659,17 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           />
         )}
       </View>
-      <View
-        style={[
-          styles.p20,
-          {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: colors.backgroundColor,
-            zIndex: 10,
-          },
-        ]}
-      >
-        {!!selectedIds.length && (
+      {!!selectedIds.length && (
+        <View style={{
+          position: 'absolute', left: 0, right: 0, bottom: 0,
+          paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20,
+          backgroundColor: colors.backgroundColor,
+          borderTopWidth: 1, borderTopColor: colors.grayScale2,
+          shadowColor: '#000', shadowOpacity: 0.06, shadowOffset: { width: 0, height: -2 }, shadowRadius: 6, elevation: 6,
+        }}>
           <CButton title={'Siguiente'} onPress={onPressNext} disabled={savingSelection} loading={savingSelection} />
-        )}
-      </View>
+        </View>
+      )}
       <LimitReachedModal
         visible={showLimitModal}
         limitKey={moduleKey === 'motivos' ? 'max_enfoques_mes' : 'max_emociones_nombradas_mes'}
