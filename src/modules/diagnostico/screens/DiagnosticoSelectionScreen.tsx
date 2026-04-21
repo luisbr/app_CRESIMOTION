@@ -652,23 +652,6 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           />
         )}
       </View>
-      <View
-        style={[
-          styles.p20,
-          {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: colors.backgroundColor,
-            zIndex: 10,
-          },
-        ]}
-      >
-        {!!selectedIds.length && (
-          <CButton title={'Siguiente'} onPress={onPressNext} disabled={savingSelection} loading={savingSelection} />
-        )}
-      </View>
       <LimitReachedModal
         visible={showLimitModal}
         limitKey={moduleKey === 'motivos' ? 'max_enfoques_mes' : 'max_emociones_nombradas_mes'}
