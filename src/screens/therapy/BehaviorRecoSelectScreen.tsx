@@ -32,9 +32,12 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
   const selection = data?.selection || {};
   const max = Number(selection?.max || 3);
   const min = Number(selection?.required_min || 1);
+  const introMessage =
+    'Ahora que has adoptado un enfoque positivo de tu situación y estás sanando tus emociones, es importante que incorpores algunas recomendaciones y ejercicios para crear hábitos saludables.\n\nRecuerda que siempre puedes ajustar estas opciones desde tu perfil.';
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [showIntroStep, setShowIntroStep] = useState(true);
   const submittingRef = useRef(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [currentLimitKey, setCurrentLimitKey] = useState<string>('');
@@ -143,10 +146,10 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
           
           <CText type={'B18'}>{title}</CText>
           <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-            {message}
+            {showIntroStep ? introMessage : message}
           </CText>
         </View>
-        {items.length === 0 ? (
+        {showIntroStep ? null : items.length === 0 ? (
           <CText type={'S14'} color={colors.labelColor} style={styles.mt20}>
             No hay recomendaciones para mostrar.
           </CText>
@@ -166,7 +169,11 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
             }}
           >
             {!!motivoLabel && (
-              <CText type={'S16'} style={[styles.mt10, styles.ml10]}>
+              <CText
+                type={'B18'}
+                color={colors.textColor}
+                style={[styles.mt10, styles.ml10, styles.mb5]}
+              >
                 Selecciona tus recomendaciones para {motivoLabel}
               </CText>
             )}
@@ -219,7 +226,7 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
                   </View>
                 );
               }}
-              ListFooterComponent={() => <View style={{ height: moderateScale(200) }} />}
+              ListFooterComponent={() => <View style={{ height: moderateScale(320) }} />}
               contentContainerStyle={{
                 paddingBottom: moderateScale(20),
                 borderRadius: 16,
@@ -248,7 +255,12 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
           elevation: 6,
         }}
       >
-        <CButton title={'Siguiente'} disabled={selectedCount < min || submitting} loading={submitting} onPress={onContinue} />
+        <CButton
+          title={'Siguiente'}
+          disabled={!showIntroStep && (selectedCount < min || submitting)}
+          loading={submitting}
+          onPress={showIntroStep ? () => setShowIntroStep(false) : onContinue}
+        />
       </View>
       <LimitReachedModal
         visible={showLimitModal}

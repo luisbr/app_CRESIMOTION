@@ -205,7 +205,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
         }
         isNavigatingRef.current = true;
         setIsDiagnosticoFlow(true);
-        navigation.replace('DiagnosticoSelection', {module_key: targetModule, isFirstFlow: !!isFirstFlow});
+        navigation.replace('DiagnosticoHome');
       } catch (e: any) {
         setError(e?.body?.message || e?.message || 'No se pudo continuar.');
       } finally {
@@ -350,7 +350,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
                 {!!extremeItems.length && (
                   <View style={[styles.mt15, styles.pt10, {borderTopWidth: 1, borderTopColor: colors.grayScale2}]}>
                     <CText type={'S16'} align={'center'} style={styles.mb10}>
-                      Pensamiento extremo
+                      Pensamientos extremos
                     </CText>
                     {view === 'bar' ? (
                       <BarChartSVG
