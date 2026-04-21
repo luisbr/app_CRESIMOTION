@@ -331,7 +331,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             </CText>
             {moduleBodySuffix}
           </CText>
-          {__DEV__ && (
+          {/* {__DEV__ && (
             <View style={styles.mb10}>
               <CButton
                 title={'Reset intro (debug)'}
@@ -345,7 +345,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
                 borderColor={null}
               />
             </View>
-          )}
+          )} */}
           {loading ? (
             <ActivityIndicator color={colors.primary} />
           ) : therapyNext ? (
