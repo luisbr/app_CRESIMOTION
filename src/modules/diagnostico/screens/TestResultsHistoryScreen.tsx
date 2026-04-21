@@ -105,7 +105,7 @@ export default function TestResultsHistoryScreen({navigation}: any) {
           <>
             {!items.length && (
               <CText type={'S14'} align={'center'} color={colors.labelColor}>
-                Aun no tienes resultados de tests.
+                Aún no tienes resultados de tests.
               </CText>
             )}
             {items.map((item: any, idx: number) => {

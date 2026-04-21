@@ -195,7 +195,7 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
           <>
             {!items.length && (
               <CText type={'S14'} align={'center'} color={colors.labelColor}>
-                Aun no tienes evaluaciones.
+                Aún no tienes autoevaluaciones.
               </CText>
             )}
             {items.map((item: any, idx: number) => {
