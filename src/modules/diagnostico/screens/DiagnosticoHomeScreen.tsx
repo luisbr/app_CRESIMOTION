@@ -282,6 +282,11 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
     safeNavigation.navigate('TherapyFlowRouter', {initialNext: therapyNext, entrypoint: 'home'});
   };
 
+  const onPressMasTarde = () => {
+    setIsDiagnosticoFlow(false);
+    safeNavigation.navigate(StackNav.WelcomeEmotion);
+  };
+
   useEffect(() => {
     if (!navigating) return;
     const unsubscribe = navigation.addListener('blur', () => {
@@ -405,8 +410,19 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
               </CText>
             </CButton>
           )}
+            <CButton
+            title={'Más tarde Comenzar'}
+            type="B16"
+            onPress={onPressMasTarde}
+            bgColor={colors.inputBg}
+            color={colors.primary}
+            containerStyle={null}
+            style={null}
+            textStyle={null}
+            borderColor={null}
+          />
           <CButton
-            title={'Mis sesiones terápeuticas'}
+            title={'Mis sesiones terapéuticas'}
             type="B16"
             onPress={onPressHistory}
             bgColor={colors.inputBg}
