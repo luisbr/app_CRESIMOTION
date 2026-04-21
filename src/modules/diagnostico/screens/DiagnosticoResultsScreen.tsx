@@ -241,7 +241,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
 
   return (
     <CSafeAreaView>
-      <CMainAppBar mode="sub" title={moduleTitle} />
+      <CMainAppBar mode="sub" title={moduleTitle} hideBackButton={true} />
       <View style={[styles.p20, styles.flex]}>
 
         <CText type={'S12'} align={'center'} >
