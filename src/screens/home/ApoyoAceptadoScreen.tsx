@@ -129,10 +129,10 @@ export default function ApoyoAceptadoScreen() {
           </View>
           <CText type="B22" style={localStyles.pendingTitle}>¡Solicitud enviada!</CText>
           <CText type="R15" style={localStyles.pendingDesc}>
-            Tu solicitud está siendo revisada por nuestro equipo. Te notificaremos pronto con el resultado.
+            Tu solicitud está siendo revisada por nuestro equipo. Te notificaremos pronto el resultado.
           </CText>
           <TouchableOpacity style={localStyles.btnSecundario} onPress={onContinuar}>
-            <CText type="S16" color="#0aa693">Continuar con el plan actual</CText>
+            <CText type="S16" color="#0aa693" style={{textAlign: 'center'}}>Continuar con el plan actual</CText>
           </TouchableOpacity>
         </View>
       </View>
