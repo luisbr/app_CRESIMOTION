@@ -43,7 +43,7 @@ const MENU_OPTIONS = [
   },
   {
     id: 'evaluations',
-    label: 'Evaluaciones',
+    label: 'Autoevaluaciones',
     icon: 'list-outline',
     kind: 'stack-tab',
     tabName: TabNav.HomeTab,
