@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
@@ -6,9 +6,16 @@ import CHeader from '../../../components/common/CHeader';
 import CText from '../../../components/common/CText';
 import {styles} from '../../../theme';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
+import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 
 export default function SupportResourcesScreen() {
   const colors = useSelector(state => state.theme.theme);
+  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
+
+  useEffect(() => {
+    setIsDiagnosticoFlow(true);
+    return () => setIsDiagnosticoFlow(false);
+  }, [setIsDiagnosticoFlow]);
   return (
     <CSafeAreaView>
       <CHeader />

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {ActivityIndicator, Modal, ScrollView, TouchableOpacity, View, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
@@ -13,6 +13,7 @@ import {getTherapyNext} from '../../../api/sesionTerapeutica';
 import Svg, {G, Text as SvgText, Rect, Path, Polygon, Circle, TSpan} from 'react-native-svg';
 import {moderateScale} from '../../../common/constants';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
+import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 
 export default function DiagnosticoResultsScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -25,6 +26,8 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
   const [riskVisible, setRiskVisible] = useState(false);
   const [view, setView] = useState<'bar' | 'pie' | 'radar'>('bar');
   const [continuing, setContinuing] = useState(false);
+  const isNavigatingRef = useRef(false);
+  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const intensityColorMap: Record<string, string> = {
     grave: '#EF4444',
     alto: '#F97316',
@@ -173,6 +176,15 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
     }
   }, [allowRadar, view]);
 
+  useEffect(() => {
+    setIsDiagnosticoFlow(true);
+    return () => {
+      if (!isNavigatingRef.current) {
+        setIsDiagnosticoFlow(false);
+      }
+    };
+  }, [setIsDiagnosticoFlow]);
+
   const onSelectView = async (next: 'bar' | 'pie' | 'radar') => {
     if (next === 'radar' && !allowRadar) return;
     setView(next);
@@ -191,6 +203,8 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
         if (resp?.session?.group_id) {
           await saveGroupId(Number(resp.session.group_id));
         }
+        isNavigatingRef.current = true;
+        setIsDiagnosticoFlow(true);
         navigation.replace('DiagnosticoSelection', {module_key: targetModule, isFirstFlow: !!isFirstFlow});
       } catch (e: any) {
         setError(e?.body?.message || e?.message || 'No se pudo continuar.');
@@ -401,16 +415,6 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
             </ScrollView>
           )}
         </View>
-        <View style={{paddingTop: 10}}>
-          <CButton
-            title={
-              moduleKey === 'sintomas_emocionales'
-                ? 'Finalizar'
-                : 'Continuar'
-            }
-            onPress={onPressNextModule}
-          />
-        </View>
         <Modal visible={riskVisible} transparent animationType="fade" onRequestClose={() => setRiskVisible(false)}>
           <View style={localStyles.modalOverlay}>
             <View style={[localStyles.modalCard, {backgroundColor: colors.backgroundColor}]}>
@@ -434,6 +438,22 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
             </View>
           </View>
         </Modal>
+      </View>
+      <View style={{
+        position: 'absolute', left: 0, right: 0, bottom: 0,
+        paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20,
+        backgroundColor: colors.backgroundColor,
+        borderTopWidth: 1, borderTopColor: colors.grayScale2,
+        shadowColor: '#000', shadowOpacity: 0.06, shadowOffset: { width: 0, height: -2 }, shadowRadius: 6, elevation: 6,
+      }}>
+        <CButton
+          title={
+            moduleKey === 'sintomas_emocionales'
+              ? 'Finalizar'
+              : 'Continuar'
+          }
+          onPress={onPressNextModule}
+        />
       </View>
       {continuing && (
         <View style={[styles.center, {position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.2)'}]}>

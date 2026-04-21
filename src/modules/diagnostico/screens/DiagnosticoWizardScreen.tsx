@@ -64,6 +64,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const [completing, setCompleting] = useState(false);
   const savingAnswerRef = useRef(false);
   const completingRef = useRef(false);
+  const isNavigatingRef = useRef(false);
 
   const selectedItems = useMemo(() => items.filter(i => selectedIds.includes(Number(i.id))), [items, selectedIds]);
   const currentItem =
@@ -107,8 +108,10 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   useEffect(() => {
     setIsDiagnosticoFlow(true);
     return () => {
-      console.log('[DiagnosticoWizard] unmounting, resetting isDiagnosticoFlow');
-      setIsDiagnosticoFlow(false);
+      if (!isNavigatingRef.current) {
+        console.log('[DiagnosticoWizard] unmounting, resetting isDiagnosticoFlow');
+        setIsDiagnosticoFlow(false);
+      }
     };
   }, [setIsDiagnosticoFlow]);
 
@@ -360,6 +363,8 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       console.log('[DiagnosticoWizard] complete response', resp);
       await saveLastRoute({session_id: sessionId, module_key: moduleKey, screen: 'Results'});
       didNavigate = true;
+      isNavigatingRef.current = true;
+      setIsDiagnosticoFlow(true);
       safeNavigation.replace('DiagnosticoResults', {sessionId, module_key: moduleKey, isFirstFlow: !!isFirstFlow});
     } catch (e: any) {
       console.log('[DiagnosticoWizard] complete error', e?.body || e?.message || e);
@@ -380,6 +385,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     });
     if (currentIndex == null || currentIndex <= 0) {
       console.log('[DiagnosticoWizard] onPressBack: navigating to DiagnosticoSelection');
+      isNavigatingRef.current = true;
       safeNavigation.navigate('DiagnosticoSelection', {
         module_key: moduleKey,
         sessionId,
@@ -624,7 +630,10 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
         ) : (
           <CButton
             title={'Volver a seleccion'}
-            onPress={() => safeNavigation.replace('DiagnosticoSelection', {module_key: moduleKey, sessionId})}
+            onPress={() => {
+              isNavigatingRef.current = true;
+              safeNavigation.replace('DiagnosticoSelection', {module_key: moduleKey, sessionId});
+            }}
           />
         )}
       </View>

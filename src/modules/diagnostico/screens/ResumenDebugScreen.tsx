@@ -4,8 +4,10 @@ import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CMainAppBar from '../../../components/common/CMainAppBar';
 import CText from '../../../components/common/CText';
 import {getResumenMensual} from '../../../api/sesionTerapeutica';
+import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 
 export default function ResumenDebugScreen({navigation}: any) {
+  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +27,11 @@ export default function ResumenDebugScreen({navigation}: any) {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    setIsDiagnosticoFlow(true);
+    return () => setIsDiagnosticoFlow(false);
+  }, [setIsDiagnosticoFlow]);
 
   return (
     <CSafeAreaView>

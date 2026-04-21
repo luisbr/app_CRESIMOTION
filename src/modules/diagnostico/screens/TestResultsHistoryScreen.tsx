@@ -8,9 +8,11 @@ import {getCustomTestResults} from '../../../api/customTests';
 import {moderateScale} from '../../../common/constants';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import CMainAppBar from '../../../components/common/CMainAppBar';
+import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 
 export default function TestResultsHistoryScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
+  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [error, setError] = useState('');
@@ -38,6 +40,11 @@ export default function TestResultsHistoryScreen({navigation}: any) {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    setIsDiagnosticoFlow(true);
+    return () => setIsDiagnosticoFlow(false);
+  }, [setIsDiagnosticoFlow]);
 
   const formatLocalDate = (value: string) => {
     if (!value) return '';
