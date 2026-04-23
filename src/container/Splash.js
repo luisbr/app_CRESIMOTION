@@ -15,6 +15,7 @@ import { colors } from "../theme/colors";
 import { changeThemeAction, changeFontScaleAction } from "../redux/action/themeAction";
 import { StackNav, TabNav } from "../navigation/NavigationKey";
 import { getProfile, hasValidSession } from "../api/auth";
+import { setProfilePreferences } from "../redux/action/profileAction";
 
 export default function Splash({ navigation }) {
   const color = useSelector((state) => state.theme.theme);
@@ -38,17 +39,32 @@ export default function Splash({ navigation }) {
         const navigateNext = async () => {
           try {
             if (hasSession) {
-              // Fetch user profile settings silently to set global scaling before reaching home
+              // Fetch user profile settings silently to set global scaling and preferences before reaching home
               try {
                 const p = await getProfile();
-                if (p && p.success && p.perfil && p.perfil.accesibilidad_fuente) {
-                  let startScale = 1.0;
-                  if (p.perfil.accesibilidad_fuente === 'pequeno') startScale = 0.85;
-                  if (p.perfil.accesibilidad_fuente === 'grande') startScale = 1.15;
-                  dispatch(changeFontScaleAction(startScale));
+                if (p && p.success && p.perfil) {
+                  // Set font scale
+                  if (p.perfil.accesibilidad_fuente) {
+                    let startScale = 1.0;
+                    if (p.perfil.accesibilidad_fuente === 'pequeno') startScale = 0.85;
+                    if (p.perfil.accesibilidad_fuente === 'grande') startScale = 1.15;
+                    dispatch(changeFontScaleAction(startScale));
+                  }
+                  
+                  // Load all preferences to Redux and global
+                  const loadedPrefs = {
+                    notificaciones_correo: parseInt(p.perfil.notificaciones_correo ?? 1),
+                    notificaciones_push: parseInt(p.perfil.notificaciones_push ?? 1),
+                    descarga_wifi: parseInt(p.perfil.descarga_wifi ?? 1),
+                    accesibilidad_fuente: p.perfil.accesibilidad_fuente || 'mediano',
+                    accesibilidad_contraste: p.perfil.accesibilidad_contraste || 'estandar',
+                    idioma: p.perfil.idioma || 'es',
+                  };
+                  dispatch(setProfilePreferences(loadedPrefs));
+                  global.__PROFILE_PREFERENCES__ = loadedPrefs;
                 }
               } catch (e) {
-                console.log("Error loading initial font scaling", e);
+                console.log("Error loading initial profile settings", e);
               }
 
               console.log('Splash navigating to TabNavigation');
