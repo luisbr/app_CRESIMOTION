@@ -420,7 +420,7 @@ export default function SubscriptionScreen({navigation}) {
   return (
     <CSafeAreaView>
       <CHeader title={"Suscripción"} />
-      <ScrollView contentContainerStyle={styles.p20} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.p20} showsVerticalScrollIndicator={true}>
         {loading && packages.length === 0 ? (
           <ActivityIndicator size="large" color={colors.primary} style={styles.mt20} />
         ) : (

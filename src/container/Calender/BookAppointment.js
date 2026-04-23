@@ -186,7 +186,7 @@ export default function BookAppointment({route, navigation}) {
           data={PaymentMethodData}
           renderItem={renderPaymentMethod}
           bounces={false}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           contentContainerStyle={[
             localStyles.methodRoot,
             {

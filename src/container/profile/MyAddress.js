@@ -120,7 +120,7 @@ export default function MyAddress({navigation}) {
           data={MyAddressData}
           renderItem={addressDetail}
           bounces={false}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           keyExtractor={(item, index) => item.id.toString()}
         />
         <CButton title={strings.selectAddress} onPress={onPressSelectAddress} />

@@ -93,7 +93,7 @@ export default function WaitingRoom({ route, navigation }) {
           data={WaitingRoomData}
           renderItem={renderPreparation}
           bounces={false}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           contentContainerStyle={localStyles.mainContainer}
           keyExtractor={(item, index) => item.id.toString()}
           ListHeaderComponent={headerComponent}

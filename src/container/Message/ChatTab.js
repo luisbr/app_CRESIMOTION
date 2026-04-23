@@ -175,7 +175,7 @@ export default function ChatTab({ navigation }) {
           renderItem={renderMsgItem}
           bounces={false}
           keyExtractor={(item, index) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           contentContainerStyle={localStyles.mainContainer}
         />
         <CButton

@@ -9,6 +9,7 @@ import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { updateAgendaItem } from '../../api/sesionTerapeutica';
+import { ApiError } from '../../utils/apiError';
 
 const DAYS = [
   { key: 'mon', label: 'Lun' },
@@ -86,7 +87,12 @@ export default function TaskDetailScreen({ navigation, route }: any) {
       await updateAgendaItem(payload);
       navigation.goBack();
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo actualizar.');
+      const err = e as ApiError;
+      if (err?.code === 'AGENDA_OVERLAP') {
+        Alert.alert('Traslape de agenda', err.message || 'La agenda se traslapa con otra actividad.');
+      } else {
+        Alert.alert('Error', e?.message || 'No se pudo actualizar.');
+      }
     }
   };
 

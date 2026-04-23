@@ -184,7 +184,7 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
   return (
     <CSafeAreaView>
       <CMainAppBar mode="sub" title="Mis autoevaluaciones" />
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={[styles.p20, {paddingTop: moderateScale(10)}]}>
+      <ScrollView showsVerticalScrollIndicator={true} style={styles.flex} contentContainerStyle={[styles.p20, {paddingTop: moderateScale(10)}]}>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : error ? (

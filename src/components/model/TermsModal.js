@@ -74,7 +74,7 @@ export default function TermsModal({visible, onClose, type = 'terms'}) {
           <CText type={'B18'} align={'center'} style={styles.mb10}>
             {content.title}
           </CText>
-          <ScrollView style={styles.mt10} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.mt10} showsVerticalScrollIndicator={true}>
             <CText type={'R14'} color={colors.labelColor}>
               {content.content}
             </CText>

@@ -94,7 +94,7 @@ export default function TestResultsHistoryScreen({navigation}: any) {
   return (
     <CSafeAreaView>
       <CMainAppBar mode="sub" title="Mis resultados de tests" />
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={[styles.p20, {paddingTop: moderateScale(10)}]}>
+      <ScrollView showsVerticalScrollIndicator={true} style={styles.flex} contentContainerStyle={[styles.p20, {paddingTop: moderateScale(10)}]}>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : error ? (

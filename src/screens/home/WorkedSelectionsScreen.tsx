@@ -171,7 +171,7 @@ export default function WorkedSelectionsScreen({
           localStyles.content,
           {paddingBottom: insets.bottom + moderateScale(28)},
         ]}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={true}>
         <View style={localStyles.heroCard}>
           <View style={[localStyles.heroBadge, {backgroundColor: copy.soft}]}>
             <Ionicons name={copy.icon} size={22} color={copy.accent} />

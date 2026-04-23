@@ -98,7 +98,7 @@ export default function TestDetailScreen() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={localStyles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={localStyles.scroll} showsVerticalScrollIndicator={true}>
         
         {/* Descripción / Objetivo card */}
         {!!test.descripcion && (

@@ -52,7 +52,7 @@ export default function EvaluationsMenuScreen() {
           localStyles.content,
           {paddingBottom: insets.bottom + moderateScale(24)},
         ]}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={true}>
         <View style={localStyles.heroCard}>
           <View style={localStyles.heroBadge}>
             <Ionicons name="analytics-outline" size={22} color="#0AA693" />

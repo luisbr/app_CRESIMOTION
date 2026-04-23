@@ -113,7 +113,7 @@ export default function CalenderTab({navigation}) {
             isResult={isResult}
           />
         )}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         keyExtractor={(item, index) => item.id.toString()}
         bounces={false}
         contentContainerStyle={localStyles.mainContainer}

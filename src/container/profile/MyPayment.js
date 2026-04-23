@@ -109,7 +109,7 @@ export default function MyPayment({navigation}) {
           data={MyPaymentData}
           renderItem={paymentCardDetail}
           bounces={false}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           keyExtractor={(item, index) => item.id.toString()}
         />
         <CButton title={strings.selectPayment} onPress={onPressSelectPayment} />

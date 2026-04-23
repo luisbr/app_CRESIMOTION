@@ -7,11 +7,14 @@ import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
-import { submitAgendaItems } from '../../api/sesionTerapeutica';
+import { getBehaviorExerciseById, getBehaviorExercisesBySession, submitAgendaItems } from '../../api/sesionTerapeutica';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Calendar from 'expo-calendar';
 import { normalizeTherapyNext } from './therapyUtils';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { moderateScale } from '../../common/constants';
+import { ApiError } from '../../utils/apiError';
 
 const DAYS = [
   { key: 'mon', label: 'Lun' },
@@ -77,14 +80,110 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
       ejercicio_id: ex.ejercicio_id,
       title: ex.title || 'Ejercicio',
       custom_title: ex.custom_title || '',
+      info: ex.info || '',
       ...base,
     }));
   });
+  const [expandedInfo, setExpandedInfo] = useState<Record<string, boolean>>({});
 
   const [datePicker, setDatePicker] = useState<{ idx: number; field: 'start_date' | 'end_date' } | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [saving, setSaving] = useState(false);
+  const [loadingExercises, setLoadingExercises] = useState(false);
   const savingRef = useRef(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadSessionExercises = async () => {
+      if (rows.length > 0 || !sessionId) return;
+      try {
+        setLoadingExercises(true);
+        const items = await getBehaviorExercisesBySession(sessionId);
+        console.log('[AgendaSetup] getBehaviorExercisesBySession response', JSON.stringify(items, null, 2));
+        if (!mounted) return;
+        const base = getTodayDefaults();
+        const nextRows = items.map((item: any) => ({
+          ejercicio_id: item?.ejercicio?.id ?? item?.ejercicio_id,
+          title: item?.ejercicio?.titulo || item?.ejercicio?.title || 'Ejercicio',
+          custom_title: '',
+          info: item?.ejercicio?.info || '',
+          ...base,
+        })).filter((item: any) => item?.ejercicio_id);
+        console.log('[AgendaSetup] rehydrated rows from session', JSON.stringify(nextRows, null, 2));
+        if (nextRows.length) {
+          setRows(nextRows);
+        }
+      } catch (e) {
+        console.log('[AgendaSetup] getBehaviorExercisesBySession error', e);
+        // ignore and keep empty-state UI
+      } finally {
+        if (mounted) {
+          setLoadingExercises(false);
+        }
+      }
+    };
+    loadSessionExercises();
+    return () => {
+      mounted = false;
+    };
+  }, [rows.length, sessionId]);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadExerciseDetails = async () => {
+      if (!rows.length) return;
+      try {
+        const details = await Promise.all(
+          rows.map(async (row: any) => {
+            if (!row?.ejercicio_id) return null;
+            try {
+              const item = await getBehaviorExerciseById(row.ejercicio_id);
+              console.log('[AgendaSetup] getBehaviorExerciseById response', {
+                ejercicio_id: row.ejercicio_id,
+                item,
+              });
+              return {
+                ejercicio_id: row.ejercicio_id,
+                title: item?.titulo || row.title,
+                info: item?.info || '',
+              };
+            } catch (e) {
+              console.log('[AgendaSetup] getBehaviorExerciseById error', {
+                ejercicio_id: row.ejercicio_id,
+                error: e,
+              });
+              return null;
+            }
+          })
+        );
+        if (!mounted) return;
+        const detailsMap = new Map(
+          details
+            .filter(Boolean)
+            .map((item: any) => [Number(item.ejercicio_id), item])
+        );
+        setRows(prev =>
+          prev.map((row: any) => {
+            const detail = detailsMap.get(Number(row.ejercicio_id));
+            if (!detail) return row;
+            return {
+              ...row,
+              title: detail.title || row.title,
+              info: detail.info || row.info || '',
+            };
+          })
+        );
+        console.log('[AgendaSetup] rows after detail hydration', JSON.stringify(detailsMap ? Array.from(detailsMap.values()) : [], null, 2));
+      } catch (e) {
+        console.log('[AgendaSetup] loadExerciseDetails error', e);
+        // ignore detail loading failures and keep navigation payload data
+      }
+    };
+    loadExerciseDetails();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const formatDate = (d: Date) => {
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -270,12 +369,22 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
       }, 1200);
       didNavigate = true;
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo guardar la agenda.');
+      const err = e as ApiError;
+      if (err?.code === 'AGENDA_OVERLAP') {
+        Alert.alert('Traslape de agenda', err.message || 'La agenda se traslapa con otra actividad.');
+      } else {
+        Alert.alert('Error', e?.message || 'No se pudo guardar la agenda.');
+      }
     } finally {
       if (didNavigate) return;
       savingRef.current = false;
       setSaving(false);
     }
+  };
+
+  const toggleInfo = (exerciseId: number) => {
+    const key = String(exerciseId);
+    setExpandedInfo(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const createCalendarEvents = async (items: any[]) => {
@@ -370,7 +479,14 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
         <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
           Define cuándo y cómo quieres realizar cada ejercicio.
         </CText>
-        {rows.length === 0 && (
+        {loadingExercises && rows.length === 0 && (
+          <View style={styles.mt20}>
+            <CText type={'S14'} color={colors.labelColor}>
+              Recuperando ejercicios de la sesión...
+            </CText>
+          </View>
+        )}
+        {!loadingExercises && rows.length === 0 && (
           <View style={styles.mt20}>
             <CText type={'S14'} color={colors.labelColor}>
               No hay ejercicios para programar en este momento. Vuelve a intentar desde la selección de hábitos.
@@ -382,7 +498,34 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
         )}
         {rows.map((row: any, idx: number) => (
           <View key={String(row.ejercicio_id)} style={[styles.mt20, { borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 12, padding: 12 }]}>
-            <CText type={'B16'}>{row.title}</CText>
+            <View style={[styles.rowStart, styles.justifyBetween]}>
+              <CText type={'B16'} style={styles.flex}>
+                {row.title}
+              </CText>
+              {!!row.info && (
+                <TouchableOpacity onPress={() => toggleInfo(Number(row.ejercicio_id))} style={{ marginLeft: 8 }}>
+                  <Ionicons
+                    name={'information-circle-outline'}
+                    size={moderateScale(18)}
+                    color={colors.labelColor}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+            {!!row.info && !!expandedInfo[String(row.ejercicio_id)] && (
+              <View
+                style={{
+                  marginTop: 8,
+                  padding: 10,
+                  borderRadius: 8,
+                  backgroundColor: colors.inputBg,
+                }}
+              >
+                <CText type={'R12'} color={colors.labelColor} style={{ lineHeight: 18 }}>
+                  {row.info}
+                </CText>
+              </View>
+            )}
             <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Título personalizado</CText>
             <TextInput
               value={row.custom_title}

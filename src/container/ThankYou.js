@@ -16,7 +16,7 @@ export default function ThankYou({navigation}) {
   };
   return (
     <CSafeAreaView>
-      <ScrollView contentContainerStyle={styles.flexGrow} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.flexGrow} showsVerticalScrollIndicator={true}>
         <View style={[styles.ph20]}>
           <Image source={images.onBoardingImage1} style={localStyles.image} />
           <CText type={'B20'} align={'center'} style={styles.mt15}>

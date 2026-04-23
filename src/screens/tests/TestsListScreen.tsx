@@ -79,7 +79,7 @@ export default function TestsListScreen() {
           renderItem={renderItem}
           keyExtractor={item => String(item.id)}
           contentContainerStyle={localStyles.list}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           ListEmptyComponent={
             <View style={localStyles.empty}>
               <Ionicons name="clipboard-outline" size={moderateScale(60)} color={colors.grayScale4} />

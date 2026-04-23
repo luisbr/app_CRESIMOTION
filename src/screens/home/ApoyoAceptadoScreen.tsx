@@ -142,7 +142,7 @@ export default function ApoyoAceptadoScreen() {
   return (
     <View style={localStyles.container}>
       <CMainAppBar mode="sub" title="Apoyo financiero" />
-      <ScrollView contentContainerStyle={localStyles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={localStyles.scroll} showsVerticalScrollIndicator={true}>
 
         {/* Header de aprobación */}
         <View style={localStyles.approvedCard}>

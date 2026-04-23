@@ -701,7 +701,7 @@ export default function ProfileTab({navigation}) {
         bounces={false}
         ListHeaderComponent={headerComponent}
         ListFooterComponent={footerComponent}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
       />
       <LogOutModel
         visible={isModalVisible}

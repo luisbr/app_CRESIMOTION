@@ -327,7 +327,7 @@ useEffect(() => {
         renderItem={renderReason}
         keyExtractor={(item, index) => item.id.toString()}
         bounces={false}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={localStyles.mainContainer}
         ListHeaderComponent={
           <View>
