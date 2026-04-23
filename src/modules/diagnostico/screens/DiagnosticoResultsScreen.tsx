@@ -262,7 +262,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
             <ScrollView
               showsVerticalScrollIndicator={false}
               style={styles.flex}
-              contentContainerStyle={{paddingBottom: 24}}
+              contentContainerStyle={{paddingBottom: 80}}
             >
               {chartData.length ? (
                 <View
@@ -271,7 +271,8 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
                     {
                       backgroundColor: 'rgba(10, 166, 147, 0.4)',
                       borderRadius: 12,
-                      padding: 12,
+                      paddingHorizontal: 20,
+                      paddingVertical: 16,
                     },
                   ]}
                 >

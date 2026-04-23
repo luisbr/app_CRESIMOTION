@@ -208,7 +208,8 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
                   {
                     backgroundColor: 'rgba(10, 166, 147, 0.4)',
                     borderRadius: 12,
-                    padding: 12,
+                    paddingHorizontal: 20,
+                    paddingVertical: 16,
                   },
                 ]}
               >
