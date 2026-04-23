@@ -22,7 +22,7 @@ export default function ThankYou({navigation}) {
           <CText type={'B20'} align={'center'} style={styles.mt15}>
             {'Gracias por registrarte en CresiMotion'}
           </CText>
-          <CText type={'R16'} style={styles.mt12}>
+          <CText type={'B16'} color={colors.primary} style={styles.mt12}>
             {'Te damos la más cálida bienvenida'}
           </CText>
           <CText type={'R14'} color={colors.labelColor} style={styles.mt8}>
@@ -57,7 +57,7 @@ export default function ThankYou({navigation}) {
           </CText>
         </View>
       </ScrollView>
-      <View style={[styles.ph20, styles.pb20]}>
+      <View style={[styles.ph20, styles.pb40]}>
         <CButton title={'Siguiente'} onPress={onNext} />
       </View>
     </CSafeAreaView>
