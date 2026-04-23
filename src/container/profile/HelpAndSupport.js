@@ -48,7 +48,7 @@ export default function HelpAndSupport() {
           data={searchData}
           renderItem={HelpAndSupportDesc}
           keyExtractor={(item, index) => index.toString()}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           bounces={false}
           scrollEnabled={false}
         />

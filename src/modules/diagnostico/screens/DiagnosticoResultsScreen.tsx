@@ -260,7 +260,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
             </CText>
           ) : (
             <ScrollView
-              showsVerticalScrollIndicator={false}
+              showsVerticalScrollIndicator={true}
               style={styles.flex}
               contentContainerStyle={{paddingBottom: 24}}
             >

@@ -39,7 +39,7 @@ export default function TestResultScreen() {
         <CText type="B18" color="#fff" align="left" style={{}}>{testName ?? 'Resultado'}</CText>
       </View>
 
-      <ScrollView contentContainerStyle={localStyles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={localStyles.scroll} showsVerticalScrollIndicator={true}>
         
         {/* Score circle */}
         <View style={localStyles.scoreContainer}>

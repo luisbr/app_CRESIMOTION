@@ -264,7 +264,7 @@ export default function ConfigurationScreen({navigation}) {
       <CHeader title="Configuración" isHideBack={false} />
       
       {!loading && (
-        <ScrollView contentContainerStyle={localStyles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={localStyles.scrollContainer} showsVerticalScrollIndicator={true}>
           
           {/* Cuenta Section */}
           <CText type="B16" style={localStyles.sectionTitle}>Cuenta</CText>

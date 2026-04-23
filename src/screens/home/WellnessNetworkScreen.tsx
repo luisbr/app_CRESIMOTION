@@ -175,7 +175,7 @@ export default function WellnessNetworkScreen() {
       <CMainAppBar mode="sub" title="Tu red de bienestar" />
       <ScrollView
         contentContainerStyle={[localStyles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
       >
         {renderWarningSection()}
         {renderSelectorAndContacts()}

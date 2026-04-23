@@ -285,7 +285,7 @@ export default function WelcomeEmotionScreen() {
       <CMainAppBar mode="main" />
       <ScrollView
         contentContainerStyle={[localStyles.scrollContent, {paddingBottom: insets.bottom + 20}]}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
       >
         {renderWelcomeSection()}
         {renderEmotionSelector()}

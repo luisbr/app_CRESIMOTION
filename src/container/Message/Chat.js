@@ -238,7 +238,7 @@ export default function Chat({route, navigation}) {
           )}
           keyExtractor={(item, index) => index.toString()}
           contentContainerStyle={styles.g30}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
         />
 
         <CInput

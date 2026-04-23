@@ -30,7 +30,11 @@ import {getResumenMensual} from '../../../api/sesionTerapeutica';
 const capitalizeSentence = (value: string) => {
   const trimmed = value.trim();
   if (!trimmed) return trimmed;
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+  const lower = trimmed.toLowerCase();
+  return lower.replace(
+    /^([^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]*)([A-Za-zÁÉÍÓÚÜÑáéíóúüñ])/,
+    (_, prefix, letter) => `${prefix}${letter.toUpperCase()}`
+  );
 };
 
 const matchItemsWithNames = (itemIds: number[], catalog: any[]): {id: number; titulo: string}[] => {
@@ -222,6 +226,9 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const [limitsLoaded, setLimitsLoaded] = useState(false);
   const [resumenMotivoIds, setResumenMotivoIds] = useState<number[]>([]);
   const [resumenEmocionIds, setResumenEmocionIds] = useState<number[]>([]);
+  const [scrollIndicator, setScrollIndicator] = useState({visible: false, top: 0, height: 0});
+  const scrollLayoutHeightRef = useRef(0);
+  const scrollContentHeightRef = useRef(0);
 
   const isInResumen = (id: number): boolean => {
     if (moduleKey === 'motivos') return resumenMotivoIds.includes(id);
@@ -436,6 +443,25 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   };
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const updateScrollFade = (scrollY = 0) => {
+    const layoutHeight = scrollLayoutHeightRef.current;
+    const contentHeight = scrollContentHeightRef.current;
+    if (!layoutHeight || !contentHeight || contentHeight <= layoutHeight + 4) {
+      setScrollIndicator({visible: false, top: 0, height: 0});
+      return;
+    }
+    const trackHeight = Math.max(layoutHeight - moderateScale(8), 1);
+    const thumbHeight = Math.max((layoutHeight / contentHeight) * trackHeight, moderateScale(36));
+    const maxScroll = Math.max(contentHeight - layoutHeight, 1);
+    const maxThumbTop = Math.max(trackHeight - thumbHeight, 0);
+    const thumbTop = (scrollY / maxScroll) * maxThumbTop;
+    setScrollIndicator({
+      visible: true,
+      top: thumbTop,
+      height: thumbHeight,
+    });
+  };
   const isSearching = !!normalizedQuery;
   const filteredCategories = moduleKey === 'motivos'
     ? motivoCategories
@@ -517,133 +543,161 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : (
-          <ScrollView
-            style={{flex: 1}}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{paddingBottom: 140}}
-          >
-            {moduleKey === 'motivos' && (
-              <View style={{marginBottom: moderateScale(10)}}>
-                <CInput
-                  _value={searchQuery}
-                  placeHolder={'Buscar motivo'}
-                  toGetTextFieldValue={setSearchQuery}
-                  insideLeftIcon={() => (
-                    <Ionicons
-                      name={'search-outline'}
-                      size={moderateScale(18)}
-                      color={colors.grayScale1}
-                      style={{marginRight: moderateScale(6)}}
-                    />
-                  )}
-                />
-              </View>
-            )}
-            {(moduleKey === 'sintomas_fisicos' || moduleKey === 'sintomas_emocionales') && (
-              <View style={{marginBottom: moderateScale(10)}}>
-                <CInput
-                  _value={searchQuery}
-                  placeHolder={'Buscar síntoma'}
-                  toGetTextFieldValue={setSearchQuery}
-                  insideLeftIcon={() => (
-                    <Ionicons
-                      name={'search-outline'}
-                      size={moderateScale(18)}
-                      color={colors.grayScale1}
-                      style={{marginRight: moderateScale(6)}}
-                    />
-                  )}
-                />
-              </View>
-            )}
-            {moduleKey === 'motivos' ? (
-              isSearching ? (
-                searchResults.length ? (
-                  searchResults.map(item => (
+          <View style={{flex: 1, position: 'relative'}}>
+            <ScrollView
+              style={{flex: 1}}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: 140, paddingRight: moderateScale(18)}}
+              onLayout={event => {
+                scrollLayoutHeightRef.current = event.nativeEvent.layout.height;
+                updateScrollFade();
+              }}
+              onContentSizeChange={(_, height) => {
+                scrollContentHeightRef.current = height;
+                updateScrollFade();
+              }}
+              onScroll={event => {
+                updateScrollFade(event.nativeEvent.contentOffset.y);
+              }}
+              scrollEventThrottle={16}
+            >
+              {moduleKey === 'motivos' && (
+                <View style={{marginBottom: moderateScale(10)}}>
+                  <CInput
+                    _value={searchQuery}
+                    placeHolder={'Buscar motivo'}
+                    toGetTextFieldValue={setSearchQuery}
+                    insideLeftIcon={() => (
+                      <Ionicons
+                        name={'search-outline'}
+                        size={moderateScale(18)}
+                        color={colors.grayScale1}
+                        style={{marginRight: moderateScale(6)}}
+                      />
+                    )}
+                  />
+                </View>
+              )}
+              {(moduleKey === 'sintomas_fisicos' || moduleKey === 'sintomas_emocionales') && (
+                <View style={{marginBottom: moderateScale(10)}}>
+                  <CInput
+                    _value={searchQuery}
+                    placeHolder={'Buscar síntoma'}
+                    toGetTextFieldValue={setSearchQuery}
+                    insideLeftIcon={() => (
+                      <Ionicons
+                        name={'search-outline'}
+                        size={moderateScale(18)}
+                        color={colors.grayScale1}
+                        style={{marginRight: moderateScale(6)}}
+                      />
+                    )}
+                  />
+                </View>
+              )}
+              {moduleKey === 'motivos' ? (
+                isSearching ? (
+                  searchResults.length ? (
+                    searchResults.map(item => (
+                      <ChecklistItem
+                        key={`search-${item.id}`}
+                        title={capitalizeSentence(String(item.titulo || ''))}
+                        description={capitalizeSentence(String(item.descripcion || ''))}
+                        selected={selectedIds.includes(Number(item.id))}
+                        onPress={() => toggleId(Number(item.id))}
+                      />
+                    ))
+                  ) : (
+                    <CText type={'S14'} align={'center'} color={colors.labelColor}>
+                      No encontramos motivos con esa búsqueda.
+                    </CText>
+                  )
+                ) : filteredCategories.length ? (
+                  filteredCategories.map(category => {
+                    const isExpanded = expandedCategoryIds.includes(Number(category.id));
+                    return (
+                      <View key={`category-${category.id}`} style={{marginBottom: moderateScale(14)}}>
+                        <TouchableOpacity
+                          onPress={() => toggleCategory(Number(category.id))}
+                          style={[
+                            styles.rowSpaceBetween,
+                            {
+                              paddingVertical: moderateScale(10),
+                              paddingHorizontal: moderateScale(12),
+                              backgroundColor: colors.inputBg,
+                              borderRadius: moderateScale(12),
+                            },
+                          ]}
+                        >
+                          <View style={{flex: 1, paddingRight: moderateScale(8)}}>
+                            <CText type={'M16'} style={{marginBottom: category.descripcion ? moderateScale(2) : 0}}>
+                              {capitalizeSentence(String(category.nombre || ''))}
+                            </CText>
+                            {!!category.descripcion && (
+                              <CText type={'S12'} color={colors.labelColor}>
+                                {capitalizeSentence(String(category.descripcion || ''))}
+                              </CText>
+                            )}
+                          </View>
+                          <Ionicons
+                            name={isExpanded ? 'chevron-up-outline' : 'chevron-down-outline'}
+                            size={moderateScale(20)}
+                            color={colors.textColor}
+                          />
+                        </TouchableOpacity>
+                        {isExpanded &&
+                          (category.motivos || []).map(item => (
+                              <ChecklistItem
+                                key={String(item.id)}
+                                title={capitalizeSentence(String(item.titulo || ''))}
+                                description={capitalizeSentence(String(item.descripcion || ''))}
+                                selected={selectedIds.includes(Number(item.id))}
+                                onPress={() => toggleId(Number(item.id))}
+                              />
+                            ))}
+                        </View>
+                      );
+                    })
+                ) : (
+                  <CText type={'S14'} align={'center'} color={colors.labelColor}>
+                    No encontramos motivos con esa busqueda.
+                  </CText>
+                )
+              ) : (
+                items
+                  .filter(item => {
+                    if (!normalizedQuery) return true;
+                    const title = String(item.titulo || '').toLowerCase();
+                    const description = String(item.descripcion || '').toLowerCase();
+                    return title.includes(normalizedQuery) || description.includes(normalizedQuery);
+                  })
+                  .map(item => (
                     <ChecklistItem
-                      key={`search-${item.id}`}
+                      key={String(item.id)}
                       title={capitalizeSentence(String(item.titulo || ''))}
                       description={capitalizeSentence(String(item.descripcion || ''))}
                       selected={selectedIds.includes(Number(item.id))}
                       onPress={() => toggleId(Number(item.id))}
+                      showInfoIcon
                     />
                   ))
-                ) : (
-                  <CText type={'S14'} align={'center'} color={colors.labelColor}>
-                    No encontramos motivos con esa búsqueda.
-                  </CText>
-                )
-              ) : filteredCategories.length ? (
-                filteredCategories.map(category => {
-                  const isExpanded = expandedCategoryIds.includes(Number(category.id));
-                  return (
-                    <View key={`category-${category.id}`} style={{marginBottom: moderateScale(14)}}>
-                      <TouchableOpacity
-                        onPress={() => toggleCategory(Number(category.id))}
-                        style={[
-                          styles.rowSpaceBetween,
-                          {
-                            paddingVertical: moderateScale(10),
-                            paddingHorizontal: moderateScale(12),
-                            backgroundColor: colors.inputBg,
-                            borderRadius: moderateScale(12),
-                          },
-                        ]}
-                      >
-                        <View style={{flex: 1, paddingRight: moderateScale(8)}}>
-                          <CText type={'M16'} style={{marginBottom: category.descripcion ? moderateScale(2) : 0}}>
-                            {capitalizeSentence(String(category.nombre || ''))}
-                          </CText>
-                          {!!category.descripcion && (
-                            <CText type={'S12'} color={colors.labelColor}>
-                              {capitalizeSentence(String(category.descripcion || ''))}
-                            </CText>
-                          )}
-                        </View>
-                        <Ionicons
-                          name={isExpanded ? 'chevron-up-outline' : 'chevron-down-outline'}
-                          size={moderateScale(20)}
-                          color={colors.textColor}
-                        />
-                      </TouchableOpacity>
-                      {isExpanded &&
-                        (category.motivos || []).map(item => (
-                            <ChecklistItem
-                              key={String(item.id)}
-                              title={capitalizeSentence(String(item.titulo || ''))}
-                              description={capitalizeSentence(String(item.descripcion || ''))}
-                              selected={selectedIds.includes(Number(item.id))}
-                              onPress={() => toggleId(Number(item.id))}
-                            />
-                          ))}
-                      </View>
-                    );
-                  })
-              ) : (
-                <CText type={'S14'} align={'center'} color={colors.labelColor}>
-                  No encontramos motivos con esa busqueda.
-                </CText>
-              )
-            ) : (
-              items
-                .filter(item => {
-                  if (!normalizedQuery) return true;
-                  const title = String(item.titulo || '').toLowerCase();
-                  const description = String(item.descripcion || '').toLowerCase();
-                  return title.includes(normalizedQuery) || description.includes(normalizedQuery);
-                })
-                .map(item => (
-                  <ChecklistItem
-                    key={String(item.id)}
-                    title={capitalizeSentence(String(item.titulo || ''))}
-                    description={capitalizeSentence(String(item.descripcion || ''))}
-                    selected={selectedIds.includes(Number(item.id))}
-                    onPress={() => toggleId(Number(item.id))}
-                    showInfoIcon
-                  />
-                ))
+              )}
+            </ScrollView>
+            {scrollIndicator.visible && (
+              <View pointerEvents="none" style={localStyles.scrollIndicatorTrack}>
+                <View
+                  style={[
+                    localStyles.scrollIndicatorThumb,
+                    {
+                      top: scrollIndicator.top,
+                      height: scrollIndicator.height,
+                      backgroundColor: colors.primary,
+                    },
+                  ]}
+                />
+              </View>
             )}
-          </ScrollView>
+          </View>
         )}
         {!!error && (
           <CText type={'S14'} align={'center'} color={colors.redAlert}>
@@ -704,5 +758,20 @@ const localStyles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
+  },
+  scrollIndicatorTrack: {
+    position: 'absolute',
+    top: moderateScale(4),
+    bottom: moderateScale(4),
+    right: moderateScale(4),
+    width: moderateScale(8),
+    borderRadius: moderateScale(4),
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+  },
+  scrollIndicatorThumb: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    borderRadius: moderateScale(4),
   },
 });

@@ -316,7 +316,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
       <CMainAppBar mode="main" />
       <ScrollView
         contentContainerStyle={localStyles.scrollContent}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
       >
         <View>
           <Image

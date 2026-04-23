@@ -59,7 +59,7 @@ export default function Languages() {
           <RenderHeader title={title} />
         )}
         bounces={false}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={localStyles.mainContainer}
       />
     </CSafeAreaView>

@@ -19,7 +19,7 @@ const KeyBoardAvoidWrapper = ({
       behavior={isIOS ? 'padding' : 'height'}>
       <ScrollView
         nestedScrollEnabled={true}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={[
           {flexGrow: 1, paddingBottom: moderateScale(24)},

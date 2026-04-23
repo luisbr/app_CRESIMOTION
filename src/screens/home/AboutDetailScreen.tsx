@@ -69,7 +69,7 @@ export default function AboutDetailScreen() {
           localStyles.content,
           {paddingBottom: insets.bottom + moderateScale(28)},
         ]}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={true}>
         <View style={localStyles.heroCard}>
           <View style={[localStyles.iconWrap, {backgroundColor: section.background}]}>
             <Ionicons name={section.icon} size={28} color={section.accent} />

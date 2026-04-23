@@ -104,7 +104,7 @@ export default function TherapyPendingSessionsScreen({navigation}: any) {
             {error}
           </CText>
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={true}>
             {!items.length && (
               <CText type={'S14'} align={'center'} color={colors.labelColor}>
                 No tienes sesiones pendientes por ahora.

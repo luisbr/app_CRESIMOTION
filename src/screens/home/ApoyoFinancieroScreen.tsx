@@ -215,7 +215,7 @@ export default function ApoyoFinancieroScreen() {
       ) : (
         <ScrollView
           contentContainerStyle={localStyles.scroll}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={true}>
 
           {/* Header card */}
           <View style={localStyles.headerCard}>

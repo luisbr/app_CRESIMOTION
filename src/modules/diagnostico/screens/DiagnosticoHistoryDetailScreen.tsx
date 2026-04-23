@@ -200,7 +200,7 @@ export default function DiagnosticoHistoryDetailScreen({route}: any) {
             {error}
           </CText>
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={{paddingBottom: 24}}>
+          <ScrollView showsVerticalScrollIndicator={true} style={styles.flex} contentContainerStyle={{paddingBottom: 24}}>
             {chartData.length ? (
               <View
                 style={[

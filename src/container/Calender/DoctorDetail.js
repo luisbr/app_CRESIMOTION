@@ -28,7 +28,7 @@ export default function DoctorDetail({route, navigation}) {
       <ScrollView
         contentContainerStyle={localStyles.mainContainer}
         bounces={false}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={true}>
         <Image source={item.image} style={localStyles.imageStyle} />
         <View style={localStyles.drNameContainer}>
           <CText type={'B16'}>{item.drName}</CText>

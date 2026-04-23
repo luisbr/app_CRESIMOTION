@@ -428,7 +428,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
         ) : currentItem ? (
           <ScrollView
             ref={scrollRef}
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
             contentContainerStyle={{paddingBottom: 140}}
             keyboardShouldPersistTaps="handled"
           >
@@ -525,7 +525,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
                 {emergencyError}
               </CText>
             ) : (
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView showsVerticalScrollIndicator={true}>
                 {emergencyCountry ? (
                   <View style={styles.mb10}>
                     <CText type={'S14'} color={colors.labelColor} style={styles.mb5}>

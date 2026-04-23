@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, TouchableOpacity, Alert, ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
@@ -36,6 +36,28 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   const [postWorkItems, setPostWorkItems] = useState<any[]>(postWorkEmotions);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const [scrollIndicator, setScrollIndicator] = useState({visible: false, top: 0, height: 0});
+  const scrollLayoutHeightRef = useRef(0);
+  const scrollContentHeightRef = useRef(0);
+
+  const updateScrollIndicator = (scrollY = 0) => {
+    const layoutHeight = scrollLayoutHeightRef.current;
+    const contentHeight = scrollContentHeightRef.current;
+    if (!layoutHeight || !contentHeight || contentHeight <= layoutHeight + 4) {
+      setScrollIndicator({visible: false, top: 0, height: 0});
+      return;
+    }
+    const trackHeight = Math.max(layoutHeight - moderateScale(8), 1);
+    const thumbHeight = Math.max((layoutHeight / contentHeight) * trackHeight, moderateScale(36));
+    const maxScroll = Math.max(contentHeight - layoutHeight, 1);
+    const maxThumbTop = Math.max(trackHeight - thumbHeight, 0);
+    const thumbTop = (scrollY / maxScroll) * maxThumbTop;
+    setScrollIndicator({
+      visible: true,
+      top: thumbTop,
+      height: thumbHeight,
+    });
+  };
 
   useEffect(() => {
     if (!postWork || postWorkItems.length || !postWorkGroupId) return;
@@ -141,7 +163,7 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
             color={isOn ? colors.primary : colors.grayScale2}
             style={{ marginRight: 10 }}
           />
-          <CText type={'S16'}>{label}</CText>
+          <CText type={'S16'} style={{flex: 1, flexShrink: 1}}>{label}</CText>
         </View>
       </TouchableOpacity>
     );
@@ -150,75 +172,103 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   return (
     <CSafeAreaView>
       <TherapyHeader />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: moderateScale(240) }]}
-        style={{ flex: 1, backgroundColor: colors.backgroundColor }}
-      >
-        <View
-          style={{
-            backgroundColor: colors.inputBg,
-            borderRadius: 12,
-            padding: 12,
-            marginBottom: 12,
-            shadowColor: '#000',
-            shadowOpacity: 0.1,
-            shadowOffset: { width: 0, height: 3 },
-            shadowRadius: 8,
-            elevation: 5,
+      <View style={{ flex: 1, backgroundColor: colors.backgroundColor, position: 'relative' }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: moderateScale(240), paddingRight: moderateScale(18) }]}
+          style={{ flex: 1, backgroundColor: colors.backgroundColor }}
+          onLayout={event => {
+            scrollLayoutHeightRef.current = event.nativeEvent.layout.height;
+            updateScrollIndicator();
           }}
+          onContentSizeChange={(_, height) => {
+            scrollContentHeightRef.current = height;
+            updateScrollIndicator();
+          }}
+          onScroll={event => {
+            updateScrollIndicator(event.nativeEvent.contentOffset.y);
+          }}
+          scrollEventThrottle={16}
         >
-          <CText type={'B18'}>Sanación emocional</CText>
-          <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-            {INTRO_TEXT}
-          </CText>
-        </View>
-          {items.length === 0 && otherOptions.length === 0 ? (
-            <CText type={'S14'} color={colors.labelColor} style={styles.mt20}>
-              No hay emociones para mostrar.
+          <View
+            style={{
+              backgroundColor: colors.inputBg,
+              borderRadius: 12,
+              padding: 12,
+              marginBottom: 12,
+              shadowColor: '#000',
+              shadowOpacity: 0.1,
+              shadowOffset: { width: 0, height: 3 },
+              shadowRadius: 8,
+              elevation: 5,
+            }}
+          >
+            <CText type={'B18'}>Sanación emocional</CText>
+            <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
+              {INTRO_TEXT}
             </CText>
-          ) : (
-            <View
-              style={{
-                marginTop: 10,
-                borderRadius: 16,
-                borderWidth: 1,
-                borderColor: colors.grayScale2,
-                backgroundColor: colors.white,
-                shadowColor: '#000',
-                shadowOpacity: 0.12,
-                shadowOffset: { width: 0, height: 4 },
-                shadowRadius: 10,
-                elevation: 6,
-                overflow: 'hidden',
-              }}
-            >
-              {items.map((item: any, index: number) => (
-                <View
-                  key={String(item.id ?? index)}
-                  style={{ borderBottomWidth: index === items.length - 1 ? 0 : 1, borderColor: colors.grayScale2 }}
-                >
-                  {renderItem(item.label, item.id)}
-                </View>
-              ))}
-            </View>
-          )}
-          {otherOptions.length > 0 && (
-            <View style={styles.mt20}>
-              <CText type={'B16'}>Otra</CText>
-              {otherOptions.map((opt: any, idx: number) => {
-                const id = opt?.id ?? opt?.emocion_id ?? `other-${idx}`;
-                const label = opt?.label || opt?.nombre || opt?.name || `Opcion ${idx + 1}`;
-                return (
-                  <View key={String(id)}>
-                    {renderItem(label, id)}
-                    <View style={{ height: 1, backgroundColor: colors.grayScale2 }} />
+          </View>
+            {items.length === 0 && otherOptions.length === 0 ? (
+              <CText type={'S14'} color={colors.labelColor} style={styles.mt20}>
+                No hay emociones para mostrar.
+              </CText>
+            ) : (
+              <View
+                style={{
+                  marginTop: 10,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: colors.grayScale2,
+                  backgroundColor: colors.white,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.12,
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowRadius: 10,
+                  elevation: 6,
+                  overflow: 'hidden',
+                }}
+              >
+                {items.map((item: any, index: number) => (
+                  <View
+                    key={String(item.id ?? index)}
+                    style={{ borderBottomWidth: index === items.length - 1 ? 0 : 1, borderColor: colors.grayScale2 }}
+                  >
+                    {renderItem(item.label, item.id)}
                   </View>
-                );
-              })}
+                ))}
+              </View>
+            )}
+            {otherOptions.length > 0 && (
+              <View style={styles.mt20}>
+                <CText type={'B16'}>Otra</CText>
+                {otherOptions.map((opt: any, idx: number) => {
+                  const id = opt?.id ?? opt?.emocion_id ?? `other-${idx}`;
+                  const label = opt?.label || opt?.nombre || opt?.name || `Opcion ${idx + 1}`;
+                  return (
+                    <View key={String(id)}>
+                      {renderItem(label, id)}
+                      <View style={{ height: 1, backgroundColor: colors.grayScale2 }} />
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          </ScrollView>
+          {scrollIndicator.visible && (
+            <View pointerEvents="none" style={localStyles.scrollIndicatorTrack}>
+              <View
+                style={[
+                  localStyles.scrollIndicatorThumb,
+                  {
+                    top: scrollIndicator.top,
+                    height: scrollIndicator.height,
+                    backgroundColor: colors.primary,
+                  },
+                ]}
+              />
             </View>
           )}
-        </ScrollView>
+        </View>
       <View
         style={{
           position: 'absolute',
@@ -261,3 +311,21 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
     </CSafeAreaView>
   );
 }
+
+const localStyles = StyleSheet.create({
+  scrollIndicatorTrack: {
+    position: 'absolute',
+    top: moderateScale(4),
+    bottom: moderateScale(4),
+    right: moderateScale(4),
+    width: moderateScale(8),
+    borderRadius: moderateScale(4),
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+  },
+  scrollIndicatorThumb: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    borderRadius: moderateScale(4),
+  },
+});

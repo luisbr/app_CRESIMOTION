@@ -292,7 +292,11 @@ export const submitAgendaItems = async ({ sessionId, items }) => {
   });
   const json = await safeJson(res);
   if (!res.ok || (json && json.ok === false)) {
-    throw new Error(json?.message || 'No se pudo guardar la agenda.');
+    throw createApiError(
+      json?.message || 'No se pudo guardar la agenda.',
+      json?.error,
+      json?.meta
+    );
   }
   return json?.data ?? json;
 };
@@ -320,6 +324,38 @@ export const submitBehaviorExercises = async ({ sessionId, items }) => {
   return json?.data ?? json;
 };
 
+export const getBehaviorExerciseById = async (exerciseId) => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  const path = `/api/app/transformacion/ejercicios/${exerciseId}`;
+  console.log(
+    '[THERAPY] curl transformacion ejercicio detail',
+    `curl -X GET '${API_BASE_URL}${path}' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}'`
+  );
+  const res = await authFetch(path);
+  const json = await safeJson(res);
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudo cargar el ejercicio.');
+  }
+  return json?.item ?? json?.data?.item ?? json?.data ?? json;
+};
+
+export const getBehaviorExercisesBySession = async (sessionId) => {
+  const session = await getSession();
+  const uuid = await getOrCreateDeviceUUID();
+  const path = `/api/app/transformacion/ejercicios/session/${sessionId}`;
+  console.log(
+    '[THERAPY] curl transformacion ejercicios by session',
+    `curl -X GET '${API_BASE_URL}${path}' -H 'Authorization: Bearer ${session?.token || ''}' -H 'X-Device-UUID: ${uuid || ''}'`
+  );
+  const res = await authFetch(path);
+  const json = await safeJson(res);
+  if (!res.ok || (json && json.ok === false)) {
+    throw new Error(json?.message || 'No se pudieron cargar los ejercicios de la sesión.');
+  }
+  return Array.isArray(json?.items) ? json.items : json?.data?.items ?? json?.data ?? [];
+};
+
 export const getAgendaItems = async () => {
   const session = await getSession();
   const uuid = await getOrCreateDeviceUUID();
@@ -342,7 +378,11 @@ export const updateAgendaItem = async (payload) => {
   });
   const json = await safeJson(res);
   if (!res.ok || (json && json.ok === false)) {
-    throw new Error(json?.message || 'No se pudo actualizar la agenda.');
+    throw createApiError(
+      json?.message || 'No se pudo actualizar la agenda.',
+      json?.error,
+      json?.meta
+    );
   }
   return json?.data ?? json;
 };

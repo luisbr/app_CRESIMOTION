@@ -66,7 +66,7 @@ export default function TasksMenuScreen() {
           localStyles.content,
           {paddingBottom: insets.bottom + moderateScale(24)},
         ]}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={true}>
         <View style={localStyles.heroCard}>
           <View style={localStyles.heroBadge}>
             <Ionicons name="checkmark-done-outline" size={22} color="#0AA693" />
