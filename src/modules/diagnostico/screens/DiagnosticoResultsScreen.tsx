@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {ActivityIndicator, Modal, ScrollView, TouchableOpacity, View, Alert} from 'react-native';
+import {ActivityIndicator, Modal, ScrollView, TouchableOpacity, View, Alert, BackHandler} from 'react-native';
 import {useSelector} from 'react-redux';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
 import CMainAppBar from '../../../components/common/CMainAppBar';
@@ -184,6 +184,20 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
       }
     };
   }, [setIsDiagnosticoFlow]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      return true;
+    });
+
+    return () => backHandler.remove();
+  }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      gestureEnabled: false,
+    });
+  }, [navigation]);
 
   const onSelectView = async (next: 'bar' | 'pie' | 'radar') => {
     if (next === 'radar' && !allowRadar) return;
