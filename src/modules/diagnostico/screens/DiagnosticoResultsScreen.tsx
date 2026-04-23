@@ -426,7 +426,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
                 title={'Ver vías de apoyo'}
                 onPress={() => {
                   setRiskVisible(false);
-                  navigation.navigate('SupportResources');
+                  navigation.navigate('WellnessNetwork');
                 }}
               />
               <CButton
