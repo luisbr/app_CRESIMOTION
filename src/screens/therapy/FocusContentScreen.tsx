@@ -324,7 +324,7 @@ export default function FocusContentScreen({ navigation, route }: any) {
         <View style={styles.mb20}>
           <View style={[styles.rowSpaceBetween, styles.g10]}>
             <View style={{ flex: 1 }}>
-              <CButton title={playing ? ' ll ' : 'Reproducir'} onPress={onPlay} />
+              <CButton title={playing ? ' ll ' : 'Reproducir'} onPress={onPlay} disabled={ended} />
             </View>
             {ENABLE_FORWARD_BUTTON && <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />}
           </View>

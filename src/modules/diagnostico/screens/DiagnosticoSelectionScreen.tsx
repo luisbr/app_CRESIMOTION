@@ -515,52 +515,41 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         }
         hideBackButton={!!isFirstFlow}
       />
-      <View style={[styles.flex, styles.p20, {position: 'relative', paddingTop: moderateScale(10)}]}>
-        <View
-          style={{
-            backgroundColor: colors.inputBg,
-            borderRadius: moderateScale(12),
-            padding: moderateScale(12),
-            marginBottom: moderateScale(12),
-          }}
-        >
-          <CText type={'B16'} align={'center'} style={{marginBottom: moderateScale(4)}}>
-            {`${introTitle}`}
-          </CText>
-          <CText type={'S13'} align={'center'} color={colors.labelColor}>
-            {introBody}
-          </CText>
-        </View>
-        {!loading && renderResumenCard({
-          resumenMensual,
-          motivoCategories,
-          emotionCatalog,
-          moduleLimits,
-          colors,
-          resumenMotivoIds,
-          resumenEmocionIds,
-        })}
-        {loading ? (
+      {loading ? (
+        <View style={[styles.flex, styles.p20, styles.center, {paddingTop: moderateScale(10)}]}>
           <ActivityIndicator color={colors.primary} />
-        ) : (
-          <View style={{flex: 1, position: 'relative'}}>
-            <ScrollView
-              style={{flex: 1}}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingBottom: 140, paddingRight: moderateScale(18)}}
-              onLayout={event => {
-                scrollLayoutHeightRef.current = event.nativeEvent.layout.height;
-                updateScrollFade();
+        </View>
+      ) : (
+        <ScrollView
+          style={{flex: 1}}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{paddingBottom: 140}}
+        >
+          <View style={[styles.flex, styles.p20, {position: 'relative', paddingTop: moderateScale(10)}]}>
+            <View
+              style={{
+                backgroundColor: colors.inputBg,
+                borderRadius: moderateScale(12),
+                padding: moderateScale(12),
+                marginBottom: moderateScale(12),
               }}
-              onContentSizeChange={(_, height) => {
-                scrollContentHeightRef.current = height;
-                updateScrollFade();
-              }}
-              onScroll={event => {
-                updateScrollFade(event.nativeEvent.contentOffset.y);
-              }}
-              scrollEventThrottle={16}
             >
+              <CText type={'B16'} align={'center'} style={{marginBottom: moderateScale(4)}}>
+                {`${introTitle}`}
+              </CText>
+              <CText type={'S13'} align={'center'} color={colors.labelColor}>
+                {introBody}
+              </CText>
+            </View>
+            {renderResumenCard({
+              resumenMensual,
+              motivoCategories,
+              emotionCatalog,
+              moduleLimits,
+              colors,
+              resumenMotivoIds,
+              resumenEmocionIds,
+            })}
               {moduleKey === 'motivos' && (
                 <View style={{marginBottom: moderateScale(10)}}>
                   <CInput
@@ -682,23 +671,9 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
                     />
                   ))
               )}
-            </ScrollView>
-            {scrollIndicator.visible && (
-              <View pointerEvents="none" style={localStyles.scrollIndicatorTrack}>
-                <View
-                  style={[
-                    localStyles.scrollIndicatorThumb,
-                    {
-                      top: scrollIndicator.top,
-                      height: scrollIndicator.height,
-                      backgroundColor: colors.primary,
-                    },
-                  ]}
-                />
-              </View>
-            )}
           </View>
-        )}
+        </ScrollView>
+      )}
         {!!error && (
           <CText type={'S14'} align={'center'} color={colors.redAlert}>
             {error}
@@ -712,7 +687,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
             color={colors.primary}
           />
         )}
-      </View>
+      )}
       {!!selectedIds.length && (
         <View style={{
           position: 'absolute', left: 0, right: 0, bottom: 0,

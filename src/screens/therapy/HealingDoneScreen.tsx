@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, BackHandler } from 'react-native';
 import { useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import TherapyHeader from './TherapyHeader';
@@ -21,6 +21,20 @@ export default function HealingDoneScreen({ navigation, route }: any) {
     data?.emocion?.id ||
     nextPayload?.session_state?.emocion_id ||
     null;
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      return true;
+    });
+
+    return () => backHandler.remove();
+  }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      gestureEnabled: false,
+    });
+  }, [navigation]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
