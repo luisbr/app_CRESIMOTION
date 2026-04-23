@@ -69,7 +69,11 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
     setSelected(prev => {
       const next = { ...prev };
       const isOn = !!prev[key];
-      if (!isOn && max && selectedCount >= max) return prev;
+      if (!isOn && max && selectedCount >= max) {
+        setCurrentLimitKey('max_recomendaciones');
+        setShowLimitModal(true);
+        return prev;
+      }
       next[key] = !isOn;
       return next;
     });

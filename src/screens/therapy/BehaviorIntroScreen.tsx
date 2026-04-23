@@ -73,8 +73,10 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
 
   const postEvalMessage = nextResponse?.post_eval_message || null;
   const title = postEvalMessage?.message_title || '';
-  const message = postEvalMessage?.message_body ||
-    `¿Cómo percibes ahora la emoción de ${resolvedEmotionLabel || `#${emocionId || ''}` }? Selecciona la opción que mejor describa cómo te sientes ahora.`;
+  const rawMessage = postEvalMessage?.message_body || null;
+  const message = rawMessage
+    ? rawMessage.replace(/de\s+(\w+)/, (match: string, p1: string) => `de ${p1.toLowerCase()}`)
+    : `¿Cómo percibes ahora la emoción de ${(resolvedEmotionLabel || `#${emocionId || ''}`).toLowerCase()}? Selecciona la opción que mejor describa cómo te sientes ahora.`;
 
   useEffect(() => {
     if (inferredPostWork && nextResponse && !postEvalMessage) {
@@ -167,7 +169,7 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
       <TherapyHeader />
       <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 140 }]} keyboardShouldPersistTaps={'handled'}>
         <CText type={'B20'}>{title}</CText>
-        <CText type={'R16'} color={colors.textColor} style={styles.mt10}>
+        <CText type={'B16'} color={colors.textColor} style={styles.mt10}>
           {message}
         </CText>
         {!postEvalMessage && (

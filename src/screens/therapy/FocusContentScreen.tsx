@@ -14,6 +14,7 @@ import { completeTherapyStep } from '../../api/sesionTerapeutica';
 import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL, ENABLE_FORWARD_BUTTON } from '../../api/config';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
+import { shouldAllowDownload } from '../../utils/networkCheck';
 
 export default function FocusContentScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -53,6 +54,15 @@ export default function FocusContentScreen({ navigation, route }: any) {
     try {
       const info = await FileSystem.getInfoAsync(fileUri);
       if (info.exists && info.uri) return info.uri;
+      
+      // Check WiFi preference before downloading
+      const preferences = (global as any).__PROFILE_PREFERENCES__ || { descarga_wifi: 1 };
+      const { allowed, reason } = await shouldAllowDownload(preferences.descarga_wifi);
+      if (!allowed) {
+        console.log('[THERAPY] WiFi download blocked:', reason);
+        return remoteUrl;
+      }
+      
       const downloaded = await FileSystem.downloadAsync(remoteUrl, fileUri);
       return downloaded?.uri || remoteUrl;
     } catch (e) {

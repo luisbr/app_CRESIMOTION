@@ -1055,7 +1055,7 @@ export default function Register({navigation}) {
               {label: 'Masculino', value: 'Masculino'},
               {label: 'Neutro', value: 'Neutro'},
               {label: 'No binario', value: 'No binario'},
-              {label: 'Otro', value: 'Otro'},
+              // {label: 'Otro', value: 'Otro'},
               {label: 'Pangénero', value: 'Pangénero'},
               {label: 'Prefiero no especificar', value: 'Prefiero no especificar'},
               {label: 'Transgénero (FtM)', value: 'Transgénero (FtM)'},
@@ -1117,7 +1117,7 @@ export default function Register({navigation}) {
               {label: strings.howDidYouHearFamily, value: strings.howDidYouHearFamily},
               {label: strings.howDidYouHearFriends, value: strings.howDidYouHearFriends},
               {label: strings.howDidYouHearAds, value: strings.howDidYouHearAds},
-              {label: strings.howDidYouHearOther, value: 'Otro'},
+              // {label: strings.howDidYouHearOther, value: 'Otro'},
             ]}
             onChange={onChangeComoSeEntero}
           />

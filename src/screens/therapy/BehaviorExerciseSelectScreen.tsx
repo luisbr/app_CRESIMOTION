@@ -44,7 +44,11 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
     setSelected(prev => {
       const next = { ...prev };
       const isOn = !!prev[id];
-      if (!isOn && maxTotal && selectedIds.length >= maxTotal) return prev;
+      if (!isOn && maxTotal && selectedIds.length >= maxTotal) {
+        setCurrentLimitKey('max_ejercicios_total');
+        setShowLimitModal(true);
+        return prev;
+      }
       next[id] = !isOn;
       return next;
     });

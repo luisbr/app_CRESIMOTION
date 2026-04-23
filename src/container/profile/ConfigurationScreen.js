@@ -10,13 +10,15 @@ import CButton from '../../components/common/CButton';
 import CInput from '../../components/common/CInput';
 import {Modal} from 'react-native';
 import {StackNav} from '../../navigation/NavigationKey';
-import {getProfile, updateProfile, suspendAccount, deleteAccount, updateProfilePassword} from '../../api/auth';
+import {getProfile, updateProfile, suspendAccount, deleteAccount, updateProfilePassword, savePushToken, clearPushToken} from '../../api/auth';
 import {styles} from '../../theme';
 import {colors} from '../../theme/colors';
 import {moderateScale, THEME} from '../../common/constants';
 import strings from '../../i18n/strings';
 import {changeThemeAction, changeFontScaleAction} from '../../redux/action/themeAction';
 import {setAsyncStorageData} from '../../utils/AsyncStorage';
+import {setProfilePreferences} from '../../redux/action/profileAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ConfigurationScreen({navigation}) {
   const currentTheme = useSelector(state => state.theme.theme);
@@ -48,14 +50,16 @@ export default function ConfigurationScreen({navigation}) {
       try {
         const resp = await getProfile();
         if (resp && resp.success && resp.perfil) {
-          setPreferences({
+          const loadedPrefs = {
             notificaciones_correo: parseInt(resp.perfil.notificaciones_correo ?? 1),
             notificaciones_push: parseInt(resp.perfil.notificaciones_push ?? 1),
             descarga_wifi: parseInt(resp.perfil.descarga_wifi ?? 1),
             accesibilidad_fuente: resp.perfil.accesibilidad_fuente || 'mediano',
             accesibilidad_contraste: resp.perfil.accesibilidad_contraste || 'estandar',
             idioma: resp.perfil.idioma || 'es',
-          });
+          };
+          setPreferences(loadedPrefs);
+          dispatch(setProfilePreferences(loadedPrefs));
         }
       } catch (e) {
         console.log('Error fetching configuration', e);
@@ -67,6 +71,7 @@ export default function ConfigurationScreen({navigation}) {
 
   const saveConfig = async (newPrefs) => {
     setPreferences(newPrefs);
+    dispatch(setProfilePreferences(newPrefs));
     try {
       await updateProfile(newPrefs);
     } catch (e) {
@@ -100,6 +105,26 @@ export default function ConfigurationScreen({navigation}) {
   const toggleBoolean = (key) => {
     const newVal = preferences[key] === 1 ? 0 : 1;
     saveConfig({ ...preferences, [key]: newVal });
+    
+    // Handle push token registration/deregistration
+    if (key === 'notificaciones_push') {
+      handlePushToggle(newVal);
+    }
+  };
+  
+  const handlePushToggle = async (enabled) => {
+    try {
+      if (enabled) {
+        const token = await AsyncStorage.getItem('EXPO_PUSH_TOKEN');
+        if (token) {
+          await savePushToken(token);
+        }
+      } else {
+        await clearPushToken();
+      }
+    } catch (e) {
+      console.log('Error handling push token toggle', e);
+    }
   };
 
   const setOption = (key, val) => {

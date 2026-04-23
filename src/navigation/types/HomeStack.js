@@ -37,7 +37,7 @@ import DiagnosticoResultsScreen from '../../modules/diagnostico/screens/Diagnost
 import DiagnosticoHistoryScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryScreen';
 import DiagnosticoHistoryDetailScreen from '../../modules/diagnostico/screens/DiagnosticoHistoryDetailScreen';
 import TestResultsHistoryScreen from '../../modules/diagnostico/screens/TestResultsHistoryScreen';
-import SupportResourcesScreen from '../../modules/diagnostico/screens/SupportResourcesScreen';
+import WellnessNetworkScreen from '../../screens/home/WellnessNetworkScreen';
 import ResumenDebugScreen from '../../modules/diagnostico/screens/ResumenDebugScreen';
 
 const Stack = createStackNavigator();
@@ -59,7 +59,7 @@ export default function HomeStack() {
       <Stack.Screen name="DiagnosticoHistory" component={DiagnosticoHistoryScreen} />
       <Stack.Screen name="DiagnosticoHistoryDetail" component={DiagnosticoHistoryDetailScreen} />
       <Stack.Screen name="TestResultsHistory" component={TestResultsHistoryScreen} />
-      <Stack.Screen name="SupportResources" component={SupportResourcesScreen} />
+      <Stack.Screen name="SupportResources" component={WellnessNetworkScreen} />
       <Stack.Screen name="ReasonsList" component={ReasonsListScreen} />
       <Stack.Screen name="IntensityWizard" component={IntensityWizardScreen} />
       <Stack.Screen name="Summary" component={SummaryScreen} />

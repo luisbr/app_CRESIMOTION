@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
 
 // custom import
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -24,6 +25,12 @@ export default function ForgotPassword({navigation, route}) {
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setSubmitting(false);
+    }, []),
+  );
 
   useEffect(() => {
     if (countdownSeconds <= 0) return;

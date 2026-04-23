@@ -13,6 +13,7 @@ import { completeTherapyStep, sendPlaybackEvent } from '../../api/sesionTerapeut
 import { normalizeTherapyNext } from './therapyUtils';
 import { API_BASE_URL, ENABLE_FORWARD_BUTTON } from '../../api/config';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
+import { shouldAllowDownload } from '../../utils/networkCheck';
 
 type PlaybackItem =
   | { type: 'local'; source: number; label: string }
@@ -127,6 +128,15 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
         cachedRemoteUrisRef.current[remoteUrl] = info.uri;
         return info.uri;
       }
+      
+      // Check WiFi preference before downloading
+      const preferences = (global as any).__PROFILE_PREFERENCES__ || { descarga_wifi: 1 };
+      const { allowed, reason } = await shouldAllowDownload(preferences.descarga_wifi);
+      if (!allowed) {
+        console.log('[THERAPY] WiFi download blocked:', reason);
+        return remoteUrl;
+      }
+      
       const downloaded = await withTimeout(FileSystem.downloadAsync(remoteUrl, fileUri), 15000);
       const resolvedUri = downloaded?.uri || remoteUrl;
       cachedRemoteUrisRef.current[remoteUrl] = resolvedUri;
