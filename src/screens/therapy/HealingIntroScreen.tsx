@@ -258,34 +258,21 @@ export default function HealingIntroScreen({ navigation, route }: any) {
       <TherapyHeader />
       <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 240 }]}>
         <CText type={'B18'}>{title}</CText>
-        <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-          {isDefaultIntro ? (
-            <>
-              {introText.split(DEFAULT_TEXT_HIGHLIGHT)[0]}
-              <CText type={'B14'} color={colors.labelColor}>
-                {/* {DEFAULT_TEXT_HIGHLIGHT} */}
-              </CText>
-              {introText.split(DEFAULT_TEXT_HIGHLIGHT)[1]}
-            </>
-          ) : (
-            introText
-          )}
-        </CText>
+        <View style={styles.mt10}>
+          <CText type={'R14'} color={colors.labelColor} style={{ lineHeight: 24 }} align={'left'}>
+            {introText.split('experiencia:')[0]}experiencia: 
+            <TouchableOpacity onPress={toggleRecommendations} style={{ transform: [{ translateY: 9 }], paddingLeft: 4 }}>
+              <Ionicons
+                name={recommendationsCollapsed ? 'add-circle-outline' : 'remove-circle-outline'}
+                size={20}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+            {introText.split('experiencia:')[1]}
+          </CText>
+        </View>
 
         <View style={styles.mt20}>
-          <TouchableOpacity
-            onPress={toggleRecommendations}
-            style={[styles.rowSpaceBetween, styles.pv15, { borderBottomWidth: 1, borderColor: colors.grayScale2 }]}
-          >
-            <View style={{ flex: 1, marginRight: 12 }}>
-              <CText type={'B16'}>{title}</CText>
-            </View>
-            <Ionicons
-              name={recommendationsCollapsed ? 'add-circle-outline' : 'remove-circle-outline'}
-              size={24}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
 
           {!recommendationsCollapsed && (
             <View style={{ marginTop: 8, position: 'relative' }}>
