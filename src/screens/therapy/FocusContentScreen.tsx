@@ -344,9 +344,22 @@ export default function FocusContentScreen({ navigation, route }: any) {
         </View>
         <CText type={'B18'}>{title}</CText>
         {!!contentText && (
-          <CText type={'R16'} color={colors.textColor} style={styles.mt10}>
-            {contentText}
-          </CText>
+          <View style={styles.mt10}>
+            {contentText
+              .split(/\n+/)
+              .filter((p: string) => p.trim().length > 0)
+              .map((paragraph: string, idx: number, arr: string[]) => (
+                <CText
+                  key={idx}
+                  type={'R16'}
+                  color={colors.textColor}
+                  align={'left'}
+                  style={{ marginBottom: idx < arr.length - 1 ? 20 : 0, lineHeight: 24 }}
+                >
+                  {paragraph.trim()}
+                </CText>
+              ))}
+          </View>
         )}
       </ScrollView>
       <View
