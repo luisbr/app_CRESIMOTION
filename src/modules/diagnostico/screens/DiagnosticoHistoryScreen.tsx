@@ -9,7 +9,6 @@ import {getHistory, getPostWork} from '../api/sessionsApi';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {moderateScale} from '../../../common/constants';
 import {useDrawer} from '../../../navigation/DrawerContext';
-import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import CMainAppBar from '../../../components/common/CMainAppBar';
 import {StackNav, TabNav} from '../../../navigation/NavigationKey';
@@ -20,7 +19,6 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
   const colors = useSelector(state => state.theme.theme);
   const dispatch = useDispatch();
   const drawer = useDrawer();
-  const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const [moduleKey] = useState<ModuleKey | null>(null);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -51,11 +49,6 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
       mounted = false;
     };
   }, [moduleKey]);
-
-  useEffect(() => {
-    setIsDiagnosticoFlow(true);
-    return () => setIsDiagnosticoFlow(false);
-  }, [setIsDiagnosticoFlow]);
 
   const formatLocalDate = (value: string) => {
     if (!value) return '';
