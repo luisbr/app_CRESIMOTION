@@ -272,8 +272,14 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         );
         const categories = await getMotivosCategories();
         console.log('[DiagnosticoSelectionScreen] getMotivosCategories response', categories);
-        const flatMotivos = categories.flatMap(category => category.motivos || []);
-        setMotivoCategories(categories);
+        const sortedCategories = categories.map(category => ({
+          ...category,
+          motivos: (category.motivos || []).sort((a, b) =>
+            String(a.titulo || '').localeCompare(String(b.titulo || ''), 'es')
+          )
+        }));
+        const flatMotivos = sortedCategories.flatMap(category => category.motivos || []);
+        setMotivoCategories(sortedCategories);
         catalog = flatMotivos;
       }
       if (moduleKey === 'sintomas_fisicos') {
