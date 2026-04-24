@@ -168,8 +168,8 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
     <CSafeAreaView>
       <TherapyHeader />
       <ScrollView contentContainerStyle={[styles.ph20, { paddingBottom: 140 }]} keyboardShouldPersistTaps={'handled'}>
-        <CText type={postEvalMessage?.recommendation_label ? 'B20' : 'R20'}>{title}</CText>
-        <CText type={postEvalMessage?.recommendation_label ? 'B20' : 'R20'} color={colors.textColor} style={styles.mt10}>
+        <CText type={postEvalMessage?.recommendation_label ? 'R20' : 'B20'}>{title}</CText>
+        <CText type={postEvalMessage?.recommendation_label ? 'R20' : 'B20'} color={colors.textColor} style={styles.mt10}>
           {message} <CText type={'R20'} color={colors.textColor}>Selecciona la opción que mejor describa cómo te sientes ahora.</CText>
         </CText>
         {!postEvalMessage && (
