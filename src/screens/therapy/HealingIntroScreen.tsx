@@ -24,6 +24,24 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+const localStyles = {
+  scrollIndicatorTrack: {
+    position: 'absolute' as const,
+    top: 4,
+    bottom: 4,
+    right: 4,
+    width: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+  },
+  scrollIndicatorThumb: {
+    position: 'absolute' as const,
+    left: 0,
+    right: 0,
+    borderRadius: 4,
+  },
+};
+
 export default function HealingIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const safeNavigation = useSafeNavigation(navigation);
@@ -53,6 +71,38 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const [initialized, setInitialized] = useState(false);
   const [recommendationsCollapsed, setRecommendationsCollapsed] = useState(false);
   const continuingRef = useRef(false);
+  const [scrollIndicator, setScrollIndicator] = useState({
+    visible: false,
+    top: 0,
+    height: 0,
+  });
+  const scrollLayoutHeightRef = useRef(0);
+  const scrollContentHeightRef = useRef(0);
+
+  const updateScrollIndicator = (scrollY = 0) => {
+    const layoutHeight = scrollLayoutHeightRef.current;
+    const contentHeight = scrollContentHeightRef.current;
+
+    if (!layoutHeight || !contentHeight || contentHeight <= layoutHeight + 4) {
+      setScrollIndicator({ visible: false, top: 0, height: 0 });
+      return;
+    }
+
+    const trackHeight = Math.max(layoutHeight - 4, 1);
+    const thumbHeight = Math.max(
+      (layoutHeight / contentHeight) * trackHeight,
+      36
+    );
+    const maxScroll = Math.max(contentHeight - layoutHeight, 1);
+    const maxThumbTop = Math.max(trackHeight - thumbHeight, 0);
+    const thumbTop = (scrollY / maxScroll) * maxThumbTop;
+
+    setScrollIndicator({
+      visible: true,
+      top: thumbTop,
+      height: thumbHeight,
+    });
+  };
 
   const allRequiredChecked = useMemo(() => {
     if (!required.length) return true;
@@ -238,8 +288,25 @@ export default function HealingIntroScreen({ navigation, route }: any) {
           </TouchableOpacity>
 
           {!recommendationsCollapsed && (
-            <View style={{ marginTop: 8 }}>
-              {required.map((opt: any, idx: number) => {
+            <View style={{ marginTop: 8, position: 'relative' }}>
+              <ScrollView
+                style={{ maxHeight: 300 }}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 18 }}
+                onLayout={event => {
+                  scrollLayoutHeightRef.current = event.nativeEvent.layout.height;
+                  updateScrollIndicator();
+                }}
+                onContentSizeChange={(_, height) => {
+                  scrollContentHeightRef.current = height;
+                  updateScrollIndicator();
+                }}
+                onScroll={event => {
+                  updateScrollIndicator(event.nativeEvent.contentOffset.y);
+                }}
+                scrollEventThrottle={16}
+              >
+                {required.map((opt: any, idx: number) => {
                 const key = opt?.key || String(idx);
                 const isOn = !!checks[key];
                 return (
@@ -283,6 +350,21 @@ export default function HealingIntroScreen({ navigation, route }: any) {
                     }}
                   />
                 </TouchableOpacity>
+              )}
+              </ScrollView>
+              {scrollIndicator.visible && (
+                <View pointerEvents="none" style={localStyles.scrollIndicatorTrack}>
+                  <View
+                    style={[
+                      localStyles.scrollIndicatorThumb,
+                      {
+                        top: scrollIndicator.top,
+                        height: scrollIndicator.height,
+                        backgroundColor: colors.primary,
+                      },
+                    ]}
+                  />
+                </View>
               )}
             </View>
           )}
