@@ -76,7 +76,7 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   const rawMessage = postEvalMessage?.message_body || null;
   const message = rawMessage
     ? rawMessage.replace(/de\s+(\w+)/, (match: string, p1: string) => `de ${p1.toLowerCase()}`)
-    : `¿Cómo percibes ahora la emoción de ${(resolvedEmotionLabel || `#${emocionId || ''}`).toLowerCase()}? Selecciona la opción que mejor describa cómo te sientes ahora.`;
+    : `¿Cómo percibes ahora la emoción de ${(resolvedEmotionLabel || `#${emocionId || ''}`).toLowerCase()}?`;
 
   useEffect(() => {
     if (inferredPostWork && nextResponse && !postEvalMessage) {
@@ -167,10 +167,10 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   return (
     <CSafeAreaView>
       <TherapyHeader />
-      <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 140 }]} keyboardShouldPersistTaps={'handled'}>
-        <CText type={'B20'}>{title}</CText>
-        <CText type={'B20'} color={colors.textColor} style={styles.mt10}>
-          {message}
+      <ScrollView contentContainerStyle={[styles.ph20, { paddingBottom: 140 }]} keyboardShouldPersistTaps={'handled'}>
+        <CText type={postEvalMessage?.recommendation_label ? 'B20' : 'R20'}>{title}</CText>
+        <CText type={postEvalMessage?.recommendation_label ? 'B20' : 'R20'} color={colors.textColor} style={styles.mt10}>
+          {message} <CText type={'R20'} color={colors.textColor}>Selecciona la opción que mejor describa cómo te sientes ahora.</CText>
         </CText>
         {!postEvalMessage && (
           <View style={styles.mt20}>
