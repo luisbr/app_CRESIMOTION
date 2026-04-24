@@ -486,7 +486,7 @@ export default function SubscriptionScreen({navigation}) {
 
                 <TouchableOpacity style={localStyles.cancelBtn} onPress={handleCancel} disabled={loading}>
                   <CText type={"B16"} color={colors.redAlert} align="center">
-                    Cancelar Suscripción
+                    Cancelar suscripción
                   </CText>
                 </TouchableOpacity>
               </View>

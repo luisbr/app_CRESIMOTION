@@ -397,7 +397,7 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
                           }}
                         >
                           <CText type={'S12'} color={colors.white}>
-                            {startingId === String(groupId) ? 'Cargando...' : 'Sesión Terapeutica'}
+                            {startingId === String(groupId) ? 'Cargando...' : 'Sesión terapeutica'}
                           </CText>
                         </TouchableOpacity>
                       </View>

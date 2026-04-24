@@ -291,7 +291,7 @@ export default function TasksScreen({ navigation }: any) {
         <View style={styles.mt20}>
           <CText type={'B16'}>Tareas</CText>
           {selectedItems.length === 0 ? (
-            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Selecciona un dia con tareas.</CText>
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Selecciona un día con tareas.</CText>
           ) : (
             selectedItems.map((event: AgendaEvent) => (
               <TouchableOpacity

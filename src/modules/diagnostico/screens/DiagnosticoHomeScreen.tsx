@@ -396,7 +396,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             </CButton>
           )}
             <CButton
-            title={'Más tarde Comenzar'}
+            title={'Más tarde'}
             type="B16"
             onPress={onPressMasTarde}
             bgColor={colors.inputBg}

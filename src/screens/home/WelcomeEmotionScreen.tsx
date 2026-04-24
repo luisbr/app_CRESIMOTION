@@ -164,7 +164,7 @@ export default function WelcomeEmotionScreen() {
     <View style={localStyles.welcomeCard}>
       {isLoggedIn && userName && (
         <CText type="B24" color={colors.primary} align="center" style={localStyles.welcomeTitle}>
-          ¡Hola {userName}!
+          ¡Hola, {userName}!
         </CText>
       )}
       <CText type="B18" color={colors.primary2} align="center" style={localStyles.welcomeSubtitle}>

@@ -20,7 +20,7 @@ const SESSION_OPTIONS = [
     id: 'start',
     title: 'Iniciar sesión terapéutica',
     description:
-      'Comienza o retoma tu proceso con un diagnóstico guiado y una experiencia cuidada.',
+      'Comienza o retoma tu proceso desde donde lo dejaste, con una experiencia cuidada.',
     icon: 'sparkles-outline',
     accent: '#0AA693',
     background: '#E6F7F4',

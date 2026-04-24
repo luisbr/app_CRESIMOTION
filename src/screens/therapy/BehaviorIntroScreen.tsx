@@ -169,7 +169,7 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
       <TherapyHeader />
       <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 140 }]} keyboardShouldPersistTaps={'handled'}>
         <CText type={'B20'}>{title}</CText>
-        <CText type={'B16'} color={colors.textColor} style={styles.mt10}>
+        <CText type={'B20'} color={colors.textColor} style={styles.mt10}>
           {message}
         </CText>
         {!postEvalMessage && (
