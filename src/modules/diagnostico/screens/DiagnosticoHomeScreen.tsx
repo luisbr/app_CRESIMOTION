@@ -395,7 +395,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
               </CText>
             </CButton>
           )}
-            <CButton
+            {/* <CButton
             title={'Más tarde'}
             type="B16"
             onPress={onPressMasTarde}
@@ -405,7 +405,7 @@ export default function DiagnosticoHomeScreen({navigation}: any) {
             style={null}
             textStyle={null}
             borderColor={null}
-          />
+          /> */}
           <CButton
             title={'Mis sesiones terapéuticas'}
             type="B16"
