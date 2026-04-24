@@ -213,8 +213,10 @@ export default function ApoyoFinancieroScreen() {
           <ActivityIndicator size="large" color="#0aa693" />
         </View>
       ) : (
+        <>
         <ScrollView
-          contentContainerStyle={localStyles.scroll}
+          contentContainerStyle={localStyles.scrollContent}
+          style={localStyles.scroll}
           showsVerticalScrollIndicator={true}>
 
           {/* Header card */}
@@ -322,7 +324,11 @@ export default function ApoyoFinancieroScreen() {
             );
           })}
 
-          {/* Botón Siguiente */}
+          <View style={{height: 100}} />
+        </ScrollView>
+
+        {/* Botón Siguiente flotante */}
+        <View style={localStyles.btnContainer}>
           <TouchableOpacity
             style={[localStyles.btn, (!todosRespondidos || enviando) && localStyles.btnDisabled]}
             onPress={onSiguiente}
@@ -334,9 +340,8 @@ export default function ApoyoFinancieroScreen() {
               <CText type="S16" color="#fff">Siguiente</CText>
             )}
           </TouchableOpacity>
-
-          <View style={{height: 30}} />
-        </ScrollView>
+        </View>
+        </>
       )}
     </View>
   );
@@ -345,7 +350,8 @@ export default function ApoyoFinancieroScreen() {
 const localStyles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#f5f5f5'},
   center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  scroll: {padding: 20},
+  scroll: {flex: 1},
+  scrollContent: {padding: 20, paddingBottom: 100},
   headerCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
@@ -441,9 +447,20 @@ const localStyles = StyleSheet.create({
     borderColor: '#0aa693',
     backgroundColor: '#e6fcf8',
   },
+  btnContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#f5f5f5',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
   btn: {
     backgroundColor: '#0aa693', borderRadius: 30,
-    paddingVertical: 16, alignItems: 'center', marginVertical: 20,
+    paddingVertical: 16, alignItems: 'center',
     shadowColor: '#0aa693',
     shadowOpacity: 0.35,
     shadowRadius: 10,

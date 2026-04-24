@@ -24,6 +24,24 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+const localStyles = {
+  scrollIndicatorTrack: {
+    position: 'absolute' as const,
+    top: 4,
+    bottom: 4,
+    right: 4,
+    width: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+  },
+  scrollIndicatorThumb: {
+    position: 'absolute' as const,
+    left: 0,
+    right: 0,
+    borderRadius: 4,
+  },
+};
+
 export default function HealingIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const safeNavigation = useSafeNavigation(navigation);
@@ -53,6 +71,38 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const [initialized, setInitialized] = useState(false);
   const [recommendationsCollapsed, setRecommendationsCollapsed] = useState(false);
   const continuingRef = useRef(false);
+  const [scrollIndicator, setScrollIndicator] = useState({
+    visible: false,
+    top: 0,
+    height: 0,
+  });
+  const scrollLayoutHeightRef = useRef(0);
+  const scrollContentHeightRef = useRef(0);
+
+  const updateScrollIndicator = (scrollY = 0) => {
+    const layoutHeight = scrollLayoutHeightRef.current;
+    const contentHeight = scrollContentHeightRef.current;
+
+    if (!layoutHeight || !contentHeight || contentHeight <= layoutHeight + 4) {
+      setScrollIndicator({ visible: false, top: 0, height: 0 });
+      return;
+    }
+
+    const trackHeight = Math.max(layoutHeight - 4, 1);
+    const thumbHeight = Math.max(
+      (layoutHeight / contentHeight) * trackHeight,
+      36
+    );
+    const maxScroll = Math.max(contentHeight - layoutHeight, 1);
+    const maxThumbTop = Math.max(trackHeight - thumbHeight, 0);
+    const thumbTop = (scrollY / maxScroll) * maxThumbTop;
+
+    setScrollIndicator({
+      visible: true,
+      top: thumbTop,
+      height: thumbHeight,
+    });
+  };
 
   const allRequiredChecked = useMemo(() => {
     if (!required.length) return true;
@@ -208,38 +258,42 @@ export default function HealingIntroScreen({ navigation, route }: any) {
       <TherapyHeader />
       <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 240 }]}>
         <CText type={'B18'}>{title}</CText>
-        <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-          {isDefaultIntro ? (
-            <>
-              {introText.split(DEFAULT_TEXT_HIGHLIGHT)[0]}
-              <CText type={'B14'} color={colors.labelColor}>
-                {/* {DEFAULT_TEXT_HIGHLIGHT} */}
-              </CText>
-              {introText.split(DEFAULT_TEXT_HIGHLIGHT)[1]}
-            </>
-          ) : (
-            introText
-          )}
-        </CText>
+        <View style={styles.mt10}>
+          <CText type={'R14'} color={colors.labelColor} style={{ lineHeight: 24 }} align={'left'}>
+            {introText.split('experiencia:')[0]}experiencia: 
+            <TouchableOpacity onPress={toggleRecommendations} style={{ transform: [{ translateY: 9 }], paddingLeft: 4 }}>
+              <Ionicons
+                name={recommendationsCollapsed ? 'add-circle-outline' : 'remove-circle-outline'}
+                size={20}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+            {introText.split('experiencia:')[1]}
+          </CText>
+        </View>
 
         <View style={styles.mt20}>
-          <TouchableOpacity
-            onPress={toggleRecommendations}
-            style={[styles.rowSpaceBetween, styles.pv15, { borderBottomWidth: 1, borderColor: colors.grayScale2 }]}
-          >
-            <View style={{ flex: 1, marginRight: 12 }}>
-              <CText type={'B16'}>{title}</CText>
-            </View>
-            <Ionicons
-              name={recommendationsCollapsed ? 'add-circle-outline' : 'remove-circle-outline'}
-              size={24}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
 
           {!recommendationsCollapsed && (
-            <View style={{ marginTop: 8 }}>
-              {required.map((opt: any, idx: number) => {
+            <View style={{ marginTop: 8, position: 'relative' }}>
+              <ScrollView
+                style={{ maxHeight: 300 }}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 18 }}
+                onLayout={event => {
+                  scrollLayoutHeightRef.current = event.nativeEvent.layout.height;
+                  updateScrollIndicator();
+                }}
+                onContentSizeChange={(_, height) => {
+                  scrollContentHeightRef.current = height;
+                  updateScrollIndicator();
+                }}
+                onScroll={event => {
+                  updateScrollIndicator(event.nativeEvent.contentOffset.y);
+                }}
+                scrollEventThrottle={16}
+              >
+                {required.map((opt: any, idx: number) => {
                 const key = opt?.key || String(idx);
                 const isOn = !!checks[key];
                 return (
@@ -283,6 +337,21 @@ export default function HealingIntroScreen({ navigation, route }: any) {
                     }}
                   />
                 </TouchableOpacity>
+              )}
+              </ScrollView>
+              {scrollIndicator.visible && (
+                <View pointerEvents="none" style={localStyles.scrollIndicatorTrack}>
+                  <View
+                    style={[
+                      localStyles.scrollIndicatorThumb,
+                      {
+                        top: scrollIndicator.top,
+                        height: scrollIndicator.height,
+                        backgroundColor: colors.primary,
+                      },
+                    ]}
+                  />
+                </View>
               )}
             </View>
           )}

@@ -144,6 +144,18 @@ export default function WelcomeEmotionScreen() {
   );
 
   const handleSelectEmotion = (emotionId: number) => {
+    const isNegativeEmotion = emotionId === 3 || emotionId === 4 || emotionId === 5;
+    
+    if (isNegativeEmotion) {
+      navigation.navigate(StackNav.TabNavigation, {
+        screen: TabNav.HomeTab,
+        params: {
+          screen: 'DiagnosticoHome',
+        },
+      });
+      return;
+    }
+
     setSelectedEmotion(emotionId);
     setSelectedPhrase(getRandomPhrase(emotionId));
   };
@@ -164,7 +176,7 @@ export default function WelcomeEmotionScreen() {
     <View style={localStyles.welcomeCard}>
       {isLoggedIn && userName && (
         <CText type="B24" color={colors.primary} align="center" style={localStyles.welcomeTitle}>
-          ¡Hola {userName}!
+          ¡Hola, {userName}!
         </CText>
       )}
       <CText type="B18" color={colors.primary2} align="center" style={localStyles.welcomeSubtitle}>

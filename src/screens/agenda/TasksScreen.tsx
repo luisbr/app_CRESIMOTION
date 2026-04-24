@@ -1,5 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
+import ActionSheet from 'react-native-actions-sheet';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
@@ -138,6 +140,8 @@ export default function TasksScreen({ navigation }: any) {
   const [view] = useState<'calendar'>('calendar');
   const [month, setMonth] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const sheetRef = useRef<any>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -188,6 +192,12 @@ export default function TasksScreen({ navigation }: any) {
   };
 
   const openTaskDetail = (item: any) => {
+    setSelectedTask(item);
+    sheetRef.current?.show();
+  };
+
+  const goToEditTask = (item: any) => {
+    sheetRef.current?.hide();
     navigation.navigate(StackNav.TabNavigation, {
       screen: TabNav.HomeTab,
       params: {
@@ -200,7 +210,7 @@ export default function TasksScreen({ navigation }: any) {
   const renderList = () => (
     <ScrollView contentContainerStyle={[styles.p20, { paddingBottom: 140 }]}> 
       {datesSorted.length === 0 ? (
-        <CText type={'S14'} color={colors.labelColor}>No hay tareas registradas.</CText>
+        <CText type={'S14'} color={colors.labelColor} align="left" style={{}}>No hay tareas registradas.</CText>
       ) : (
         datesSorted.map((dateKey, idx) => {
           const date = new Date(dateKey);
@@ -210,23 +220,26 @@ export default function TasksScreen({ navigation }: any) {
           return (
             <View key={dateKey} style={styles.mb15}>
               {showMonth && (
-                <CText type={'B16'} style={styles.mb5}>{monthLabel}</CText>
+                <CText type={'B16'} style={styles.mb5} align="left" color={colors.textColor}>{monthLabel}</CText>
               )}
-              <CText type={'S14'} color={colors.labelColor} style={styles.mb5}>{dateKey}</CText>
+              <CText type={'S14'} color={colors.labelColor} style={styles.mb5} align="left">{dateKey}</CText>
               {sortEventsByTime(eventsByDate.get(dateKey) || []).map((event: AgendaEvent) => (
                 <TouchableOpacity
                   key={event.id}
                   onPress={() => openTaskDetail(event.originalItem)}
-                  style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
+                  style={[styles.rowSpaceBetween, { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }]}
                 >
-                  <CText type={'S16'}>{event.title}</CText>
-                  {event.originalItem?.info && (
-                    <CText type={'R12'} color={colors.gray} style={styles.mt2}>{event.originalItem.info}</CText>
-                  )}
-                  <CText type={'R12'} color={colors.labelColor}>
-                    {!!event.time ? `${event.time}` : 'Horario libre'}
-                    {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}
-                  </CText>
+                  <View style={{ flex: 1 }}>
+                    <CText type={'S16'} align="left" color={colors.textColor} style={{}}>{event.title}</CText>
+                    {event.originalItem?.info && (
+                      <CText type={'R12'} color={colors.gray} style={styles.mt2} align="left">{event.originalItem.info}</CText>
+                    )}
+                    <CText type={'R12'} color={colors.labelColor} align="left" style={{}}>
+                      {!!event.time ? `${event.time}` : 'Horario libre'}
+                      {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}
+                    </CText>
+                  </View>
+                  <Ionicons name="information-circle-outline" size={24} color={colors.primary} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -246,16 +259,16 @@ export default function TasksScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={[styles.p20, { paddingBottom: 140 }]}> 
         <View style={[styles.rowSpaceBetween, styles.mb10]}>
           <TouchableOpacity onPress={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}>
-            <CText>{'<'} </CText>
+            <CText type="R14" align="center" color={colors.textColor} style={{}}>{'<'} </CText>
           </TouchableOpacity>
-          <CText type={'B16'}>{formatMonth(month)}</CText>
+          <CText type={'B16'} align="center" color={colors.textColor} style={{}}>{formatMonth(month)}</CText>
           <TouchableOpacity onPress={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}>
-            <CText>{'>'} </CText>
+            <CText type="R14" align="center" color={colors.textColor} style={{}}>{'>'} </CText>
           </TouchableOpacity>
         </View>
         <View style={[styles.rowSpaceBetween, { marginBottom: 6 }]}> 
           {daysHeader.map(day => (
-            <CText key={day} type={'S12'} color={colors.labelColor} style={{ flex: 1, textAlign: 'center' }}>{day}</CText>
+            <CText key={day} type={'S12'} color={colors.labelColor} style={{ flex: 1, textAlign: 'center' }} align="center">{day}</CText>
           ))}
         </View>
         {weeks.map((week, widx) => (
@@ -278,7 +291,7 @@ export default function TasksScreen({ navigation }: any) {
                     justifyContent: 'center',
                     backgroundColor: isSelected ? colors.primary : 'transparent',
                   }}>
-                    <CText color={isSelected ? colors.white : colors.textColor}>{cell.day || ''}</CText>
+                    <CText color={isSelected ? colors.white : colors.textColor} type="R14" align="center" style={{}}>{cell.day || ''}</CText>
                   </View>
                   {hasItems && (
                     <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary, marginTop: 2 }} />
@@ -289,24 +302,27 @@ export default function TasksScreen({ navigation }: any) {
           </View>
         ))}
         <View style={styles.mt20}>
-          <CText type={'B16'}>Tareas</CText>
+          <CText type={'B16'} align="left" color={colors.textColor} style={{}}>Tareas</CText>
           {selectedItems.length === 0 ? (
-            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Selecciona un dia con tareas.</CText>
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10} align="left">Selecciona un día con tareas.</CText>
           ) : (
             selectedItems.map((event: AgendaEvent) => (
               <TouchableOpacity
                 key={event.id}
-                onPress={() => navigation.navigate('TaskDetail', { item: event.originalItem })}
-                style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }}
+                onPress={() => openTaskDetail(event.originalItem)}
+                style={[styles.rowSpaceBetween, { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.grayScale2 }]}
               >
-                <CText type={'S16'}>{event.title}</CText>
-                {event.originalItem?.info && (
-                  <CText type={'R12'} color={colors.gray} style={styles.mt2}>{event.originalItem.info}</CText>
-                )}
-                <CText type={'R12'} color={colors.labelColor}>
-                  {!!event.time ? `${event.time}` : 'Horario libre'}
-                  {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}
-                </CText>
+                <View style={{ flex: 1 }}>
+                  <CText type={'S16'} align="left" color={colors.textColor} style={{}}>{event.title}</CText>
+                  {event.originalItem?.info && (
+                    <CText type={'R12'} color={colors.gray} style={styles.mt2} align="left">{event.originalItem.info}</CText>
+                  )}
+                  <CText type={'R12'} color={colors.labelColor} align="left" style={{}}>
+                    {!!event.time ? `${event.time}` : 'Horario libre'}
+                    {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}
+                  </CText>
+                </View>
+                <Ionicons name="information-circle-outline" size={24} color={colors.primary} />
               </TouchableOpacity>
             ))
           )}
@@ -320,7 +336,7 @@ export default function TasksScreen({ navigation }: any) {
       <CMainAppBar mode="main" />
       <View style={styles.p20}>
         <View style={[styles.rowSpaceBetween, styles.mb10]}>
-          <CText type={'B20'}>Tareas</CText>
+          <CText type={'B20'} align="left" color={colors.textColor} style={{}}>Tareas</CText>
         </View>
       </View>
       {loading ? (
@@ -329,11 +345,77 @@ export default function TasksScreen({ navigation }: any) {
         </View>
       ) : error ? (
         <View style={[styles.flex, styles.center, styles.ph20]}>
-          <CText>{error}</CText>
+          <CText type="R14" color={colors.textColor} align="center" style={{}}>{error}</CText>
         </View>
       ) : (
         renderCalendar()
       )}
+      <ActionSheet
+        ref={sheetRef}
+        gestureEnabled={true}
+        containerStyle={{
+          backgroundColor: colors.backgroundColor,
+          padding: 24,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+        }}
+      >
+        {selectedTask && (
+          <View style={styles.pb30}>
+            <View style={[styles.rowSpaceBetween, styles.mb15]}>
+              <CText type="B20" color={colors.textColor} align="left" style={{ flex: 1 }}>
+                {selectedTask.titulo || selectedTask.title || 'Tarea'}
+              </CText>
+              <TouchableOpacity onPress={() => sheetRef.current?.hide()}>
+                <Ionicons name="close" size={24} color={colors.gray} />
+              </TouchableOpacity>
+            </View>
+
+            {selectedTask.custom_title && selectedTask.custom_title !== selectedTask.titulo && (
+              <CText type="S16" color={colors.labelColor} align="left" style={styles.mb10}>
+                {selectedTask.custom_title}
+              </CText>
+            )}
+
+            {(selectedTask.info || selectedTask.descripcion || selectedTask.detalle || selectedTask.description) && (
+              <CText type="R16" color={colors.textColor} align="left" style={styles.mb20}>
+                {selectedTask.info || selectedTask.descripcion || selectedTask.detalle || selectedTask.description}
+              </CText>
+            )}
+
+            <View style={[styles.rowStart, styles.mb20]}>
+              <View style={[styles.mr20]}>
+                <CText type="S12" color={colors.labelColor} align="left" style={{}}>Hora</CText>
+                <CText type="S16" color={colors.textColor} align="left" style={{}}>
+                  {selectedTask.time || 'Horario libre'}
+                </CText>
+              </View>
+              <View>
+                <CText type="S12" color={colors.labelColor} align="left" style={{}}>Duración</CText>
+                <CText type="S16" color={colors.textColor} align="left" style={{}}>
+                  {selectedTask.duration_minutes ? `${selectedTask.duration_minutes} min` : 'Sin duración'}
+                </CText>
+              </View>
+            </View>
+
+            <CButton
+              title="Editar Tarea"
+              type="B16"
+              color={colors.white}
+              containerStyle={{}}
+              textStyle={{}}
+              style={{}}
+              bgColor={colors.primary}
+              borderColor={colors.primary}
+              frontIcon={null}
+              icon={null}
+              leftIconStyle={{}}
+              children={null}
+              onPress={() => goToEditTask(selectedTask)}
+            />
+          </View>
+        )}
+      </ActionSheet>
       <ScreenTooltip />
     </CSafeAreaView>
   );

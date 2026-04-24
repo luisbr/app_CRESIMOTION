@@ -67,7 +67,7 @@ export default function TestsListScreen() {
   return (
     <CSafeAreaView>
       {/* Header */}
-      <CMainAppBar mode="sub" title="Tests" />
+      <CMainAppBar mode="sub" title="Test" />
 
       {loading ? (
         <View style={styles.flex}>

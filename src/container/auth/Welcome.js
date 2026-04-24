@@ -51,7 +51,7 @@ export default function Welcome() {
           onPress={() => navigation.navigate(AuthNav.ReactivateAccount)}
         >
           <CText type={'M14'} align={'center'} color={'#0aa693'}>
-            ¿Ya tienes una cuenta suspendida? Reactivala aquí
+            ¿Suspendiste tu cuenta? Reactívala aquí
           </CText>
         </TouchableOpacity>
         <CButton

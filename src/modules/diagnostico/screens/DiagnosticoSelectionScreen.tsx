@@ -94,24 +94,24 @@ const renderResumenCard = ({
 
   return (
     <View style={{
-      backgroundColor: colors.inputBg,
-      borderRadius: moderateScale(12),
-      padding: moderateScale(12),
-      marginBottom: moderateScale(12),
+      // backgroundColor: colors.inputBg,
+      // borderRadius: moderateScale(12),
+      // padding: moderateScale(12),
+      // marginBottom: moderateScale(12),
     }}>
-      <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
+      {/* <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
         <Ionicons name="analytics-outline" size={moderateScale(20)} color={colors.primary} />
         <CText type={'B16'} style={{marginLeft: moderateScale(8)}}>
           Tu proceso de sanación
         </CText>
-      </View>
-      {periodoLabel && (
+      </View> */}
+      {/* {periodoLabel && (
         <CText type={'S12'} color={colors.labelColor} style={{marginBottom: moderateScale(8)}}>
           Período: {periodoLabel}
         </CText>
-      )}
+      )} */}
 
-      {resumenMotivoIds.length > 0 && (
+      {/* {resumenMotivoIds.length > 0 && (
         <View style={{marginBottom: moderateScale(12)}}>
           <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
             <CText type={'M14'}>Motivos abordados: {resumenMotivoIds.length}/{moduleLimits.motivos.limit}</CText>
@@ -141,9 +141,9 @@ const renderResumenCard = ({
             Puedes seleccionar los mismos
           </CText>
         </View>
-      )}
+      )} */}
 
-      {resumenEmocionIds.length > 0 && (
+      {/* {resumenEmocionIds.length > 0 && (
         <View style={{marginBottom: moderateScale(12)}}>
           <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: moderateScale(4)}}>
             <CText type={'M14'}>Síntomas emocionales trabajados: {resumenEmocionIds.length}/{moduleLimits.sintomas_emocionales.limit}</CText>
@@ -173,9 +173,9 @@ const renderResumenCard = ({
             Puedes seleccionar los mismos
           </CText>
         </View>
-      )}
+      )} */}
 
-      {(motivoStatus.status === 'exceeded' || emocionStatus.status === 'exceeded') && (
+      {/* {(motivoStatus.status === 'exceeded' || emocionStatus.status === 'exceeded') && (
         <View style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -189,7 +189,7 @@ const renderResumenCard = ({
             Excedes el límite de tu plan {periodo?.membresia_nombre || ''}
           </CText>
         </View>
-      )}
+      )} */}
     </View>
   );
 };
@@ -272,8 +272,14 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
         );
         const categories = await getMotivosCategories();
         console.log('[DiagnosticoSelectionScreen] getMotivosCategories response', categories);
-        const flatMotivos = categories.flatMap(category => category.motivos || []);
-        setMotivoCategories(categories);
+        const sortedCategories = categories.map(category => ({
+          ...category,
+          motivos: (category.motivos || []).sort((a, b) =>
+            String(a.titulo || '').localeCompare(String(b.titulo || ''), 'es')
+          )
+        }));
+        const flatMotivos = sortedCategories.flatMap(category => category.motivos || []);
+        setMotivoCategories(sortedCategories);
         catalog = flatMotivos;
       }
       if (moduleKey === 'sintomas_fisicos') {

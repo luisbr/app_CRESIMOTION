@@ -13,7 +13,7 @@ import {styles} from '../../theme';
 import {moderateScale} from '../../common/constants';
 import CDivider from '../../components/common/CDivider';
 import {getStoredNotifications, saveStoredNotifications} from '../../utils/notificationStorage';
-import {getPendingTherapySessions} from '../../api/sesionTerapeutica';
+import {getPendingTherapySessions, continuePendingTherapy, getSessionDetails} from '../../api/sesionTerapeutica';
 
 const DATE_FILTERS = [
   {key: 'day', label: 'Día'},
@@ -70,20 +70,41 @@ export default function Notification() {
       const json = await getPendingTherapySessions();
       if (json && json.ok !== false) {
         const items = json.items || json.data || [];
-        const flatItems = [];
-        items.forEach(group => {
+        const sessionItems = [];
+
+        // Fetch details for each pending session to get the motive
+        for (const group of items) {
           if (group.items && Array.isArray(group.items)) {
-            group.items.forEach(item => {
-              flatItems.push({
-                sesion_id: group.source_session_id,
-                id: item.id,
-                label: item.label,
-                tipo: item.tipo,
-              });
+            const sourceSessionId = group.source_session_id;
+            
+            // Get pending emotion from the pendientes list
+            const emocionItem = group.items.find(i => i.tipo === 'emocion');
+            const emocionLabel = emocionItem?.label || '';
+            
+            // Fetch session details to get the motive (may already be completed)
+            let motivoLabel = '';
+            try {
+              const sessionDetails = await getSessionDetails(sourceSessionId);
+              motivoLabel = sessionDetails?.motivo || '';
+            } catch (err) {
+              console.log('Error fetching session details:', err);
+            }
+            
+            // Format as "Motivo/Emocion"
+            const displayLabel = motivoLabel && emocionLabel 
+              ? `${motivoLabel}/${emocionLabel}`
+              : (motivoLabel || emocionLabel || 'Sesión pendiente');
+            
+            sessionItems.push({
+              sesion_id: sourceSessionId,
+              id: sourceSessionId,
+              label: displayLabel,
+              motivo: motivoLabel,
+              emocion: emocionLabel,
             });
           }
-        });
-        setPendientes(flatItems);
+        }
+        setPendientes(sessionItems);
       }
     } catch (e) {
       console.log('Error fetching pendientes:', e);
@@ -125,7 +146,7 @@ export default function Notification() {
 
     result.push({
       title: 'Sesiones terapéuticas pendientes',
-      data: pendientes.length > 0 ? pendientes.map(p => ({isPendienteApi: true, titulo: p.label || 'Sesión pendiente', id: p.sesion_id})) : [{localId: 'empty_pend', empty: true, isPendienteApi: true, titulo: 'No hay sesiones pendientes'}]
+      data: pendientes.length > 0 ? pendientes.map(p => ({isPendienteApi: true, titulo: p.label || 'Sesión pendiente', id: p.sesion_id, sesion_id: p.sesion_id})) : [{localId: 'empty_pend', empty: true, isPendienteApi: true, titulo: 'No hay sesiones pendientes'}]
     });
 
     if (historialNotifications.length > 0) {
@@ -161,10 +182,28 @@ export default function Notification() {
     }
 
     if (item.isPendienteApi) {
+      if (item.empty) {
+        return (
+          <View style={localStyles.itemContainer}>
+            <CText type={'R14'} style={{color: colors.grayScale4}}>{item.titulo}</CText>
+          </View>
+        );
+      }
       return (
-        <View style={localStyles.itemContainer}>
+        <TouchableOpacity 
+          style={localStyles.itemContainer}
+          onPress={async () => {
+            try {
+              const next = await continuePendingTherapy({source_session_id: item.sesion_id});
+              navigation.navigate('TherapyFlowRouter', {initialNext: next, entrypoint: 'pending'});
+            } catch (e) {
+              console.log('Error continuing session:', e);
+              Alert.alert('Error', 'No se pudo continuar la sesión.');
+            }
+          }}
+        >
           <CText type={'R14'} style={{color: colors.primary}}>{item.titulo}</CText>
-        </View>
+        </TouchableOpacity>
       );
     }
 
