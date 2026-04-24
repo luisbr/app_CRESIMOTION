@@ -26,6 +26,53 @@ import {
 } from '../../api/auth';
 import { obtenerEstadoApoyo } from '../../api/apoyoFinanciero';
 
+const PLAN_FEATURES = {
+  1: [ // Básico
+    { pre: "1 sanación emocional", checked: true },
+    { pre: "1 enfoque positivo", checked: true },
+    { pre: "1 recomendación para sanar", checked: true },
+    { pre: "1 ejercicio automatizado", checked: true },
+    { pre: "1 sesión del ", bold: "seminario mensual", checked: true },
+    { pre: "Soporte por ", bold: "email", checked: true },
+    { pre: "Acceso a la comunidad básica", checked: true },
+    { pre: "Soporte por chat", checked: false, strikethrough: true },
+    { pre: "Beneficios adicionales", checked: false, strikethrough: true },
+  ],
+  2: [ // Plata
+    { pre: "Beneficios mensuales:", title: true },
+    { pre: "4 sanaciones emocionales", checked: true },
+    { pre: "2 enfoques positivos", checked: true },
+    { pre: "3 recomendaciones", checked: true },
+    { pre: "4 ejercicios automatizados", checked: true },
+    { pre: "2 sesiones del ", bold: "seminario mensual", checked: true },
+    { bold: "Soporte por chat", checked: true },
+    { pre: "Acceso a la comunidad intermedia", checked: true },
+    { pre: "Beneficios adicionales", checked: false, strikethrough: true },
+  ],
+  3: [ // Oro
+    { pre: "Beneficios mensuales:", title: true },
+    { pre: "8 sanaciones emocionales", checked: true },
+    { pre: "4 enfoques positivos", checked: true },
+    { pre: "10 recomendaciones", checked: true },
+    { pre: "10 ejercicios automatizados", checked: true },
+    { pre: "3 sesiones del ", bold: "seminario mensual", checked: true },
+    { bold: "Soporte por chat", checked: true },
+    { pre: "Acceso a la comunidad premium", checked: true },
+    { pre: "Beneficios adicionales: contenidos exclusivos, recompensas", checked: false, strikethrough: true },
+  ],
+  4: [ // Platinum
+    { pre: "Beneficios mensuales:", title: true },
+    { pre: "sanaciones emocionales ", bold: "ilimitadas", checked: true },
+    { pre: "enfoques positivos ", bold: "ilimitados", checked: true },
+    { pre: "recomendaciones ", bold: "ilimitadas", checked: true },
+    { pre: "ejercicios automatizados ", bold: "ilimitados", checked: true },
+    { pre: "4 sesiones del ", bold: "seminario mensual", checked: true },
+    { bold: "Soporte telefónico", checked: true },
+    { pre: "Acceso a la comunidad platinum", checked: true },
+    { bold: "Beneficios adicionales: contenidos exclusivos, recompensas", checked: false },
+  ]
+};
+
 export default function SubscriptionScreen({navigation}) {
   const colors = useSelector(state => state.theme.theme);
   const [packages, setPackages] = useState([]);
@@ -382,7 +429,28 @@ export default function SubscriptionScreen({navigation}) {
 
         {/* Contenido: Conceptos o Descripción */}
         <View style={localStyles.featuresContainer}>
-          {hasConcepts ? (
+          {PLAN_FEATURES[pkg.id] ? (
+            PLAN_FEATURES[pkg.id].map((f, i) => (
+              <View key={i} style={localStyles.featureItem}>
+                {!f.title && f.checked && (
+                  <CText type={"B16"} color={colors.textColor} style={{marginRight: 4}}>
+                    √
+                  </CText>
+                )}
+                <CText 
+                  type={f.title ? "M16" : "M16"} 
+                  color={colors.textColor} 
+                  style={[
+                    styles.flex, 
+                    f.strikethrough && {textDecorationLine: 'line-through'}
+                  ]}
+                >
+                  {f.pre && <CText type={f.title ? "M16" : "M16"} style={f.strikethrough ? {textDecorationLine: 'line-through'} : undefined}>{f.pre}</CText>}
+                  {f.bold && <CText type={"B16"} style={f.strikethrough ? {textDecorationLine: 'line-through'} : undefined}>{f.bold}</CText>}
+                </CText>
+              </View>
+            ))
+          ) : hasConcepts ? (
             pkg.conceptos.map((c, i) => (
               <View key={i} style={localStyles.featureItem}>
                 <CText type={"B16"} color={colors.primary}>✓ </CText>
