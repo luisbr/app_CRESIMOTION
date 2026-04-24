@@ -144,6 +144,18 @@ export default function WelcomeEmotionScreen() {
   );
 
   const handleSelectEmotion = (emotionId: number) => {
+    const isNegativeEmotion = emotionId === 3 || emotionId === 4 || emotionId === 5;
+    
+    if (isNegativeEmotion) {
+      navigation.navigate(StackNav.TabNavigation, {
+        screen: TabNav.HomeTab,
+        params: {
+          screen: 'DiagnosticoHome',
+        },
+      });
+      return;
+    }
+
     setSelectedEmotion(emotionId);
     setSelectedPhrase(getRandomPhrase(emotionId));
   };
