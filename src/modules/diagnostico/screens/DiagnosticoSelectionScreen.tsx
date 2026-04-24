@@ -23,7 +23,7 @@ import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
 import {StackNav} from '../../../navigation/NavigationKey';
 import {API_BASE_URL} from '../../../api/config';
-import {getSession, getMembresias} from '../../../api/auth';
+import {getSession, getMembresias, getProfile} from '../../../api/auth';
 import {getOrCreateDeviceUUID} from '../../../utils/uuid';
 import {getResumenMensual} from '../../../api/sesionTerapeutica';
 
@@ -270,15 +270,33 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           '[DiagnosticoSelectionScreen] curl getMotivosCategories',
           `curl -X GET '${API_BASE_URL}/api/ws/diagnostico/motivos'`,
         );
-        const categories = await getMotivosCategories();
+        const [categories, profileResp] = await Promise.all([
+          getMotivosCategories(),
+          getProfile()
+        ]);
+        
         console.log('[DiagnosticoSelectionScreen] getMotivosCategories response', categories);
-        const sortedCategories = categories.map(category => ({
+        
+        const isMinor = parseInt((profileResp as any)?.perfil?.menor_edad || 0) === 1;
+
+        const sortedCategories = categories.map((category: any) => ({
           ...category,
-          motivos: (category.motivos || []).sort((a, b) =>
-            String(a.titulo || '').localeCompare(String(b.titulo || ''), 'es')
-          )
-        }));
-        const flatMotivos = sortedCategories.flatMap(category => category.motivos || []);
+          motivos: (category.motivos || [])
+            .filter((motivo: any) => {
+              if (isMinor) {
+                const titleLower = String(motivo.titulo || '').toLowerCase();
+                if (titleLower.includes('intimidad') && titleLower.includes('pareja')) {
+                  return false;
+                }
+              }
+              return true;
+            })
+            .sort((a: any, b: any) =>
+              String(a.titulo || '').localeCompare(String(b.titulo || ''), 'es')
+            )
+        })).filter((category: any) => category.motivos.length > 0);
+
+        const flatMotivos = sortedCategories.flatMap((category: any) => category.motivos || []);
         setMotivoCategories(sortedCategories);
         catalog = flatMotivos;
       }
@@ -693,7 +711,6 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
             color={colors.primary}
           />
         )}
-      )}
       {!!selectedIds.length && (
         <View style={{
           position: 'absolute', left: 0, right: 0, bottom: 0,
