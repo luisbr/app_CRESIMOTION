@@ -2,7 +2,7 @@ export default {
   Clinicly: "CresiMotion",
   onBoardingTitle1: "Te damos la más cálida bienvenida a CresiMotion",
   onBoardingTitle2: "Sesiones y hábitos",
-  onBoardingTitle3: "Test y comunidad",
+  onBoardingTitle3: "Test",
   onBoardingTitle4: "Recordatorios y beneficios",
   onBoardingTitle5: "Todo listo para comenzar.",
   onBoardingDesc1:

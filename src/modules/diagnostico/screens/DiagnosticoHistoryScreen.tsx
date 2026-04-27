@@ -218,7 +218,7 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
                   onPress={() => onToggleDetails(sessionKey)}
                 >
                   <CText type={'S16'}>
-                    {item?.completed_at ? `Sesión ${formatLocalDate(item.completed_at)}` : 'Sesión'}
+                    {item?.completed_at ? `Autoevaluaciones del ${formatLocalDate(item.completed_at)}` : 'Autoevaluación'}
                   </CText>
                   <CText type={'S12'} color={colors.labelColor}>
                     {`Motivos: ${motivos.length} · Emociones: ${emotions.length}`}

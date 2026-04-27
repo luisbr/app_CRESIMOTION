@@ -314,9 +314,7 @@ export default function TasksScreen({ navigation }: any) {
               >
                 <View style={{ flex: 1 }}>
                   <CText type={'S16'} align="left" color={colors.textColor} style={{}}>{event.title}</CText>
-                  {event.originalItem?.info && (
-                    <CText type={'R12'} color={colors.gray} style={styles.mt2} align="left">{event.originalItem.info}</CText>
-                  )}
+                  
                   <CText type={'R12'} color={colors.labelColor} align="left" style={{}}>
                     {!!event.time ? `${event.time}` : 'Horario libre'}
                     {event.durationMinutes ? ` · ${event.durationMinutes} min` : ''}

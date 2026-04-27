@@ -25,6 +25,7 @@ export default function FocusSelectScreen({ navigation, route }: any) {
   const motivos = useMemo(() => (postWork ? postWorkMotivos : extractMotivos(data)), [data, postWork, postWorkMotivos]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [skipFocus, setSkipFocus] = useState(false);
+  const [showPurposeInfo, setShowPurposeInfo] = useState(false);
   const [scrollIndicator, setScrollIndicator] = useState({visible: false, top: 0, height: 0});
   const scrollLayoutHeightRef = useRef(0);
   const scrollContentHeightRef = useRef(0);
@@ -82,6 +83,7 @@ export default function FocusSelectScreen({ navigation, route }: any) {
         return;
       }
       if (!sessionId || !selectedId) return;
+      console.log('[POST_WORK]22222');
       const next = await selectTherapyFocus({ sessionId, motivoId: selectedId });
       navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
@@ -124,9 +126,40 @@ export default function FocusSelectScreen({ navigation, route }: any) {
                 elevation: 5,
               }}
             >
-              <CText type={'B18'}>Enfoque positivo, constructivo e inteligente con la metodología de última generación CresiMotion</CText>
+              <View style={[styles.rowStart, {alignItems: 'center'}]}>
+                <CText type={'B18'} style={{flex: 1, flexShrink: 1}}>
+                  Enfoque positivo, constructivo e inteligente con la metodología de última generación CresiMotion
+                </CText>
+                <TouchableOpacity
+                  onPress={() => setShowPurposeInfo(prev => !prev)}
+                  style={{marginLeft: 8}}
+                >
+                  <Ionicons
+                    name={'information-circle-outline'}
+                    size={moderateScale(18)}
+                    color={colors.labelColor}
+                  />
+                </TouchableOpacity>
+              </View>
+              {showPurposeInfo && (
+                <View
+                  style={{
+                    marginTop: 10,
+                    padding: 10,
+                    borderRadius: 8,
+                    backgroundColor: colors.backgroundColor,
+                  }}
+                >
+                  <CText type={'B14'} style={{marginBottom: 6}}>
+                    Propósito del enfoque positivo
+                  </CText>
+                  <CText type={'R14'} color={colors.labelColor}>
+                    Te acompañamos para transformar el enfoque de lo negativo, doloroso o traumático hacia uno más positivo e inteligente, para reducir la intensidad del evento vivido. Sabemos que estás atravesando un momento difícil, y queremos que sepas que estamos aquí para apoyarte. Sin embargo, también queremos recordarte que este es un proceso de crecimiento y aprendizaje. Cada experiencia, incluso la más desafiante, nos ofrece la oportunidad de conocernos mejor y de entender lo que necesitamos en nuestras relaciones más significativas. Reproduce el audio y escúchalo con atención.
+                  </CText>
+                </View>
+              )}
               <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
-                Te acompañamos para transformar el enfoque de lo negativo, doloroso o traumático hacia uno más positivo e inteligente, para reducir la intensidad del evento vivido. Sabemos que estás atravesando un momento difícil, y queremos que sepas que estamos aquí para apoyarte. Sin embargo, también queremos recordarte que este es un proceso de crecimiento y aprendizaje. Cada experiencia, incluso la más desafiante, nos ofrece la oportunidad de conocernos mejor y de entender lo que necesitamos en nuestras relaciones más significativas. Reproduce el audio y escúchalo con atención.
+                Elige el motivo de tu estado emocional que más te está afectando en este momento.
               </CText>
             </View>
             {motivos.length === 0 ? (

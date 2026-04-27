@@ -239,7 +239,7 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
         const userId = s?.id ? String(s.id) : null;
         if (!userId) throw new Error('No se encontró una sesión activa.');
         const next = await getTherapyNext(userId);
-        navigation.replace('TherapyFlowRouter', {initialNext: next, entrypoint: 'results'});
+        navigation.replace('DiagnosticoHome', {hideHeroImage: true});
         return;
       } catch (e: any) {
         Alert.alert(
