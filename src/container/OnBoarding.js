@@ -98,6 +98,9 @@ export default function OnBoarding() {
         pagingEnabled
       />
       <View style={[localStyles.bottomContainer, {paddingBottom: Math.max(16, insets.bottom + 8)}]}>
+        <CText type={'R16'} align={'center'} color={colors.grayScale1}>
+          &nbsp;
+        </CText>
         <CText type={'B24'} align={'center'} style={styles.mb10}>
           {TitleText()}
         </CText>

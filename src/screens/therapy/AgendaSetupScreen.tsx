@@ -90,6 +90,9 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
   const [successMessage, setSuccessMessage] = useState('');
   const [saving, setSaving] = useState(false);
   const [loadingExercises, setLoadingExercises] = useState(false);
+  const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
+  const [savedExerciseIds, setSavedExerciseIds] = useState<Record<string, boolean>>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
   const savingRef = useRef(false);
 
   useEffect(() => {
@@ -248,42 +251,45 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
     return end >= minEnd;
   };
 
+  const currentRow = rows[currentIndex] || null;
+
   const canSave = useMemo(() => {
-    if (!sessionId || rows.length === 0) return false;
-    return rows.every((r: any) => r.time && r.duration_minutes && r.start_date && r.end_date && isValidRange(r));
-  }, [rows, sessionId]);
+    if (!sessionId || !currentRow) return false;
+    return !!(
+      currentRow.time &&
+      currentRow.duration_minutes &&
+      currentRow.start_date &&
+      currentRow.end_date &&
+      isValidRange(currentRow)
+    );
+  }, [currentRow, sessionId]);
 
   useEffect(() => {
     if (!sessionId) {
       console.log('[AgendaSetup] canSave=false: missing sessionId');
       return;
     }
-    if (rows.length === 0) {
-      console.log('[AgendaSetup] canSave=false: empty rows');
+    if (!currentRow) {
+      console.log('[AgendaSetup] canSave=false: empty current row');
       return;
     }
-    const details = rows.map((r: any, idx: number) => {
-      const missing = [];
-      if (!r.time) missing.push('time');
-      if (!r.duration_minutes) missing.push('duration_minutes');
-      if (!r.start_date) missing.push('start_date');
-      if (!r.end_date) missing.push('end_date');
-      const rangeOk = isValidRange(r);
-      return {
-        idx,
-        frequency: r.frequency,
-        days_of_week: r.days_of_week,
-        missing,
-        rangeOk,
-      };
-    });
-    const firstBad = details.find(d => d.missing.length > 0 || !d.rangeOk);
+    const missing = [];
+    if (!currentRow.time) missing.push('time');
+    if (!currentRow.duration_minutes) missing.push('duration_minutes');
+    if (!currentRow.start_date) missing.push('start_date');
+    if (!currentRow.end_date) missing.push('end_date');
+    const rangeOk = isValidRange(currentRow);
     console.log('[AgendaSetup] canSave', {
       canSave,
-      firstBad,
-      details,
+      currentIndex,
+      detail: {
+        frequency: currentRow.frequency,
+        days_of_week: currentRow.days_of_week,
+        missing,
+        rangeOk,
+      },
     });
-  }, [rows, sessionId, canSave]);
+  }, [currentRow, currentIndex, sessionId, canSave]);
 
   const updateRow = (idx: number, patch: any) => {
     setRows(prev =>
@@ -320,15 +326,27 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
     );
   };
 
+  const getNextPendingIndex = (startIdx: number, nextSavedMap: Record<string, boolean>) => {
+    for (let i = startIdx; i < rows.length; i += 1) {
+      const ejercicioId = rows[i]?.ejercicio_id;
+      if (!ejercicioId) continue;
+      if (!nextSavedMap[String(ejercicioId)]) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
   const onSave = async () => {
     if (savingRef.current) {
       return;
     }
-    let didNavigate = false;
     try {
       if (!sessionId) throw new Error('No se encontró la sesión.');
-      const invalid = rows.find(r => !isValidRange(r));
-      if (invalid) {
+      if (!currentRow) {
+        throw new Error('No se encontró el ejercicio actual.');
+      }
+      if (!isValidRange(currentRow)) {
         Alert.alert(
           'Error',
           'La fecha fin debe permitir al menos una ejecución según la periodicidad seleccionada.',
@@ -338,45 +356,73 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
       }
       savingRef.current = true;
       setSaving(true);
-      const items = rows.map((r: any) => ({
-        ejercicio_id: r.ejercicio_id,
-        custom_title: r.custom_title || r.title || '',
-        frequency: r.frequency || 'semanal',
-        times_per_day: Number(r.times_per_day || 1),
+      setSuccessMessage('');
+      const item = {
+        ejercicio_id: currentRow.ejercicio_id,
+        custom_title: currentRow.custom_title || currentRow.title || '',
+        frequency: currentRow.frequency || 'semanal',
+        times_per_day: Number(currentRow.times_per_day || 1),
         days_of_week:
-          r.frequency === 'semanal' || r.frequency === 'quincenal'
-            ? r.days_of_week
-            : r.frequency === 'diaria'
+          currentRow.frequency === 'semanal' || currentRow.frequency === 'quincenal'
+            ? currentRow.days_of_week
+            : currentRow.frequency === 'diaria'
               ? DAYS.map(d => d.key)
               : [],
         day_of_month:
-          r.frequency !== 'semanal' && r.frequency !== 'diaria' && r.frequency !== 'quincenal'
-            ? Number(r.day_of_month || 1)
+          currentRow.frequency !== 'semanal' && currentRow.frequency !== 'diaria' && currentRow.frequency !== 'quincenal'
+            ? Number(currentRow.day_of_month || 1)
             : undefined,
-        time: r.time,
-        duration_minutes: Number(r.duration_minutes || 0),
-        start_date: r.start_date,
-        end_date: r.end_date,
-      }));
-      const resp = await submitAgendaItems({ sessionId, items });
+        time: currentRow.time,
+        duration_minutes: Number(currentRow.duration_minutes || 0),
+        start_date: currentRow.start_date,
+        end_date: currentRow.end_date,
+      };
+
+      const resp = await submitAgendaItems({ sessionId, items: [item] });
       console.log('[THERAPY] agenda save response', resp);
-      await createCalendarEvents(items);
+      await createCalendarEvents([item]);
+
+      const key = String(item.ejercicio_id);
+      const nextSavedMap = { ...savedExerciseIds, [key]: true };
+      setSavedExerciseIds(nextSavedMap);
+      setRowErrors(prev => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+
+      const nextIndex = getNextPendingIndex(currentIndex + 1, nextSavedMap);
+      if (nextIndex >= 0) {
+        setCurrentIndex(nextIndex);
+        setSuccessMessage(`Ejercicio ${currentIndex + 1} de ${rows.length} guardado. Continúa con el siguiente.`);
+        return;
+      }
+
       setSuccessMessage('Agenda registrada correctamente.');
       setTimeout(() => {
         savingRef.current = false;
         setSaving(false);
-        safeNavigation.navigate('HomeRoot');
+        safeNavigation.navigate('Tasks');
       }, 1200);
-      didNavigate = true;
+      return;
     } catch (e: any) {
       const err = e as ApiError;
+      if (currentRow?.ejercicio_id) {
+        const key = String(currentRow.ejercicio_id);
+        setRowErrors(prev => ({
+          ...prev,
+          [key]:
+            err?.code === 'AGENDA_OVERLAP'
+              ? err.message || 'Este ejercicio se traslapa con otra actividad.'
+              : err?.message || 'No se pudo guardar este ejercicio.',
+        }));
+      }
       if (err?.code === 'AGENDA_OVERLAP') {
         Alert.alert('Traslape de agenda', err.message || 'La agenda se traslapa con otra actividad.');
       } else {
         Alert.alert('Error', e?.message || 'No se pudo guardar la agenda.');
       }
     } finally {
-      if (didNavigate) return;
       savingRef.current = false;
       setSaving(false);
     }
@@ -479,6 +525,22 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
         <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
           Define cuándo y cómo quieres realizar cada ejercicio.
         </CText>
+        {rows.length > 1 && !!currentRow && (
+          <View
+            style={{
+              marginTop: 16,
+              alignSelf: 'flex-start',
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+              borderRadius: 14,
+              backgroundColor: colors.inputBg,
+            }}
+          >
+            <CText type={'S14'} color={colors.labelColor}>
+              Ejercicio {currentIndex + 1} de {rows.length}
+            </CText>
+          </View>
+        )}
         {loadingExercises && rows.length === 0 && (
           <View style={styles.mt20}>
             <CText type={'S14'} color={colors.labelColor}>
@@ -496,7 +558,9 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
             </View>
           </View>
         )}
-        {rows.map((row: any, idx: number) => (
+        {(rows.length > 1 && currentRow ? [currentRow] : rows).map((row: any) => {
+          const idx = rows.findIndex((item: any) => Number(item.ejercicio_id) === Number(row.ejercicio_id));
+          return (
           <View key={String(row.ejercicio_id)} style={[styles.mt20, { borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 12, padding: 12 }]}>
             <View style={[styles.rowStart, styles.justifyBetween]}>
               <CText type={'B16'} style={styles.flex}>
@@ -523,6 +587,20 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
               >
                 <CText type={'R12'} color={colors.labelColor} style={{ lineHeight: 18 }}>
                   {row.info}
+                </CText>
+              </View>
+            )}
+            {!!rowErrors[String(row.ejercicio_id)] && (
+              <View
+                style={{
+                  marginTop: 8,
+                  padding: 10,
+                  borderRadius: 8,
+                  backgroundColor: '#FEE2E2',
+                }}
+              >
+                <CText type={'R12'} color={'#991B1B'} style={{ lineHeight: 18 }}>
+                  {rowErrors[String(row.ejercicio_id)]}
                 </CText>
               </View>
             )}
@@ -666,7 +744,7 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
               <CText color={colors.textColor}>{row.end_date}</CText>
             </TouchableOpacity>
           </View>
-        ))}
+        )})}
       </ScrollView>
       {datePicker && (
         <DateTimePicker
@@ -705,7 +783,12 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
             elevation: 6,
           }}
         >
-          <CButton title={'Guardar agenda'} disabled={!canSave || saving} loading={saving} onPress={onSave} />
+          <CButton
+            title={rows.length > 1 ? `Guardar agenda ${currentIndex + 1}/${rows.length}` : 'Guardar agenda'}
+            disabled={!canSave || saving}
+            loading={saving}
+            onPress={onSave}
+          />
         </View>
       )}
       <ScreenTooltip />

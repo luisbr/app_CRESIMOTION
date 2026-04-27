@@ -18,6 +18,8 @@ import { getHideTherapyRecommendations } from '../../utils/AsyncStorage';
 
 const DEFAULT_TEXT =
   'Recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia:';
+const DEFAULT_HEALING_TEXT =
+  'Antes de la fase de sanación emocional, recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia:';
 const DEFAULT_TEXT_HIGHLIGHT = 'dos fases';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -52,14 +54,15 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const postWorkMotivoId = route?.params?.motivoId || null;
   const postWorkMotivoLabel = route?.params?.motivoLabel || '';
   const postWorkEmotions = Array.isArray(route?.params?.emotions) ? route.params.emotions : [];
-  const { sessionId, data } = normalizeTherapyNext(nextPayload);
+  const { sessionId, data, route: nextRoute } = normalizeTherapyNext(nextPayload);
+  const isHealingIntro = nextRoute === 'HEALING_INTRO';
   const title = postWork ? (data?.title || 'Recomendaciones para aprovechar el enfoque positivo') : (data?.title || 'Sanación emocional');
   const required = Array.isArray(data?.checkboxes_required) ? data.checkboxes_required : [];
   const optional = data?.checkbox_optional || null;
   const introText = postWork
     ? 'Recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia:'
-    : (data?.text || data?.texto || DEFAULT_TEXT);
-  const isDefaultIntro = introText === DEFAULT_TEXT;
+    : (data?.text || data?.texto || (isHealingIntro ? DEFAULT_HEALING_TEXT : DEFAULT_TEXT));
+  const isDefaultIntro = introText === DEFAULT_TEXT || introText === DEFAULT_HEALING_TEXT;
   const audioUrl = getAudioUrl(data?.audio || data);
   const audioTitle = getAudioTitle(data?.audio || data);
 

@@ -21,7 +21,7 @@ import {
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 
 const INTRO_TEXT =
-  'Nos alegra tenerte aquí. La sanación emocional es el camino para sanar las heridas del pasado, procesar las emociones no resueltas y restaurar la paz interna. A través de herramientas avanzadas y personalizadas, te ayudaremos a reconocer, comprender y liberar esas emociones, permitiéndote vivir con mayor equilibrio, autocomprensión y resiliencia.\n\nAhora, a fin de proporcionarte una Sesión de sanación emocional para reducir considerablemente una a una cualquier emoción dolorosa, selecciona la emoción que más está teniendo impacto en tu vida en este momento, entre las emociones que marcaste en nivel Muy alto, Alto o Medio.';
+  'Nos alegra tenerte aquí. La sanación emocional es el camino para sanar las heridas del pasado, procesar las emociones no resueltas y restaurar la paz interna. A través de herramientas avanzadas y personalizadas, te ayudaremos a reconocer, comprender y liberar esas emociones, permitiéndote vivir con mayor equilibrio, autocomprensión y resiliencia.\n\nSelecciona la emoción que más está teniendo impacto en tu vida en este momento, entre las emociones que marcaste en nivel Muy alto, Alto o Medio.';
 
 export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);

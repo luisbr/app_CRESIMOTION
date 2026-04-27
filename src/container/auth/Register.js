@@ -1057,9 +1057,11 @@ export default function Register({navigation}) {
               {label: 'No binario', value: 'No binario'},
               // {label: 'Otro', value: 'Otro'},
               {label: 'Pangénero', value: 'Pangénero'},
-              {label: 'Prefiero no especificar', value: 'Prefiero no especificar'},
+              
               {label: 'Transgénero (FtM)', value: 'Transgénero (FtM)'},
               {label: 'Transgénero (MtF)', value: 'Transgénero (MtF)'},
+              {label: 'Prefiero no especificar', value: 'Prefiero no especificar'},
+              {label: 'Otro', value: 'Otro'},
             ]}
             onChange={onChangeGenero}
             required
@@ -1100,6 +1102,7 @@ export default function Register({navigation}) {
               {label: 'Portugués', value: 'Portugués'},
               {label: 'Ruso', value: 'Ruso'},
               {label: 'Turco', value: 'Turco'},
+              {label: 'Otro', value: 'Otro'},
             ]}
             onChange={onChangeIdioma}
             required
@@ -1117,11 +1120,11 @@ export default function Register({navigation}) {
               {label: strings.howDidYouHearFamily, value: strings.howDidYouHearFamily},
               {label: strings.howDidYouHearFriends, value: strings.howDidYouHearFriends},
               {label: strings.howDidYouHearAds, value: strings.howDidYouHearAds},
-              // {label: strings.howDidYouHearOther, value: 'Otro'},
+               {label: strings.howDidYouHearOther, value: 'Otro'},
             ]}
             onChange={onChangeComoSeEntero}
           />
-          {comoSeEnteroOption === 'Otro' && (
+          {comoSeEnteroOption === 'Otroxxx' && (
             <CInput
               label={strings.howDidYouHearOtherInputLabel}
               placeHolder={strings.howDidYouHearOtherInputPlaceholder}
