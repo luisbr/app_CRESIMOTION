@@ -78,8 +78,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
     Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
-      shouldDuckAndroid: true,
+      staysActiveInBackground: true,
+      shouldDuckAndroid: false,
       playThroughEarpieceAndroid: false,
     }).catch(e => console.log('[THERAPY] audio mode error', e));
     return () => {
@@ -111,8 +111,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-        shouldDuckAndroid: true,
+        staysActiveInBackground: true,
+        shouldDuckAndroid: false,
         playThroughEarpieceAndroid: false,
       });
     } catch (e) {
