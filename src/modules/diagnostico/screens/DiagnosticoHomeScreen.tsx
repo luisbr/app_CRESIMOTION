@@ -21,6 +21,7 @@ import {getStoredNotifications} from '../../../utils/notificationStorage';
 import {StackNav, TabNav} from '../../../navigation/NavigationKey';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import CMainAppBar from '../../../components/common/CMainAppBar';
+import CCustomScrollView from '../../../components/common/CCustomScrollView';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
 import LimitReachedModal from '../../../components/common/LimitReachedModal';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -49,9 +50,6 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
     comfort: false,
     understood: false,
   });
-  const [scrollIndicator, setScrollIndicator] = useState({visible: false, top: 0, height: 0});
-  const scrollLayoutHeightRef = useRef(0);
-  const scrollContentHeightRef = useRef(0);
   const hideHeroImage = !!route?.params?.hideHeroImage;
   const nextModuleKey: ModuleKey =
     (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
@@ -107,33 +105,6 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
   const canContinueTherapyChecklist = therapyChecklistItems.every(item => therapyIntroChecks[item.key]);
 
   console.log('DiagnosticoHomeScreen render', {nextModuleKey, therapyNext});
-
-  const updateScrollIndicator = (scrollY = 0) => {
-    const layoutHeight = scrollLayoutHeightRef.current;
-    const contentHeight = scrollContentHeightRef.current;
-    if (!layoutHeight) {
-      setScrollIndicator({visible: false, top: 0, height: 0});
-      return;
-    }
-    if (!contentHeight || contentHeight <= layoutHeight + 4) {
-      setScrollIndicator({
-        visible: true,
-        top: 0,
-        height: Math.max(layoutHeight - moderateScale(8), moderateScale(36)),
-      });
-      return;
-    }
-    const trackHeight = Math.max(layoutHeight - moderateScale(8), 1);
-    const thumbHeight = Math.max((layoutHeight / contentHeight) * trackHeight, moderateScale(36));
-    const maxScroll = Math.max(contentHeight - layoutHeight, 1);
-    const maxThumbTop = Math.max(trackHeight - thumbHeight, 0);
-    const thumbTop = (scrollY / maxScroll) * maxThumbTop;
-    setScrollIndicator({
-      visible: true,
-      top: thumbTop,
-      height: thumbHeight,
-    });
-  };
 
   const checkResume = useCallback(async () => {
     if (isCheckingRef.current) return;
@@ -457,66 +428,38 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
                 padding: moderateScale(14),
               }}
             >
-              <View style={localStyles.therapyChecklistScrollWrap}>
-                <ScrollView
-                  style={localStyles.therapyChecklistScroll}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={localStyles.therapyChecklistScrollContent}
-                  onLayout={event => {
-                    scrollLayoutHeightRef.current = event.nativeEvent.layout.height;
-                    updateScrollIndicator();
-                  }}
-                  onContentSizeChange={(_, height) => {
-                    scrollContentHeightRef.current = height;
-                    updateScrollIndicator();
-                  }}
-                  onScroll={event => {
-                    updateScrollIndicator(event.nativeEvent.contentOffset.y);
-                  }}
-                  scrollEventThrottle={16}
-                >
-                  <CText type={'B16'} color={colors.textColor} style={styles.mb10}>
-                    Recomendaciones para aprovechar la sesión terapéutica
-                  </CText>
-                  <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
-                    Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:
-                  </CText>
-                  {therapyChecklistItems.map(item => {
-                    const isOn = !!therapyIntroChecks[item.key];
-                    return (
-                      <TouchableOpacity
-                        key={item.key}
-                        onPress={() => toggleTherapyChecklistItem(item.key)}
-                        style={[styles.rowStart, {alignItems: 'flex-start', marginTop: moderateScale(10)}]}
-                      >
-                        <Ionicons
-                          name={isOn ? 'checkmark-circle' : 'ellipse-outline'}
-                          size={moderateScale(22)}
-                          color={isOn ? colors.primary : colors.grayScale2}
-                          style={{marginRight: moderateScale(10), marginTop: moderateScale(1)}}
-                        />
-                        <CText type={'R14'} color={colors.textColor} style={{flex: 1, flexShrink: 1}}>
-                          {item.label}
-                        </CText>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-                {scrollIndicator.visible && (
-                  <View pointerEvents="none" style={localStyles.scrollIndicatorTrack}>
-                    <View
-                      style={[
-                        localStyles.scrollIndicatorThumb,
-                        {
-                          top: scrollIndicator.top,
-                          height: scrollIndicator.height,
-                          backgroundColor: colors.primary,
-                        },
-                      ]}
-                    />
-                  </View>
-                )}
-              </View>
+              <CCustomScrollView
+                containerStyle={localStyles.therapyChecklistScrollWrap}
+                style={localStyles.therapyChecklistScroll}
+                contentContainerStyle={localStyles.therapyChecklistScrollContent}
+              >
+                <CText type={'B16'} color={colors.textColor} style={styles.mb10}>
+                  Recomendaciones para aprovechar la sesión terapéutica
+                </CText>
+                <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
+                  Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:
+                </CText>
+                {therapyChecklistItems.map(item => {
+                  const isOn = !!therapyIntroChecks[item.key];
+                  return (
+                    <TouchableOpacity
+                      key={item.key}
+                      onPress={() => toggleTherapyChecklistItem(item.key)}
+                      style={[styles.rowStart, {alignItems: 'flex-start', marginTop: moderateScale(10)}]}
+                    >
+                      <Ionicons
+                        name={isOn ? 'checkmark-circle' : 'ellipse-outline'}
+                        size={moderateScale(22)}
+                        color={isOn ? colors.primary : colors.grayScale2}
+                        style={{marginRight: moderateScale(10), marginTop: moderateScale(1)}}
+                      />
+                      <CText type={'R14'} color={colors.textColor} style={{flex: 1, flexShrink: 1}}>
+                        {item.label}
+                      </CText>
+                    </TouchableOpacity>
+                  );
+                })}
+              </CCustomScrollView>
             </View>
           )}
           {loading ? (
@@ -680,21 +623,6 @@ const localStyles: any = {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-  },
-  scrollIndicatorTrack: {
-    position: 'absolute',
-    top: moderateScale(4),
-    bottom: moderateScale(4),
-    right: moderateScale(4),
-    width: moderateScale(8),
-    borderRadius: moderateScale(4),
-    backgroundColor: 'rgba(0, 0, 0, 0.08)',
-  },
-  scrollIndicatorThumb: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    borderRadius: moderateScale(4),
   },
   bottomActionBar: {
     position: 'absolute',

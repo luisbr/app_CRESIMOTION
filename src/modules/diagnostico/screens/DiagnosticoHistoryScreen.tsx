@@ -12,6 +12,7 @@ import {useDrawer} from '../../../navigation/DrawerContext';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import CMainAppBar from '../../../components/common/CMainAppBar';
 import {StackNav, TabNav} from '../../../navigation/NavigationKey';
+import CCustomScrollView from '../../../components/common/CCustomScrollView';
 
 const MODULES: ModuleKey[] = ['motivos', 'sintomas_fisicos', 'sintomas_emocionales'];
 
@@ -177,7 +178,7 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
   return (
     <CSafeAreaView>
       <CMainAppBar mode="sub" title="Mis autoevaluaciones" />
-      <ScrollView showsVerticalScrollIndicator={true} style={styles.flex} contentContainerStyle={[styles.p20, {paddingTop: moderateScale(10)}]}>
+      <CCustomScrollView  contentContainerStyle={[styles.p20, {paddingTop: moderateScale(10)}]}>
         {loading ? (
           <ActivityIndicator color={colors.primary} />
         ) : error ? (
@@ -401,7 +402,7 @@ export default function DiagnosticoHistoryScreen({navigation}: any) {
             })}
           </>
         )}
-      </ScrollView>
+      </CCustomScrollView>
       {SHOW_SCREEN_TOOLTIP && (
         <View style={localStyles.screenTooltip} pointerEvents="none">
           <CText type={'S12'} color={'#fff'}>

@@ -1,7 +1,6 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
-  ScrollView,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
@@ -12,6 +11,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
+import CCustomScrollView from '../../components/common/CCustomScrollView';
 import {styles} from '../../theme';
 import {moderateScale} from '../../common/constants';
 import {StackNav} from '../../navigation/NavigationKey';
@@ -98,7 +98,7 @@ export default function TestDetailScreen() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={localStyles.scroll} showsVerticalScrollIndicator={true}>
+      <CCustomScrollView contentContainerStyle={localStyles.scroll}>
         
         {/* Descripción / Objetivo card */}
         {!!test.descripcion && (
@@ -186,7 +186,7 @@ export default function TestDetailScreen() {
             Responde todas las preguntas para continuar
           </CText>
         )}
-      </ScrollView>
+      </CCustomScrollView>
     </CSafeAreaView>
   );
 }

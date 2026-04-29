@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -15,6 +10,7 @@ import CMainAppBar from '../../components/common/CMainAppBar';
 import CText from '../../components/common/CText';
 import {moderateScale} from '../../common/constants';
 import {StackNav, TabNav} from '../../navigation/NavigationKey';
+import CCustomScrollView from '../../components/common/CCustomScrollView';
 
 const EVALUATION_OPTIONS = [
   {
@@ -47,7 +43,7 @@ export default function EvaluationsMenuScreen() {
   return (
     <CSafeAreaView color="#F7FBF8" style={localStyles.safeArea}>
       <CMainAppBar mode="sub" title="Autoevaluaciones" />
-      <ScrollView
+      <CCustomScrollView
         contentContainerStyle={[
           localStyles.content,
           {paddingBottom: insets.bottom + moderateScale(24)},
@@ -93,7 +89,7 @@ export default function EvaluationsMenuScreen() {
             </View>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </CCustomScrollView>
     </CSafeAreaView>
   );
 }
