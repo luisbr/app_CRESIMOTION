@@ -1,4 +1,4 @@
-import {SectionList, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
+import {SectionList, StyleSheet, View, TouchableOpacity, Alert, Modal, ScrollView} from 'react-native';
 import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
@@ -60,6 +60,8 @@ export default function Notification() {
   const [pendientes, setPendientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dateFilter, setDateFilter] = useState('day');
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -125,6 +127,92 @@ export default function Notification() {
     await saveStoredNotifications(updated);
   };
 
+  const addMockNotificationsSet = async () => {
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    
+    const mockSet = [
+      {
+        localId: `mock_new_${now}_1`,
+        mensaje: 'Haz una pausa activa (Nueva)',
+        isNew: true,
+        isRead: false,
+        isFavorite: false,
+        isArchived: false,
+        isDeleted: false,
+        createdAt: now,
+      },
+      {
+        localId: `mock_new_${now}_2`,
+        mensaje: 'Recuerda llamar a un familiar (Nueva)',
+        isNew: true,
+        isRead: false,
+        isFavorite: false,
+        isArchived: false,
+        isDeleted: false,
+        createdAt: now,
+      },
+      {
+        localId: `mock_unread_${now}_1`,
+        mensaje: 'Haz ejercicio (Sin leer)',
+        isNew: false,
+        isRead: false,
+        isFavorite: false,
+        isArchived: false,
+        isDeleted: false,
+        createdAt: now - oneDay,
+      },
+      {
+        localId: `mock_fav_${now}_1`,
+        mensaje: 'Recuerda poner límites (Favorito)',
+        isNew: false,
+        isRead: true,
+        isFavorite: true,
+        isArchived: false,
+        isDeleted: false,
+        createdAt: now - (2 * oneDay),
+      },
+      {
+        localId: `mock_promo_${now}_1`,
+        mensaje: 'Aprovecha la promoción ofertas exclusivas',
+        tipo: 'promocion',
+        isNew: true,
+        isRead: false,
+        isFavorite: false,
+        isArchived: false,
+        isDeleted: false,
+        createdAt: now,
+      },
+      {
+        localId: `mock_sesion_${now}_1`,
+        mensaje: 'Separación de pareja/Tristeza (Notificación Push)',
+        tipo: 'sesion_pendiente',
+        data: { sesion_id: 12345 },
+        isNew: true,
+        isRead: false,
+        isFavorite: false,
+        isArchived: false,
+        isDeleted: false,
+        createdAt: now,
+      },
+      {
+        localId: `mock_historial_${now}_1`,
+        mensaje: 'Mensaje antiguo para el historial',
+        isNew: false,
+        isRead: true,
+        isFavorite: false,
+        isArchived: false,
+        isDeleted: false,
+        createdAt: now - (40 * oneDay),
+      }
+    ];
+
+    const updated = [...mockSet, ...notifications];
+    setNotifications(updated);
+    await saveStoredNotifications(updated);
+    Alert.alert('Éxito', 'Set de notificaciones de prueba agregado');
+  };
+
   const historialNotifications = useMemo(() => {
     const filtered = notifications.filter(n => !n.isDeleted && !n.isArchived);
     return groupByDate(filtered, dateFilter);
@@ -132,21 +220,38 @@ export default function Notification() {
 
   const sections = useMemo(() => {
     const result = [];
-    const news = notifications.filter(n => n.isNew && !n.isDeleted && !n.isArchived && n.tipo !== 'promocion');
+    const news = notifications.filter(n => n.isNew && !n.isDeleted && !n.isArchived && n.tipo !== 'promocion' && n.tipo !== 'sesion_pendiente');
     result.push({title: `Nuevos mensajes (${news.length})`, data: news.length > 0 ? news : [{localId: 'empty_news', empty: true, tipo: 'new', mensaje: 'No hay nuevos mensajes'}]});
 
-    const unread = notifications.filter(n => !n.isNew && !n.isRead && !n.isDeleted && !n.isArchived && n.tipo !== 'promocion' && !n.isFavorite);
+    const unread = notifications.filter(n => !n.isNew && !n.isRead && !n.isDeleted && !n.isArchived && n.tipo !== 'promocion' && n.tipo !== 'sesion_pendiente' && !n.isFavorite);
     result.push({title: `Mensajes sin leer (${unread.length})`, data: unread.length > 0 ? unread : [{localId: 'empty_unread', empty: true, tipo: 'unread', mensaje: 'No hay mensajes sin leer'}]});
 
-    const favorites = notifications.filter(n => n.isFavorite && !n.isDeleted && !n.isArchived && n.tipo !== 'promocion');
+    const favorites = notifications.filter(n => n.isFavorite && !n.isDeleted && !n.isArchived && n.tipo !== 'promocion' && n.tipo !== 'sesion_pendiente');
     result.push({title: `Favoritos (${favorites.length})`, data: favorites.length > 0 ? favorites : [{localId: 'empty_fav', empty: true, tipo: 'fav', mensaje: 'No hay favoritos'}]});
 
     const promos = notifications.filter(n => n.tipo === 'promocion' && !n.isDeleted && !n.isArchived);
     result.push({title: `Promociones y ofertas (${promos.length})`, data: promos.length > 0 ? promos : [{localId: 'empty_promo', empty: true, tipo: 'promocion', mensaje: 'No hay promociones'}]});
 
+    const pendientesPush = notifications.filter(n => n.tipo === 'sesion_pendiente' && !n.isDeleted && !n.isArchived);
+    const pendientesCombinadas = [
+      ...pendientes.map(p => ({
+        isPendienteApi: true, 
+        titulo: p.label || 'Sesión pendiente', 
+        id: p.sesion_id, 
+        sesion_id: p.sesion_id,
+        localId: `api_${p.sesion_id}`
+      })),
+      ...pendientesPush.map(n => ({
+        ...n,
+        isPushPendiente: true
+      }))
+    ];
+
     result.push({
       title: 'Sesiones terapéuticas pendientes',
-      data: pendientes.length > 0 ? pendientes.map(p => ({isPendienteApi: true, titulo: p.label || 'Sesión pendiente', id: p.sesion_id, sesion_id: p.sesion_id})) : [{localId: 'empty_pend', empty: true, isPendienteApi: true, titulo: 'No hay sesiones pendientes'}]
+      data: pendientesCombinadas.length > 0 
+        ? pendientesCombinadas 
+        : [{localId: 'empty_pend', empty: true, isPendienteApi: true, titulo: 'No hay sesiones pendientes'}]
     });
 
     if (historialNotifications.length > 0) {
@@ -207,29 +312,60 @@ export default function Notification() {
       );
     }
 
+    const isPushPendiente = item.isPushPendiente || item.tipo === 'sesion_pendiente';
+
     return (
       <View style={localStyles.itemContainer}>
-        <View style={styles.flex}>
+        <TouchableOpacity 
+          style={styles.flex}
+          onPress={() => handleNotificationPress(item, isPushPendiente)}
+        >
           <CText type={'R14'} style={{color: item.tipo === 'promocion' ? 'red' : colors.primary}}>
             {item.mensaje || item.titulo}
           </CText>
-        </View>
+        </TouchableOpacity>
         <View style={localStyles.actionsRow}>
           <TouchableOpacity onPress={() => toggleStatus(item.localId, 'isFavorite')} style={localStyles.actionBtn}>
             <Ionicons name={item.isFavorite ? "star" : "star-outline"} size={20} color={item.isFavorite ? "#FFD700" : colors.grayScale5} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => toggleStatus(item.localId, 'isRead')} style={localStyles.actionBtn}>
+          {/* <TouchableOpacity onPress={() => toggleStatus(item.localId, 'isRead')} style={localStyles.actionBtn}>
             <Ionicons name={item.isRead ? "mail-open-outline" : "mail-unread-outline"} size={20} color={colors.grayScale5} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => toggleStatus(item.localId, 'isArchived')} style={localStyles.actionBtn}>
+          </TouchableOpacity> */}
+          {/* <TouchableOpacity onPress={() => toggleStatus(item.localId, 'isArchived')} style={localStyles.actionBtn}>
             <Ionicons name="archive-outline" size={20} color={colors.grayScale5} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity onPress={() => toggleStatus(item.localId, 'isDeleted')} style={localStyles.actionBtn}>
             <Ionicons name="trash-outline" size={20} color={colors.red} />
           </TouchableOpacity>
         </View>
       </View>
     );
+  };
+
+  const handleNotificationPress = async (item, isPushPendiente) => {
+    // Si es sesión pendiente, continúa a la sesión
+    if (isPushPendiente) {
+      const sId = item.data?.sesion_id || item.sesion_id;
+      if (!sId) {
+        Alert.alert('Aviso', 'Esta notificación no tiene un ID de sesión válido.');
+        return;
+      }
+      try {
+        const next = await continuePendingTherapy({source_session_id: sId});
+        navigation.navigate('TherapyFlowRouter', {initialNext: next, entrypoint: 'pending'});
+      } catch (e) {
+        console.log('Error continuing session:', e);
+        Alert.alert('Error', 'No se pudo continuar la sesión.');
+      }
+      return;
+    }
+    
+    // Si es otro tipo de notificación, la marcamos como leída y mostramos el popup
+    if (item.localId && !item.isRead) {
+      toggleStatus(item.localId, 'isRead');
+    }
+    setSelectedNotification(item);
+    setModalVisible(true);
   };
 
   const RenderHistorialSection = ({section}) => {
@@ -297,7 +433,17 @@ export default function Notification() {
 
   return (
     <CSafeAreaView style={{backgroundColor: '#EAF4E8'}}>
-      <CHeader title="Notificaciones" rightIcon={<Ionicons name="notifications-outline" size={24} color={'red'} />} />
+      <CHeader 
+        title="Notificaciones" 
+        rightAccessory={
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <TouchableOpacity onPress={addMockNotificationsSet} style={{marginRight: 15}}>
+              <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
+            </TouchableOpacity>
+            {/* <Ionicons name="notifications-outline" size={24} color={'red'} /> */}
+          </View>
+        } 
+      />
 
       <SectionList
         sections={sections}
@@ -315,6 +461,48 @@ export default function Notification() {
           <CText type={'R14'} style={styles.center} color={colors.grayScale5}>No tienes notificaciones en este momento.</CText>
         }
       />
+
+      {/* Modal de Detalle de Notificación */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={localStyles.modalOverlay}>
+          <View style={[localStyles.modalContent, {backgroundColor: colors.backgroundColor}]}>
+            <View style={localStyles.modalHeader}>
+              <CText type="B18" style={{color: colors.textColor}}>Detalle de Notificación</CText>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.textColor} />
+              </TouchableOpacity>
+            </View>
+            <CDivider style={styles.mv10} />
+            <ScrollView style={localStyles.modalBody}>
+              <CText type="R16" style={{color: colors.textColor, lineHeight: 24}}>
+                {selectedNotification?.titulo || ''}
+              </CText>
+              <CText type="R16" style={{color: colors.textColor, lineHeight: 24, marginTop: 10}}>
+                {selectedNotification?.mensaje || ''}
+              </CText>
+              
+              {selectedNotification?.createdAt && (
+                <CText type="R12" style={{color: colors.grayScale5, marginTop: 20}}>
+                  Fecha: {new Date(selectedNotification.createdAt).toLocaleString()}
+                </CText>
+              )}
+            </ScrollView>
+            <View style={localStyles.modalFooter}>
+              <CButton
+                title="Cerrar"
+                type="b1"
+                onPress={() => setModalVisible(false)}
+                containerStyle={localStyles.closeBtn}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </CSafeAreaView>
   );
 }
@@ -359,4 +547,40 @@ const localStyles = StyleSheet.create({
   filterBtnActive: {
     backgroundColor: '#0aa693',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    maxHeight: '70%',
+    borderRadius: moderateScale(15),
+    padding: moderateScale(20),
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modalBody: {
+    marginTop: moderateScale(10),
+    marginBottom: moderateScale(20),
+  },
+  modalFooter: {
+    alignItems: 'center',
+  },
+  closeBtn: {
+    width: '50%',
+    height: moderateScale(40),
+  }
 });
