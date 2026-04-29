@@ -4,7 +4,6 @@ import {
   View,
   Image,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
@@ -20,6 +19,7 @@ import {StackNav, TabNav} from '../../navigation/NavigationKey';
 import {useDrawer} from '../../navigation/DrawerContext';
 import {getStoredNotifications} from '../../utils/notificationStorage';
 import CMainAppBar from '../../components/common/CMainAppBar';
+import CCustomScrollView from '../../components/common/CCustomScrollView';
 import {checkFirstDiagnosticComplete} from '../../modules/diagnostico/api/sessionsApi';
 import {
   MOTIVATIONAL_PHRASES,
@@ -295,13 +295,12 @@ export default function WelcomeEmotionScreen() {
       <View style={localStyles.overlay} />
       
       <CMainAppBar mode="main" />
-      <ScrollView
+      <CCustomScrollView
         contentContainerStyle={[localStyles.scrollContent, {paddingBottom: insets.bottom + 20}]}
-        showsVerticalScrollIndicator={true}
       >
         {renderWelcomeSection()}
         {renderEmotionSelector()}
-      </ScrollView>
+      </CCustomScrollView>
     </CSafeAreaView>
   );
 }
