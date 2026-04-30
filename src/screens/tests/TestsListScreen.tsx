@@ -1,7 +1,6 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
-  FlatList,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
@@ -13,6 +12,7 @@ import CSafeAreaView from '../../components/common/CSafeAreaView';
 import CText from '../../components/common/CText';
 import {styles} from '../../theme';
 import CMainAppBar from '../../components/common/CMainAppBar';
+import CCustomFlatList from '../../components/common/CCustomFlatList';
 import {moderateScale} from '../../common/constants';
 import {StackNav} from '../../navigation/NavigationKey';
 import {getCustomTests} from '../../api/customTests';
@@ -74,12 +74,11 @@ export default function TestsListScreen() {
           <ActivityIndicator size="large" color={colors.primary} style={styles.mt25} />
         </View>
       ) : (
-        <FlatList
+        <CCustomFlatList
           data={tests}
           renderItem={renderItem}
           keyExtractor={item => String(item.id)}
           contentContainerStyle={localStyles.list}
-          showsVerticalScrollIndicator={true}
           ListEmptyComponent={
             <View style={localStyles.empty}>
               <Ionicons name="clipboard-outline" size={moderateScale(60)} color={colors.grayScale4} />

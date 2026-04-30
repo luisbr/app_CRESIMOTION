@@ -1,7 +1,6 @@
 import {
   Image,
   Modal,
-  SectionList,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -18,6 +17,7 @@ import {styles} from '../../theme';
 import images from '../../assets/images';
 import {getWidth, moderateScale, THEME} from '../../common/constants';
 import CText from '../../components/common/CText';
+import CCustomSectionList from '../../components/common/CCustomSectionList';
 import {ProfileData} from '../../api/constant';
 import CDivider from '../../components/common/CDivider';
 import {Switch} from 'react-native-gesture-handler';
@@ -739,7 +739,7 @@ export default function ProfileTab({navigation}) {
   return (
     <CSafeAreaView>
       <CHeader title={strings.profile} />
-      <SectionList
+      <CCustomSectionList
         sections={ProfileData}
         keyExtractor={(item, index) => item + index}
         renderItem={({item}) => <ProfileDetails item={item} />}
@@ -752,7 +752,6 @@ export default function ProfileTab({navigation}) {
         bounces={false}
         ListHeaderComponent={headerComponent}
         ListFooterComponent={footerComponent}
-        showsVerticalScrollIndicator={true}
       />
       <LogOutModel
         visible={isModalVisible}

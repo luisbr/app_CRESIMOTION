@@ -1,4 +1,5 @@
-import {StyleSheet, View, ScrollView, TouchableOpacity, Alert} from 'react-native';
+import {StyleSheet, View, ScrollView, TouchableOpacity, Alert, Linking} from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import Feather from 'react-native-vector-icons/Feather';
@@ -284,6 +285,27 @@ export default function ConfigurationScreen({navigation}) {
     }
   };
 
+  const onSupportPress = async () => {
+    const url = 'mailto:soporte@cresimotion.com';
+    try {
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(
+          'Soporte',
+          'Puedes escribirnos directamente a: soporte@cresimotion.com',
+          [{ text: 'Copiar correo', onPress: async () => {
+            await Clipboard.setStringAsync('soporte@cresimotion.com');
+            Alert.alert('Copiado', 'El correo ha sido copiado al portapapeles.');
+          }}, { text: 'OK' }]
+        );
+      }
+    } catch (err) {
+      console.log('Error opening mailto:', err);
+    }
+  };
+
   return (
     <CSafeAreaView>
       <CHeader title="Configuración" isHideBack={false} />
@@ -331,7 +353,7 @@ export default function ConfigurationScreen({navigation}) {
           {/* Soporte y ayuda Section */}
           <CText type="B16" style={localStyles.sectionTitle}>Soporte</CText>
           <View style={[localStyles.card, {backgroundColor: currentTheme.backgroundColor}]}>
-            {renderArrowOption("Soporte y ayuda", () => navigation.navigate(StackNav.HelpAndSupport))}
+            {renderArrowOption("Soporte y ayuda", onSupportPress)}
           </View>
 
           {/* Opciones de cuenta Section */}

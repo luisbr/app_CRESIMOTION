@@ -1,7 +1,7 @@
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import React, {memo, useCallback, useEffect, useState} from 'react';
+import React, {memo, useState, useEffect} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigationState} from '@react-navigation/native';
 
 // custom imports
 import {useSelector} from 'react-redux';
@@ -16,19 +16,74 @@ import TasksScreen from '../../screens/agenda/TasksScreen';
 import TestsListScreen from '../../screens/tests/TestsListScreen';
 import WelcomeEmotionScreen from '../../screens/home/WelcomeEmotionScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {DrawerProvider, useDrawer} from '../DrawerContext';
-import {useDiagnosticoFlow} from '../DiagnosticoFlowContext';
-import {getSession} from '../../api/auth';
-import {clearSession} from '../../session/storage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {DEVICE_UUID} from '../../common/constants';
 
 const Tab = createBottomTabNavigator();
+
+const SCREENS_THAT_HIDE_TAB_BAR = [
+  'DiagnosticoHome',
+  'DiagnosticoSelection',
+  'DiagnosticoWizard',
+  'DiagnosticoResults',
+  'DiagnosticoHistory',
+  'DiagnosticoHistoryDetail',
+  'TestResultsHistory',
+  'ResumenDebug',
+  'TherapyFlowRouter',
+  'TherapySessionIntro',
+  'TherapyFocusSelect',
+  'TherapyFocusContent',
+  'TherapyFocusMotivoEval',
+  'TherapyHealingSelectEmotion',
+  'TherapyHealingIntro',
+  'TherapyHealingPlayback',
+  'TherapyHealingDone',
+  'TherapyBehaviorIntro',
+  'TherapyBehaviorRecoSelect',
+  'TherapyBehaviorExerciseSelect',
+  'TherapyAgendaSetup',
+  'TherapyPendingSessions',
+  'HealingStart',
+  'HealingSelectMotivoScreen',
+  'HealingSanacionScreen',
+  'ReasonsList',
+  'IntensityWizard',
+  'Summary',
+];
+
+function findActiveRouteName(state) {
+  if (!state) return null;
+  if (state.routes && state.routes[state.index]) {
+    const activeRoute = state.routes[state.index];
+    if (activeRoute.state) {
+      return findActiveRouteName(activeRoute.state);
+    }
+    return activeRoute.name;
+  }
+  return state.name || null;
+}
+
+function useShouldHideTabBar() {
+  const navigationState = useNavigationState(state => state);
+  const [shouldHide, setShouldHide] = useState(false);
+
+  useEffect(() => {
+    if (!navigationState) {
+      setShouldHide(false);
+      return;
+    }
+
+    const activeRouteName = findActiveRouteName(navigationState);
+    const hide = activeRouteName && SCREENS_THAT_HIDE_TAB_BAR.includes(activeRouteName);
+    setShouldHide(Boolean(hide));
+  }, [navigationState]);
+
+  return shouldHide;
+}
 
 function TabNavigationContent() {
   const colors = useSelector(state => state.theme.theme);
   const audioLocked = useSelector(state => state.ui?.audioLocked);
-  const {isDiagnosticoFlow} = useDiagnosticoFlow();
+  const shouldHideTabBarFromRoute = useShouldHideTabBar();
 
   const TabText = memo(({iconName, label, focused}) => (
     <View style={localStyles.tabViewContainer}>
@@ -56,11 +111,11 @@ function TabNavigationContent() {
             tabBarStyle: [
               localStyles.tabBarStyle,
               {backgroundColor: '#FFFFFF', borderTopWidth: 0, paddingHorizontal: 0},
-              (audioLocked || isDiagnosticoFlow) ? {display: 'none'} : null,
+              (audioLocked || shouldHideTabBarFromRoute) ? {display: 'none'} : null,
             ],
             tabBarShowLabel: false,
             tabBarButton: props => (
-              <TouchableOpacity {...props} disabled={audioLocked || isDiagnosticoFlow} />
+              <TouchableOpacity {...props} disabled={audioLocked || shouldHideTabBarFromRoute} />
             ),
           }}
           initialRouteName={TabNav.HomeTab}>
