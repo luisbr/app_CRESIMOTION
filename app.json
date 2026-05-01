@@ -18,7 +18,7 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Usamos tu ubicación para mostrarte teléfonos de emergencia cercanos en caso de riesgo.",
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["audio"],
+        "UIBackgroundModes": ["audio", "remote-notification"],
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": ["cresimotion"]
