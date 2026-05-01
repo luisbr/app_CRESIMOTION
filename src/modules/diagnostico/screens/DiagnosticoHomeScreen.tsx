@@ -104,6 +104,13 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
   ];
   const canContinueTherapyChecklist = therapyChecklistItems.every(item => therapyIntroChecks[item.key]);
 
+  const heroImageSource =
+    nextModuleKey === 'sintomas_fisicos'
+      ? require('../../../assets/images/img_sesion/CresiMotion_03-02.png')
+      : nextModuleKey === 'sintomas_emocionales'
+      ? require('../../../assets/images/img_sesion/CresiMotion_05-02.png')
+      : require('../../../assets/images/CM_Pic_MisEvaluaciones.png');
+
   console.log('DiagnosticoHomeScreen render', {nextModuleKey, therapyNext});
 
   const checkResume = useCallback(async () => {
@@ -402,7 +409,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
         {!hideHeroImage && (
           <View>
             <Image
-              source={require('../../../assets/images/CM_Pic_MisEvaluaciones.png')}
+              source={heroImageSource}
               style={{ width: '100%', height: moderateScale(180) }}
               resizeMode="cover"
             />
