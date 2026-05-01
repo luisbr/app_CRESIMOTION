@@ -437,10 +437,11 @@ export default function Notification() {
         title="Notificaciones" 
         rightAccessory={
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <TouchableOpacity onPress={addMockNotificationsSet} style={{marginRight: 15}}>
+            {/*<TouchableOpacity onPress={addMockNotificationsSet} style={{marginRight: 15}}>
               <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
             </TouchableOpacity>
-            {/* <Ionicons name="notifications-outline" size={24} color={'red'} /> */}
+            <Ionicons name="notifications-outline" size={24} color={'red'} /> */}
+
           </View>
         } 
       />

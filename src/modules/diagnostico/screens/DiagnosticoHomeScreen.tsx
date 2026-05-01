@@ -34,6 +34,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
   const drawer = useDrawer();
   const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const [loading, setLoading] = useState(false);
+  const [hasResolvedResume, setHasResolvedResume] = useState(false);
   const [resumeTarget, setResumeTarget] = useState<null | {screen: string; params: any}>(null);
   const [therapyNext, setTherapyNext] = useState<any | null>(null);
   const [hasNewNotifs, setHasNewNotifs] = useState(false);
@@ -53,6 +54,10 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
   const hideHeroImage = !!route?.params?.hideHeroImage;
   const nextModuleKey: ModuleKey =
     (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
+
+  const screenModule: ModuleKey =
+    (resumeTarget?.params?.module_key as ModuleKey) || '---';
+    console.log("screenModulescreenModule",screenModule);
   const moduleTitleMap: Record<ModuleKey, string> = {
     motivos: 'Motivos de tu estado emocional',
     sintomas_fisicos: 'Sintomatología física',
@@ -109,13 +114,16 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
       ? require('../../../assets/images/img_sesion/CresiMotion_03-02.png')
       : nextModuleKey === 'sintomas_emocionales'
       ? require('../../../assets/images/img_sesion/CresiMotion_05-02.png')
-      : require('../../../assets/images/CM_Pic_MisEvaluaciones.png');
+      : nextModuleKey === 'motivos'
+      ? require('../../../assets/images/CM_Pic_MisEvaluaciones.png')
+      : require('../../../assets/images/CM_Pic_white.png');
 
-  console.log('DiagnosticoHomeScreen render', {nextModuleKey, therapyNext});
+  console.log('DiagnosticoHomeScreen render',screenModule, {nextModuleKey, therapyNext});
 
   const checkResume = useCallback(async () => {
     if (isCheckingRef.current) return;
     isCheckingRef.current = true;
+    setHasResolvedResume(false);
     setLoading(true);
     try {
       try {
@@ -200,6 +208,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
       setResumeTarget(null);
     } finally {
       setLoading(false);
+      setHasResolvedResume(true);
       isCheckingRef.current = false;
     }
   }, []);
@@ -406,7 +415,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
         contentContainerStyle={localStyles.scrollContent}
         showsVerticalScrollIndicator={true}
       >
-        {!hideHeroImage && (
+        {!hideHeroImage && hasResolvedResume && (
           <View>
             <Image
               source={heroImageSource}
