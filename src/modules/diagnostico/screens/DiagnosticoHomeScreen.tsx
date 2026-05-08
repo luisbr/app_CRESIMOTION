@@ -445,7 +445,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
               }}
             >
               <CCustomScrollView
-                containerStyle={localStyles.therapyChecklistScrollWrap}
+                containerStyle={{ flex: 0, minHeight: moderateScale(100) }}
                 style={localStyles.therapyChecklistScroll}
                 contentContainerStyle={localStyles.therapyChecklistScrollContent}
               >
@@ -615,9 +615,11 @@ const localStyles: any = {
   therapyChecklistScrollWrap: {
     position: 'relative',
     maxHeight: moderateScale(250),
+    flex: 0,
   },
   therapyChecklistScroll: {
     maxHeight: moderateScale(250),
+    flexGrow: 0,
   },
   therapyChecklistScrollContent: {
     paddingRight: moderateScale(18),
