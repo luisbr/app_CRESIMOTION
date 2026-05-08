@@ -170,7 +170,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     const emergenciaRecentKeys = ['desde_hace_pocos_meses', 'desde_hace_varios_dias_o_semanas'];
     const isRecentEmergencyOption = emergenciaRecentKeys.some(k =>
       String(opt?.key || '').toLowerCase().includes(k)
-    );
+    ) || String(opt?.key || '').toLowerCase() === 'si';
     if (
       currentItem?.response_type?.startsWith('pensamiento_extremo') &&
       isRecentEmergencyOption
