@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, ScrollView, View, StyleSheet, Alert} from 'react-native';
+import {ActivityIndicator, View, StyleSheet, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
 import CSafeAreaView from '../../../components/common/CSafeAreaView';
@@ -12,6 +12,7 @@ import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import CInput from '../../../components/common/CInput';
+import CCustomScrollView from '../../../components/common/CCustomScrollView';
 import LimitReachedModal from '../../../components/common/LimitReachedModal';
 import {styles} from '../../../theme';
 import type {CatalogItem, ModuleKey, MotivoCategory} from '../types';
@@ -226,9 +227,6 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   const [limitsLoaded, setLimitsLoaded] = useState(false);
   const [resumenMotivoIds, setResumenMotivoIds] = useState<number[]>([]);
   const [resumenEmocionIds, setResumenEmocionIds] = useState<number[]>([]);
-  const [scrollIndicator, setScrollIndicator] = useState({visible: false, top: 0, height: 0});
-  const scrollLayoutHeightRef = useRef(0);
-  const scrollContentHeightRef = useRef(0);
 
   const isInResumen = (id: number): boolean => {
     if (moduleKey === 'motivos') return resumenMotivoIds.includes(id);
@@ -467,25 +465,6 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   };
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
-
-  const updateScrollFade = (scrollY = 0) => {
-    const layoutHeight = scrollLayoutHeightRef.current;
-    const contentHeight = scrollContentHeightRef.current;
-    if (!layoutHeight || !contentHeight || contentHeight <= layoutHeight + 4) {
-      setScrollIndicator({visible: false, top: 0, height: 0});
-      return;
-    }
-    const trackHeight = Math.max(layoutHeight - moderateScale(8), 1);
-    const thumbHeight = Math.max((layoutHeight / contentHeight) * trackHeight, moderateScale(36));
-    const maxScroll = Math.max(contentHeight - layoutHeight, 1);
-    const maxThumbTop = Math.max(trackHeight - thumbHeight, 0);
-    const thumbTop = (scrollY / maxScroll) * maxThumbTop;
-    setScrollIndicator({
-      visible: true,
-      top: thumbTop,
-      height: thumbHeight,
-    });
-  };
   const isSearching = !!normalizedQuery;
   const filteredCategories = moduleKey === 'motivos'
     ? motivoCategories
@@ -544,12 +523,12 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           <ActivityIndicator color={colors.primary} />
         </View>
       ) : (
-        <ScrollView
-          style={{flex: 1}}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 140}}
-        >
-          <View style={[styles.flex, styles.p20, {position: 'relative', paddingTop: moderateScale(10)}]}>
+        <View style={styles.flex}>
+          <CCustomScrollView
+            style={styles.flex}
+            contentContainerStyle={{paddingBottom: 140}}
+          >
+          <View style={[styles.flex, styles.p20, {paddingTop: moderateScale(10)}]}>
             <View
               style={{
                 backgroundColor: colors.inputBg,
@@ -696,7 +675,8 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
                   ))
               )}
           </View>
-        </ScrollView>
+        </CCustomScrollView>
+        </View>
       )}
         {!!error && (
           <CText type={'S14'} align={'center'} color={colors.redAlert}>
