@@ -75,6 +75,8 @@ export default function SubscriptionScreen({navigation}) {
   const [codigoApoyoInfo, setCodigoApoyoInfo] = useState(null);
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelMessage, setCancelMessage] = useState('');
+  const [actionModalVisible, setActionModalVisible] = useState(false);
+  const [actionModalConfig, setActionModalConfig] = useState(null);
   const [isAnnualPlan, setIsAnnualPlan] = useState(false);
 
   useEffect(() => {
@@ -238,38 +240,73 @@ export default function SubscriptionScreen({navigation}) {
       if (intent.skip_stripe || intent.monto === 0) {
         let alertTitle = 'Nueva Suscripción';
         let alertMessage = `Estás eligiendo el paquete ${pkg.nombre} sin costo. ¿Deseas continuar?`;
+        let confirmText = 'Continuar';
+        let iconName = 'checkmark-circle';
+        let iconColor = colors.primary;
         
         if (intent.tipo === 'downgrade') {
           alertTitle = 'Cambio de paquete';
           alertMessage = `Estás bajando a ${pkg.nombre}. No hay reembolsos por la diferencia. ¿Deseas continuar?`;
+          iconName = 'warning';
+          iconColor = colors.redAlert;
         }
 
-        Alert.alert(
-          alertTitle,
-          alertMessage,
-          [
-            {text: 'Cancelar', style: 'cancel', onPress: () => setLoading(false)},
-            {text: 'Continuar', onPress: () => handleDirectConfirmation(pkg.id)}
-          ]
-        );
+        setActionModalConfig({
+          title: alertTitle,
+          message: alertMessage,
+          confirmText: confirmText,
+          cancelText: 'Cancelar',
+          confirmColor: colors.primary,
+          iconName: iconName,
+          iconColor: iconColor,
+          onConfirm: () => {
+            setActionModalVisible(false);
+            handleDirectConfirmation(pkg.id);
+          },
+          onCancel: () => {
+            setActionModalVisible(false);
+            setLoading(false);
+          }
+        });
+        setActionModalVisible(true);
       } else if (intent.tipo === 'upgrade') {
-        Alert.alert(
-          'Mejorar paquete',
-          `Se te cobrará la diferencia de $${intent.monto} MXN para cambiar a ${pkg.nombre}. ¿Deseas continuar?`,
-          [
-            {text: 'Cancelar', style: 'cancel', onPress: () => setLoading(false)},
-            {text: 'Pagar con Stripe', onPress: () => processPayment(intent.checkout_url)}
-          ]
-        );
+        setActionModalConfig({
+          title: 'Mejorar paquete',
+          message: `Se te cobrará la diferencia de $${intent.monto} MXN para cambiar a ${pkg.nombre}. ¿Deseas continuar?`,
+          confirmText: 'Pagar con Stripe',
+          cancelText: 'Cancelar',
+          confirmColor: colors.primary,
+          iconName: 'arrow-up-circle',
+          iconColor: colors.primary,
+          onConfirm: () => {
+            setActionModalVisible(false);
+            processPayment(intent.checkout_url);
+          },
+          onCancel: () => {
+            setActionModalVisible(false);
+            setLoading(false);
+          }
+        });
+        setActionModalVisible(true);
       } else {
-        Alert.alert(
-          'Nueva Suscripción',
-          `El costo es de $${intent.monto} MXN por ${pkg.nombre}. ¿Deseas continuar?`,
-          [
-            {text: 'Cancelar', style: 'cancel', onPress: () => setLoading(false)},
-            {text: 'Pagar con Stripe', onPress: () => processPayment(intent.checkout_url)}
-          ]
-        );
+        setActionModalConfig({
+          title: 'Nueva Suscripción',
+          message: `El costo es de $${intent.monto} MXN por ${pkg.nombre}. ¿Deseas continuar?`,
+          confirmText: 'Pagar con Stripe',
+          cancelText: 'Cancelar',
+          confirmColor: colors.primary,
+          iconName: 'card',
+          iconColor: colors.primary,
+          onConfirm: () => {
+            setActionModalVisible(false);
+            processPayment(intent.checkout_url);
+          },
+          onCancel: () => {
+            setActionModalVisible(false);
+            setLoading(false);
+          }
+        });
+        setActionModalVisible(true);
       }
     } catch (e) {
       setLoading(false);
@@ -613,6 +650,19 @@ export default function SubscriptionScreen({navigation}) {
             message={cancelMessage}
             onCancel={() => setCancelModalVisible(false)}
             onConfirm={handleConfirmCancel}
+          />
+          
+          <ConfirmCancelModal
+            visible={actionModalVisible}
+            title={actionModalConfig?.title}
+            message={actionModalConfig?.message}
+            confirmText={actionModalConfig?.confirmText}
+            cancelText={actionModalConfig?.cancelText}
+            confirmColor={actionModalConfig?.confirmColor}
+            iconName={actionModalConfig?.iconName}
+            iconColor={actionModalConfig?.iconColor}
+            onCancel={actionModalConfig?.onCancel}
+            onConfirm={actionModalConfig?.onConfirm}
           />
         </CSafeAreaView>
   );
