@@ -130,8 +130,6 @@ export default {
   genderBiPan: "Bi o Pan",
   genderOther: "Otro",
   genderNoSpecify: "No deseo especificar",
-  genderOtherInputLabel: "Especifica tu género",
-  genderOtherInputPlaceholder: "Escribe tu género",
   registerLanguage: "Idioma",
   selectLanguage: "Selecciona tu idioma",
   languageOther: "Otro",

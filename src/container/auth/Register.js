@@ -74,7 +74,6 @@ export default function Register({navigation}) {
   const [aliasCheckTimeout, setAliasCheckTimeout] = useState(null);
   const [genero, setGenero] = useState('');
   const [generoOption, setGeneroOption] = useState('');
-  const [generoOtro, setGeneroOtro] = useState('');
   const [generoError, setGeneroError] = useState('');
   const [idioma, setIdioma] = useState('');
   const [idiomaOption, setIdiomaOption] = useState('');
@@ -277,22 +276,8 @@ export default function Register({navigation}) {
   const onChangeGenero = item => {
     const v = item?.value || '';
     setGeneroOption(v);
-    if (v && v !== 'Otro') {
-      setGenero(v);
-    } else if (v === 'Otro') {
-      setGenero(generoOtro);
-    } else {
-      setGenero('');
-    }
+    setGenero(v);
     setGeneroError(v ? '' : strings.requiredField);
-  };
-  const onChangeGeneroOtro = val => {
-    const v = val.trim();
-    setGeneroOtro(v);
-    if (generoOption === 'Otro') {
-      setGenero(v);
-      setGeneroError(v ? '' : strings.requiredField);
-    }
   };
   const onChangeIdioma = item => {
     const v = item?.value || '';
@@ -1070,18 +1055,6 @@ export default function Register({navigation}) {
             <CText type={'S12'} color={colors.alertColor} style={styles.ml5}>
               {generoError}
             </CText>
-          )}
-          {generoOption === 'Otro' && (
-            <CInput
-              label={strings.genderOtherInputLabel}
-              placeHolder={strings.genderOtherInputPlaceholder}
-              keyBoardType={'default'}
-              _value={generoOtro}
-              _errorText={generoError}
-              autoCapitalize={'words'}
-              toGetTextFieldValue={onChangeGeneroOtro}
-              required
-            />
           )}
           <CDropdown
             label={strings.registerLanguage}
