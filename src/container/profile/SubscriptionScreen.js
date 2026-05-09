@@ -398,10 +398,11 @@ export default function SubscriptionScreen({navigation}) {
     const isAnnual = pkg.duracion_meses === 10;
     
     // Verificar si este paquete tiene descuento de apoyo financiero
-    const tieneDescuentoApoyo = codigoApoyoInfo && codigoApoyoInfo.membresia && 
+    // Solo se aplica para planes mensuales (no anuales)
+    const tieneDescuentoApoyo = !isAnnualPlan && codigoApoyoInfo && codigoApoyoInfo.membresia &&
       parseInt(codigoApoyoInfo.membresia.id) === parseInt(pkg.id);
-    
-    const precioBase = parseFloat(pkg.precio);
+
+    const precioBase = isAnnualPlan ? parseFloat(pkg.precio) * 10 : parseFloat(pkg.precio);
     const descuento = tieneDescuentoApoyo ? codigoApoyoInfo.porcentaje_descuento : 0;
     const precioFinal = tieneDescuentoApoyo 
       ? (precioBase * (1 - descuento / 100)).toFixed(2) 
@@ -447,7 +448,7 @@ export default function SubscriptionScreen({navigation}) {
               <View style={{alignItems: 'flex-end'}}>
                 <CText type={"B14"} style={{textDecorationLine: 'line-through', color: colors.grayScale3}}>${precioBase}</CText>
                 <CText type={"B24"} color={colors.primary}>${precioFinal}</CText>
-                <CText type={"M12"} color={colors.primary}>{isAnnual ? '/año' : '/mes'}</CText>
+                <CText type={"M12"} color={colors.primary}>{isAnnualPlan ? '/año' : '/mes'}</CText>
               </View>
             ) : (
               <>
@@ -460,7 +461,7 @@ export default function SubscriptionScreen({navigation}) {
 
         {/* Info del descuento de 1er mes y anual*/}
         <View style={[localStyles.apoyoInfoBox, {backgroundColor: colors.primary + '15', borderColor: colors.primary, marginBottom: 15}]}>
-          {isAnnual ? (
+          {isAnnualPlan ? (
             <CText type={"M12"} color={colors.primary} align="center">
               Ahorra pagando solo 10 meses
             </CText>
