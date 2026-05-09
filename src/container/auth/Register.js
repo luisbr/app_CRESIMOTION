@@ -739,26 +739,27 @@ export default function Register({navigation}) {
       showErrorPopup('Por favor completa todos los campos obligatorios correctamente.', 'Campos incompletos');
       return;
     }
-    if (!emailCodeSent) {
-      const sent = await onRequestEmailCode();
-      if (sent) {
-        // setSubmitError(strings.emailVerificationSent);
-      }
-      return;
-    }
-    if (!emailCode) {
-      setEmailCodeError(strings.emailCodeRequired);
-      return;
-    }
     setSubmitting(true);
     try {
-      const verifyResp = await verifyEmailCode({correo: email, codigo: emailCode});
-      if (!(verifyResp && verifyResp.ok === true && verifyResp.valid === true)) {
-        setEmailCodeError(strings.emailCodeInvalid);
-        setSubmitting(false);
-        return;
+      if (!isMinor) {
+        if (!emailCodeSent) {
+          const sent = await onRequestEmailCode();
+          if (sent) {
+            return;
+          }
+          return;
+        }
+        if (!emailCode) {
+          setEmailCodeError(strings.emailCodeRequired);
+          return;
+        }
+        const verifyResp = await verifyEmailCode({correo: email, codigo: emailCode});
+        if (!(verifyResp && verifyResp.ok === true && verifyResp.valid === true)) {
+          setEmailCodeError(strings.emailCodeInvalid);
+          return;
+        }
+        setEmailVerified(true);
       }
-      setEmailVerified(true);
       const phoneWithCode = telefono ? `${countryCode}${telefono}` : '';
       const guardianDeclarationsOk =
         guardianDeclAdult &&
@@ -1404,12 +1405,24 @@ export default function Register({navigation}) {
               {termsAcceptedError}
             </CText>
           )}
-          {isMinor && !tutorVerified ? (
-            <CText type={'S12'} color={colors.alertColor} style={styles.ml5}>
-              {strings.tutorVerificationRequired}
-            </CText>
-          ) : (
-          !emailVerified ? (
+          {isMinor ? (
+            <>
+              {!tutorVerified ? (
+                <CText type={'S12'} color={colors.alertColor} style={styles.ml5}>
+                  {strings.tutorVerificationRequired}
+                </CText>
+              ) : (
+                <View style={[localStyles.emailVerifySection, styles.mt10, styles.mb10]}>
+                  <CButton
+                    title={strings.register}
+                    onPress={onPressRegister}
+                    disabled={submitting || !termsAccepted}
+                    loading={submitting}
+                  />
+                </View>
+              )}
+            </>
+          ) : !emailVerified ? (
             <View style={[localStyles.emailVerifySection, styles.mt10, styles.mb10]}>
               {!emailCodeSent && (
                 <CButton
@@ -1468,7 +1481,6 @@ export default function Register({navigation}) {
             <CText type={'S12'} color={colors.primary} style={styles.ml5}>
               {strings.emailVerifiedDone}
             </CText>
-          )
           )}
         </View>
         <TermsModal visible={privacyModalVisible} onClose={() => setPrivacyModalVisible(false)} type="privacy" />

@@ -7,6 +7,7 @@ interface CCustomScrollViewProps extends ScrollViewProps {
   containerStyle?: ViewStyle | ViewStyle[];
   trackColor?: string;
   thumbColor?: string;
+  showIndicatorWhenNoScroll?: boolean;
 }
 
 export default function CCustomScrollView({
@@ -16,6 +17,7 @@ export default function CCustomScrollView({
   style,
   trackColor = 'rgba(0, 0, 0, 0.08)',
   thumbColor,
+  showIndicatorWhenNoScroll = true,
   ...rest
 }: CCustomScrollViewProps) {
   const colors = useSelector((state: any) => state.theme.theme);
@@ -35,6 +37,10 @@ export default function CCustomScrollView({
     }
 
     if (!contentHeight || contentHeight <= layoutHeight + 4) {
+      if (!showIndicatorWhenNoScroll) {
+        setScrollIndicator({visible: false, top: 0, height: 0});
+        return;
+      }
       setScrollIndicator({
         visible: true,
         top: 0,

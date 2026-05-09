@@ -1,2 +1,2 @@
-export const SHOW_SCREEN_TOOLTIP = false;
+export const SHOW_SCREEN_TOOLTIP = true;
 

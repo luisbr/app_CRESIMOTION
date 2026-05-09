@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Image, ScrollView, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Image, TouchableOpacity, View} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,6 +28,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const THERAPY_SESSION_CHECKLIST_ACK_KEY = 'therapy_session_checklist_ack';
 
+const getTherapyChecklistAckStorageKey = (session: any) => {
+  const scope = session?.hash || session?.token || session?.uuid || session?.id || 'anon';
+  return `${THERAPY_SESSION_CHECKLIST_ACK_KEY}_${scope}`;
+};
+
 export default function DiagnosticoHomeScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
   const safeNavigation = useSafeNavigation(navigation);
@@ -51,6 +56,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
     comfort: false,
     understood: false,
   });
+  const [therapyChecklistCollapsed, setTherapyChecklistCollapsed] = useState(false);
   const hideHeroImage = !!route?.params?.hideHeroImage;
   const nextModuleKey: ModuleKey =
     (resumeTarget?.params?.module_key as ModuleKey) || 'motivos';
@@ -264,15 +270,19 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
       if (!showTherapyChecklist) return;
       try {
         const session = await getSession();
-        const userId = session?.id ? String(session.id) : 'anon';
-        const stored = await AsyncStorage.getItem(`${THERAPY_SESSION_CHECKLIST_ACK_KEY}_${userId}`);
-        if (!mounted || stored !== '1') return;
-        setTherapyIntroChecks({
-          alone: true,
-          internet: true,
-          comfort: true,
-          understood: true,
-        });
+        const stored = await AsyncStorage.getItem(getTherapyChecklistAckStorageKey(session));
+        if (!mounted) return;
+        if (stored === '1') {
+          setTherapyIntroChecks({
+            alone: true,
+            internet: true,
+            comfort: true,
+            understood: true,
+          });
+          setTherapyChecklistCollapsed(true);
+          return;
+        }
+        setTherapyChecklistCollapsed(false);
       } catch (e) {
         console.log('[THERAPY] checklist preference load error', e);
       }
@@ -290,17 +300,24 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
       [key]: nextValue,
     };
     setTherapyIntroChecks(nextChecks);
-    if (key !== 'understood' || !nextValue) return;
     try {
       const session = await getSession();
-      const userId = session?.id ? String(session.id) : 'anon';
-      await AsyncStorage.setItem(`${THERAPY_SESSION_CHECKLIST_ACK_KEY}_${userId}`, '1');
-      setTherapyIntroChecks({
-        alone: true,
-        internet: true,
-        comfort: true,
-        understood: true,
-      });
+      const storageKey = getTherapyChecklistAckStorageKey(session);
+      if (key === 'understood' && nextValue) {
+        await AsyncStorage.setItem(storageKey, '1');
+        setTherapyIntroChecks({
+          alone: true,
+          internet: true,
+          comfort: true,
+          understood: true,
+        });
+        setTherapyChecklistCollapsed(true);
+        return;
+      }
+      if (key === 'understood' && !nextValue) {
+        await AsyncStorage.removeItem(storageKey);
+        setTherapyChecklistCollapsed(false);
+      }
     } catch (e) {
       console.log('[THERAPY] checklist preference save error', e);
     }
@@ -411,9 +428,12 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
     <CSafeAreaView>
       <CMainAppBar mode="main" />
       <View style={styles.flex}>
-      <ScrollView
-        contentContainerStyle={localStyles.scrollContent}
-        showsVerticalScrollIndicator={true}
+      <CCustomScrollView
+        contentContainerStyle={[
+          localStyles.scrollContent,
+          showTherapyChecklist && {paddingBottom: moderateScale(32)},
+        ]}
+        showIndicatorWhenNoScroll={false}
       >
         {!hideHeroImage && hasResolvedResume && (
           <View>
@@ -444,38 +464,72 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
                 padding: moderateScale(14),
               }}
             >
-              <CCustomScrollView
-                containerStyle={{ flex: 0, minHeight: moderateScale(100) }}
-                style={localStyles.therapyChecklistScroll}
-                contentContainerStyle={localStyles.therapyChecklistScrollContent}
+              <TouchableOpacity
+                onPress={() => setTherapyChecklistCollapsed(prev => !prev)}
+                style={[styles.rowSpaceBetween, {alignItems: 'flex-start'}]}
               >
-                <CText type={'B16'} color={colors.textColor} style={styles.mb10}>
-                  Recomendaciones para aprovechar la sesión terapéutica
+                <View style={{flex: 1, paddingRight: moderateScale(12)}}>
+                  <CText
+                    type={'B16'}
+                    color={colors.textColor}
+                    style={[
+                      {flexShrink: 1},
+                      therapyChecklistCollapsed ? null : styles.mb10,
+                    ]}
+                  >
+                    Recomendaciones para aprovechar la sesión terapéutica
+                  </CText>
+                </View>
+                <View
+                  style={{
+                    width: moderateScale(28),
+                    height: moderateScale(28),
+                    borderRadius: moderateScale(14),
+                    borderWidth: 1,
+                    borderColor: colors.primary,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: colors.backgroundColor,
+                  }}
+                >
+                  <Ionicons
+                    name={therapyChecklistCollapsed ? 'add-outline' : 'remove-outline'}
+                    size={moderateScale(18)}
+                    color={colors.primary}
+                  />
+                </View>
+              </TouchableOpacity>
+              {therapyChecklistCollapsed ? (
+                <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>
+                  Ya confirmaste estas recomendaciones para esta sesión.
                 </CText>
-                <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
-                  Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:
-                </CText>
-                {therapyChecklistItems.map(item => {
-                  const isOn = !!therapyIntroChecks[item.key];
-                  return (
-                    <TouchableOpacity
-                      key={item.key}
-                      onPress={() => toggleTherapyChecklistItem(item.key)}
-                      style={[styles.rowStart, {alignItems: 'flex-start', marginTop: moderateScale(10)}]}
-                    >
-                      <Ionicons
-                        name={isOn ? 'checkmark-circle' : 'ellipse-outline'}
-                        size={moderateScale(22)}
-                        color={isOn ? colors.primary : colors.grayScale2}
-                        style={{marginRight: moderateScale(10), marginTop: moderateScale(1)}}
-                      />
-                      <CText type={'R14'} color={colors.textColor} style={{flex: 1, flexShrink: 1}}>
-                        {item.label}
-                      </CText>
-                    </TouchableOpacity>
-                  );
-                })}
-              </CCustomScrollView>
+              ) : (
+                <>
+                  <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
+                    Para aprovechar al máximo las siguientes dos fases (Enfoque positivo y Sanación emocional), confirma, por favor, que reúnes las siguientes condiciones:
+                  </CText>
+                  {therapyChecklistItems.map(item => {
+                    const isOn = !!therapyIntroChecks[item.key];
+                    return (
+                      <TouchableOpacity
+                        key={item.key}
+                        onPress={() => toggleTherapyChecklistItem(item.key)}
+                        style={[styles.rowStart, {alignItems: 'flex-start', marginTop: moderateScale(10)}]}
+                      >
+                        <Ionicons
+                          name={isOn ? 'checkmark-circle' : 'ellipse-outline'}
+                          size={moderateScale(22)}
+                          color={isOn ? colors.primary : colors.grayScale2}
+                          style={{marginRight: moderateScale(10), marginTop: moderateScale(1)}}
+                        />
+                        <CText type={'R14'} color={colors.textColor} style={{flex: 1, flexShrink: 1}}>
+                          {item.label}
+                        </CText>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </>
+              )}
             </View>
           )}
           {loading ? (
@@ -564,24 +618,24 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
               disabled={!hasCompletedFirstFlow}
             />
           )}
+          {showTherapyChecklist && !loading && (
+            <View style={localStyles.therapyChecklistActions}>
+              <CButton
+                title={'Continuar'}
+                onPress={onPressTherapy}
+                disabled={!canContinueTherapyChecklist || navigating}
+                loading={navigating}
+              />
+              <CButton
+                title={'Más tarde'}
+                onPress={() => safeNavigation.navigate(StackNav.WelcomeEmotion)}
+                bgColor={colors.inputBg}
+                color={colors.primary}
+              />
+            </View>
+          )}
         </View>
-      </ScrollView>
-      {showTherapyChecklist && !loading && (
-        <View style={localStyles.bottomActionBar}>
-          <CButton
-            title={'Continuar'}
-            onPress={onPressTherapy}
-            disabled={!canContinueTherapyChecklist || navigating}
-            loading={navigating}
-          />
-          <CButton
-            title={'Más tarde'}
-            onPress={() => safeNavigation.navigate(StackNav.WelcomeEmotion)}
-            bgColor={colors.inputBg}
-            color={colors.primary}
-          />
-        </View>
-      )}
+      </CCustomScrollView>
       </View>
       {SHOW_SCREEN_TOOLTIP && (
         <View style={localStyles.screenTooltip} pointerEvents="none">
@@ -612,19 +666,6 @@ const localStyles: any = {
   scrollContent: {
     paddingBottom: moderateScale(24),
   },
-  therapyChecklistScrollWrap: {
-    position: 'relative',
-    maxHeight: moderateScale(250),
-    flex: 0,
-  },
-  therapyChecklistScroll: {
-    maxHeight: moderateScale(250),
-    flexGrow: 0,
-  },
-  therapyChecklistScrollContent: {
-    paddingRight: moderateScale(18),
-    paddingBottom: moderateScale(88),
-  },
   evalButton: {
     flexDirection: 'column',
     height: moderateScale(62),
@@ -642,21 +683,7 @@ const localStyles: any = {
     paddingVertical: 4,
     borderRadius: 6,
   },
-  bottomActionBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowOffset: {width: 0, height: -2},
-    shadowRadius: 6,
-    elevation: 6,
+  therapyChecklistActions: {
+    marginTop: moderateScale(12),
   },
 };

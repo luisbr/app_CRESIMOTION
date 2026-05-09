@@ -406,19 +406,24 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     <CSafeAreaView>
       <CMainAppBar
         mode="sub"
-        title={currentItem ? currentItem.titulo : 'Completando autoevaluación'}
+        title={''}
         onPressBack={onPressBack}
         hideBackButton={!!isFirstFlow}
       />
       <View style={[styles.p20, {paddingBottom: 120, paddingTop: moderateScale(10)}]}>
         {!!currentItem && totalItems > 0 && (
-          <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
-            {moduleKey === 'motivos'
-              ? `Motivo ${currentStep} de ${totalItems}`
-              : moduleKey === 'sintomas_fisicos'
-              ? `Síntoma físico ${currentStep} de ${totalItems}`
-              : `Síntoma emocional ${currentStep} de ${totalItems}`}
-          </CText>
+          <>
+            <CText type={'S14'} color={colors.labelColor} style={styles.mb5}>
+              {moduleKey === 'motivos'
+                ? `Motivos de tu estado emocional (${currentStep} de ${totalItems})`
+                : moduleKey === 'sintomas_fisicos'
+                ? `Síntoma físico (${currentStep} de ${totalItems})`
+                : `Síntoma emocional (${currentStep} de ${totalItems})`}
+            </CText>
+            <CText type={'B22'} color={colors.textColor} style={styles.mb10}>
+              {currentItem.titulo}
+            </CText>
+          </>
         )}
         <ProgressBar progress={progress} />
         {!selectedIds.length ? (

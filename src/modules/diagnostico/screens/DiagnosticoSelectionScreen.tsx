@@ -507,15 +507,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     <CSafeAreaView>
       <CMainAppBar 
         mode="sub" 
-        title={
-          moduleKey === 'motivos'
-            ? 'Motivos de tu estado emocional'
-            : moduleKey === 'sintomas_fisicos'
-            ? 'Sintomatología física'
-            : moduleKey === 'sintomas_emocionales'
-            ? 'Sintomatología emocional'
-            : capitalizeSentence(moduleKey.replace('_', ' '))
-        }
+        title={''}
         hideBackButton={!!isFirstFlow}
       />
       {loading ? (
