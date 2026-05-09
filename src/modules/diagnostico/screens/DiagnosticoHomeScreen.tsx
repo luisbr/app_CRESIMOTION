@@ -445,7 +445,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
               }}
             >
               <CCustomScrollView
-                containerStyle={localStyles.therapyChecklistScrollWrap}
+                containerStyle={{ flex: 0, minHeight: moderateScale(100) }}
                 style={localStyles.therapyChecklistScroll}
                 contentContainerStyle={localStyles.therapyChecklistScrollContent}
               >
@@ -593,7 +593,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
       <LimitReachedModal
         visible={showLimitModal}
         limitKey="max_emociones_nombradas_mes"
-        customMessage={`Has alcanzado el límite de sesiones de autoevaluación permitidas por tu plan actual (${limitInfo?.usadas || 0} de ${limitInfo?.limite || 0}). Mejora tu plan para desbloquear más sesiones.`}
+        customMessage={`Has alcanzado el límite de sesiones de autoevaluación permitidos por tu plan actual (${limitInfo?.usadas || 0} de ${limitInfo?.limite || 0}). Mejora tu plan para desbloquear más sesiones.`}
         onClose={() => {
           setShowLimitModal(false);
           setLimitInfo(null);
@@ -615,9 +615,11 @@ const localStyles: any = {
   therapyChecklistScrollWrap: {
     position: 'relative',
     maxHeight: moderateScale(250),
+    flex: 0,
   },
   therapyChecklistScroll: {
     maxHeight: moderateScale(250),
+    flexGrow: 0,
   },
   therapyChecklistScrollContent: {
     paddingRight: moderateScale(18),

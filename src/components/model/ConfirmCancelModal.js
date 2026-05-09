@@ -8,7 +8,19 @@ import {styles} from '../../theme';
 import {deviceWidth, moderateScale} from '../../common/constants';
 import CButton from '../common/CButton';
 
-export default function ConfirmCancelModal({visible, title, message, onCancel, onConfirm}) {
+export default function ConfirmCancelModal({
+  visible,
+  title,
+  message,
+  onCancel,
+  onConfirm,
+  cancelText,
+  confirmText,
+  confirmColor,
+  cancelColor,
+  iconName,
+  iconColor
+}) {
   const colors = useSelector(state => state.theme.theme);
 
   return (
@@ -20,7 +32,11 @@ export default function ConfirmCancelModal({visible, title, message, onCancel, o
           </TouchableOpacity>
 
           <View style={localStyles.iconContainer}>
-            <Ionicons name={'warning'} color={colors.redAlert} size={moderateScale(48)} />
+            <Ionicons 
+              name={iconName || 'warning'} 
+              color={iconColor || colors.redAlert} 
+              size={moderateScale(48)} 
+            />
           </View>
 
           <CText type={'M16'} align={'center'} color={colors.textColor} style={localStyles.titleStyle}>
@@ -33,14 +49,14 @@ export default function ConfirmCancelModal({visible, title, message, onCancel, o
 
           <View style={localStyles.btnRow}>
             <TouchableOpacity
-              style={[localStyles.btnNo, {backgroundColor: colors.grayScale4}]}
+              style={[localStyles.btnNo, {backgroundColor: cancelColor || colors.grayScale4}]}
               onPress={onCancel}>
-              <CText type={'B16'} color={colors.white}>No</CText>
+              <CText type={'B16'} color={colors.white}>{cancelText || 'No'}</CText>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[localStyles.btnYes, {backgroundColor: colors.redAlert}]}
+              style={[localStyles.btnYes, {backgroundColor: confirmColor || colors.redAlert}]}
               onPress={onConfirm}>
-              <CText type={'B16'} color={colors.white}>Sí, cancelar</CText>
+              <CText type={'B16'} color={colors.white}>{confirmText || 'Sí, cancelar'}</CText>
             </TouchableOpacity>
           </View>
         </View>

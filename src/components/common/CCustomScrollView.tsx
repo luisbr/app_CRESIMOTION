@@ -60,7 +60,7 @@ export default function CCustomScrollView({
     <View style={[styles.wrap, containerStyle]}>
       <ScrollView
         {...rest}
-        style={[style]}
+        style={[{flex: 1}, style]}
         contentContainerStyle={contentContainerStyle}
         showsVerticalScrollIndicator={false}
         onLayout={event => {
@@ -102,6 +102,7 @@ export default function CCustomScrollView({
 const styles = StyleSheet.create({
   wrap: {
     position: 'relative',
+    flex: 1,
   },
   track: {
     position: 'absolute',

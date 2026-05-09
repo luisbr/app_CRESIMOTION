@@ -32,9 +32,7 @@ const PLAN_FEATURES = {
     { pre: "1 enfoque positivo", checked: true },
     { pre: "1 recomendación para sanar", checked: true },
     { pre: "1 ejercicio automatizado", checked: true },
-    { pre: "1 sesión del ", bold: "seminario mensual", checked: true },
     { pre: "Soporte por ", bold: "email", checked: true },
-    { pre: "Acceso a la comunidad básica", checked: true },
     { pre: "Soporte por chat", checked: false, strikethrough: true },
     { pre: "Beneficios adicionales", checked: false, strikethrough: true },
   ],
@@ -44,9 +42,7 @@ const PLAN_FEATURES = {
     { pre: "2 enfoques positivos", checked: true },
     { pre: "3 recomendaciones", checked: true },
     { pre: "4 ejercicios automatizados", checked: true },
-    { pre: "2 sesiones del ", bold: "seminario mensual", checked: true },
     { bold: "Soporte por chat", checked: true },
-    { pre: "Acceso a la comunidad intermedia", checked: true },
     { pre: "Beneficios adicionales", checked: false, strikethrough: true },
   ],
   3: [ // Oro
@@ -55,9 +51,7 @@ const PLAN_FEATURES = {
     { pre: "4 enfoques positivos", checked: true },
     { pre: "10 recomendaciones", checked: true },
     { pre: "10 ejercicios automatizados", checked: true },
-    { pre: "3 sesiones del ", bold: "seminario mensual", checked: true },
     { bold: "Soporte por chat", checked: true },
-    { pre: "Acceso a la comunidad premium", checked: true },
     { pre: "Beneficios adicionales: contenidos exclusivos, recompensas", checked: false, strikethrough: true },
   ],
   4: [ // Platinum
@@ -66,9 +60,7 @@ const PLAN_FEATURES = {
     { pre: "enfoques positivos ", bold: "ilimitados", checked: true },
     { pre: "recomendaciones ", bold: "ilimitadas", checked: true },
     { pre: "ejercicios automatizados ", bold: "ilimitados", checked: true },
-    { pre: "4 sesiones del ", bold: "seminario mensual", checked: true },
     { bold: "Soporte telefónico", checked: true },
-    { pre: "Acceso a la comunidad platinum", checked: true },
     { bold: "Beneficios adicionales: contenidos exclusivos, recompensas", checked: false },
   ]
 };
@@ -83,6 +75,9 @@ export default function SubscriptionScreen({navigation}) {
   const [codigoApoyoInfo, setCodigoApoyoInfo] = useState(null);
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelMessage, setCancelMessage] = useState('');
+  const [actionModalVisible, setActionModalVisible] = useState(false);
+  const [actionModalConfig, setActionModalConfig] = useState(null);
+  const [isAnnualPlan, setIsAnnualPlan] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -234,7 +229,7 @@ export default function SubscriptionScreen({navigation}) {
       const successUrl = Linking.createURL('stripe/success', { queryParams: { membresia_id: pkg.id.toString() } });
       const cancelUrl = Linking.createURL('stripe/cancel');
 
-      const intent = await createSuscripcionIntent(pkg.id, successUrl, cancelUrl, codigoApoyoInfo?.codigo);
+      const intent = await createSuscripcionIntent(pkg.id, successUrl, cancelUrl, codigoApoyoInfo?.codigo, isAnnualPlan);
       
       if (!intent.success) {
         Alert.alert('Error', intent.message || 'No se pudo procesar la solicitud');
@@ -245,38 +240,73 @@ export default function SubscriptionScreen({navigation}) {
       if (intent.skip_stripe || intent.monto === 0) {
         let alertTitle = 'Nueva Suscripción';
         let alertMessage = `Estás eligiendo el paquete ${pkg.nombre} sin costo. ¿Deseas continuar?`;
+        let confirmText = 'Continuar';
+        let iconName = 'checkmark-circle';
+        let iconColor = colors.primary;
         
         if (intent.tipo === 'downgrade') {
           alertTitle = 'Cambio de paquete';
           alertMessage = `Estás bajando a ${pkg.nombre}. No hay reembolsos por la diferencia. ¿Deseas continuar?`;
+          iconName = 'warning';
+          iconColor = colors.redAlert;
         }
 
-        Alert.alert(
-          alertTitle,
-          alertMessage,
-          [
-            {text: 'Cancelar', style: 'cancel', onPress: () => setLoading(false)},
-            {text: 'Continuar', onPress: () => handleDirectConfirmation(pkg.id)}
-          ]
-        );
+        setActionModalConfig({
+          title: alertTitle,
+          message: alertMessage,
+          confirmText: confirmText,
+          cancelText: 'Cancelar',
+          confirmColor: colors.primary,
+          iconName: iconName,
+          iconColor: iconColor,
+          onConfirm: () => {
+            setActionModalVisible(false);
+            handleDirectConfirmation(pkg.id);
+          },
+          onCancel: () => {
+            setActionModalVisible(false);
+            setLoading(false);
+          }
+        });
+        setActionModalVisible(true);
       } else if (intent.tipo === 'upgrade') {
-        Alert.alert(
-          'Mejorar paquete',
-          `Se te cobrará la diferencia de $${intent.monto} MXN para cambiar a ${pkg.nombre}. ¿Deseas continuar?`,
-          [
-            {text: 'Cancelar', style: 'cancel', onPress: () => setLoading(false)},
-            {text: 'Pagar con Stripe', onPress: () => processPayment(intent.checkout_url)}
-          ]
-        );
+        setActionModalConfig({
+          title: 'Mejorar paquete',
+          message: `Se te cobrará la diferencia de $${intent.monto} MXN para cambiar a ${pkg.nombre}. ¿Deseas continuar?`,
+          confirmText: 'Pagar con Stripe',
+          cancelText: 'Cancelar',
+          confirmColor: colors.primary,
+          iconName: 'arrow-up-circle',
+          iconColor: colors.primary,
+          onConfirm: () => {
+            setActionModalVisible(false);
+            processPayment(intent.checkout_url);
+          },
+          onCancel: () => {
+            setActionModalVisible(false);
+            setLoading(false);
+          }
+        });
+        setActionModalVisible(true);
       } else {
-        Alert.alert(
-          'Nueva Suscripción',
-          `El costo es de $${intent.monto} MXN por ${pkg.nombre}. ¿Deseas continuar?`,
-          [
-            {text: 'Cancelar', style: 'cancel', onPress: () => setLoading(false)},
-            {text: 'Pagar con Stripe', onPress: () => processPayment(intent.checkout_url)}
-          ]
-        );
+        setActionModalConfig({
+          title: 'Nueva Suscripción',
+          message: `El costo es de $${intent.monto} MXN por ${pkg.nombre}. ¿Deseas continuar?`,
+          confirmText: 'Pagar con Stripe',
+          cancelText: 'Cancelar',
+          confirmColor: colors.primary,
+          iconName: 'card',
+          iconColor: colors.primary,
+          onConfirm: () => {
+            setActionModalVisible(false);
+            processPayment(intent.checkout_url);
+          },
+          onCancel: () => {
+            setActionModalVisible(false);
+            setLoading(false);
+          }
+        });
+        setActionModalVisible(true);
       }
     } catch (e) {
       setLoading(false);
@@ -364,6 +394,8 @@ export default function SubscriptionScreen({navigation}) {
     
     // Obtener el badge del plan
     const PlanBadge = getPlanBadge(pkg.nombre);
+
+    const isAnnual = pkg.duracion_meses === 10;
     
     // Verificar si este paquete tiene descuento de apoyo financiero
     const tieneDescuentoApoyo = codigoApoyoInfo && codigoApoyoInfo.membresia && 
@@ -374,6 +406,17 @@ export default function SubscriptionScreen({navigation}) {
     const precioFinal = tieneDescuentoApoyo 
       ? (precioBase * (1 - descuento / 100)).toFixed(2) 
       : precioBase;
+
+    let subtitulo = "";
+    if (pkg.nombre.toLowerCase().includes('básic') || pkg.nombre.toLowerCase().includes('basic')) {
+      subtitulo = "Ideal para empezar";
+    } else if (pkg.nombre.toLowerCase().includes('plata') || pkg.nombre.toLowerCase().includes('silver')) {
+      subtitulo = "Expande tus recursos";
+    } else if (pkg.nombre.toLowerCase().includes('oro') || pkg.nombre.toLowerCase().includes('gold')) {
+      subtitulo = "Eleva tu experiencia";
+    } else if (pkg.nombre.toLowerCase().includes('platinum')) {
+      subtitulo = "Crece mientras guías";
+    }
     
     return (
       <View key={pkg.id} style={[localStyles.packageCard, {backgroundColor: colors.secondary, borderColor: isCurrent ? colors.primary : 'transparent', borderWidth: isCurrent ? 3 : 2}]}>
@@ -394,22 +437,38 @@ export default function SubscriptionScreen({navigation}) {
         <View style={localStyles.cardHeader}>
           <View style={[styles.flex, styles.flexRow, styles.itemsCenter]}>
             {PlanBadge && <PlanBadge width={moderateScale(28)} height={moderateScale(28)} style={{marginRight: moderateScale(8)}} />}
-            <CText type={"B22"} color={colors.textColor}>{pkg.nombre}</CText>
+            <View>
+              <CText type={"B22"} color={colors.textColor}>{pkg.nombre}</CText>
+              {subtitulo ? <CText type={"M12"} color={colors.grayScale3}>{subtitulo}</CText> : null}
+            </View>
           </View>
           <View style={localStyles.priceBox}>
             {tieneDescuentoApoyo ? (
               <View style={{alignItems: 'flex-end'}}>
                 <CText type={"B14"} style={{textDecorationLine: 'line-through', color: colors.grayScale3}}>${precioBase}</CText>
                 <CText type={"B24"} color={colors.primary}>${precioFinal}</CText>
-                <CText type={"M12"} color={colors.primary}>/mes</CText>
+                <CText type={"M12"} color={colors.primary}>{isAnnual ? '/año' : '/mes'}</CText>
               </View>
             ) : (
               <>
                 <CText type={"B24"} color={colors.primary}>${parseInt(pkg.precio)}</CText>
-                <CText type={"M14"} color={colors.grayScale3}>/mes</CText>
+                <CText type={"M14"} color={colors.grayScale3}>{isAnnual ? '/año' : '/mes'}</CText>
               </>
             )}
           </View>
+        </View>
+
+        {/* Info del descuento de 1er mes y anual*/}
+        <View style={[localStyles.apoyoInfoBox, {backgroundColor: colors.primary + '15', borderColor: colors.primary, marginBottom: 15}]}>
+          {isAnnual ? (
+            <CText type={"M12"} color={colors.primary} align="center">
+              Ahorra pagando solo 10 meses
+            </CText>
+          ) : (
+            <CText type={"M12"} color={colors.primary} align="center">
+              🎉 <CText type={"B12"} color={colors.primary}>50% de descuento</CText> en tu primer mes
+            </CText>
+          )}
         </View>
 
         {/* Info del descuento de apoyo financiero */}
@@ -469,7 +528,7 @@ export default function SubscriptionScreen({navigation}) {
         <View style={localStyles.cardFooter}>
           {isCurrent ? (
             <View style={[localStyles.activeBadgeFull, {backgroundColor: colors.primary}]}>
-              <CText type={"B16"} color={colors.white}>Plan Actual</CText>
+              <CText type={"B16"} color={colors.white}>Plan actual</CText>
             </View>
           ) : (
             <CButton
@@ -487,13 +546,29 @@ export default function SubscriptionScreen({navigation}) {
 
   return (
     <CSafeAreaView>
-      <CHeader title={"Suscripción"} />
+      <CHeader title={"Membresía"} />
       <ScrollView contentContainerStyle={styles.p20} showsVerticalScrollIndicator={true}>
         {loading && packages.length === 0 ? (
           <ActivityIndicator size="large" color={colors.primary} style={styles.mt20} />
         ) : (
           <>
             <CText type={"B20"} color={colors.textColor} style={styles.mb20}>Elige tu paquete</CText>
+
+            {/* Toggle Mensual/Anual */}
+            <View style={[localStyles.toggleContainer, {backgroundColor: colors.dark ? colors.inputBg : colors.grayScale2}]}>
+              <TouchableOpacity
+                style={[localStyles.toggleBtn, !isAnnualPlan && [localStyles.toggleBtnActive, {backgroundColor: colors.primary}]]}
+                onPress={() => setIsAnnualPlan(false)}
+              >
+                <CText type={"B14"} color={!isAnnualPlan ? colors.white : colors.grayScale3}>Mensual</CText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[localStyles.toggleBtn, isAnnualPlan && [localStyles.toggleBtnActive, {backgroundColor: colors.primary}]]}
+                onPress={() => setIsAnnualPlan(true)}
+              >
+                <CText type={"B14"} color={isAnnualPlan ? colors.white : colors.grayScale3}>Anual (10 meses)</CText>
+              </TouchableOpacity>
+            </View>
             
             {[...packages].sort((a, b) => {
               if (!currentSub) return 0;
@@ -557,6 +632,12 @@ export default function SubscriptionScreen({navigation}) {
                     Cancelar suscripción
                   </CText>
                 </TouchableOpacity>
+
+                <View style={localStyles.noteContainer}>
+                  <CText type={"M12"} color={colors.grayScale3} align="center">
+                    Nota: Todos los planes cuentan con renovación automática {isAnnualPlan ? 'anual' : 'mensual'}.
+                  </CText>
+                </View>
               </View>
             )}
           </>
@@ -569,6 +650,19 @@ export default function SubscriptionScreen({navigation}) {
             message={cancelMessage}
             onCancel={() => setCancelModalVisible(false)}
             onConfirm={handleConfirmCancel}
+          />
+          
+          <ConfirmCancelModal
+            visible={actionModalVisible}
+            title={actionModalConfig?.title}
+            message={actionModalConfig?.message}
+            confirmText={actionModalConfig?.confirmText}
+            cancelText={actionModalConfig?.cancelText}
+            confirmColor={actionModalConfig?.confirmColor}
+            iconName={actionModalConfig?.iconName}
+            iconColor={actionModalConfig?.iconColor}
+            onCancel={actionModalConfig?.onCancel}
+            onConfirm={actionModalConfig?.onConfirm}
           />
         </CSafeAreaView>
   );
@@ -728,4 +822,29 @@ const localStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  toggleContainer: {
+    flexDirection: 'row',
+    borderRadius: moderateScale(25),
+    padding: moderateScale(4),
+    marginBottom: moderateScale(20),
+    alignSelf: 'center',
+    width: '100%',
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: moderateScale(10),
+    alignItems: 'center',
+    borderRadius: moderateScale(20),
+  },
+  toggleBtnActive: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  noteContainer: {
+    marginTop: moderateScale(10),
+    paddingHorizontal: moderateScale(20),
+  }
 });

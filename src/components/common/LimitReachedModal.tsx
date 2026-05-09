@@ -11,7 +11,7 @@ import {getLimitKeyLabel} from '../../utils/apiError';
 export default function LimitReachedModal({visible, onClose, onUpgrade, limitKey, customMessage}) {
   const colors = useSelector(state => state.theme.theme);
   const conceptoLabel = getLimitKeyLabel(limitKey || '');
-  const message = customMessage || `Has alcanzado el límite de ${conceptoLabel} mensuales permitidas por tu plan actual. Mejora tu plan para desbloquear más beneficios.`;
+  const message = customMessage || `Has alcanzado el límite de ${conceptoLabel} mensuales permitidos por tu plan actual. Mejora tu plan para desbloquear más beneficios.`;
 
   return (
     <Modal visible={visible} transparent animationType="fade">

@@ -229,12 +229,6 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
     }
     if (moduleKey === 'sintomas_emocionales') {
       try {
-        if (isFirstFlow) {
-          await clearLastRoute();
-          await clearGroupId();
-          navigation.replace('WelcomeEmotion');
-          return;
-        }
         const s = await (await import('../../../api/auth')).getSession();
         const userId = s?.id ? String(s.id) : null;
         if (!userId) throw new Error('No se encontró una sesión activa.');
