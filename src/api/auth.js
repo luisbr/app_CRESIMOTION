@@ -391,8 +391,8 @@ export const createSuscripcionIntent = async (membresia_id, success_url, cancel_
   return authPost(ENDPOINTS.SUSCRIPCION_INTENT, { membresia_id, success_url, cancel_url, codigo_apoyo, is_annual });
 };
 
-export const confirmarSuscripcion = async (membresia_id, session_id) => {
-  return authPost(ENDPOINTS.SUSCRIPCION_CONFIRMAR, { membresia_id, session_id });
+export const confirmarSuscripcion = async (membresia_id, session_id, is_annual = false) => {
+  return authPost(ENDPOINTS.SUSCRIPCION_CONFIRMAR, { membresia_id, session_id, is_annual });
 };
 
 export const cancelarSuscripcion = async () => {
