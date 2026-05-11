@@ -251,7 +251,7 @@ export default function Notification() {
       title: 'Sesiones terapéuticas pendientes',
       data: pendientesCombinadas.length > 0 
         ? pendientesCombinadas 
-        : [{localId: 'empty_pend', empty: true, isPendienteApi: true, titulo: 'No hay sesiones pendientes'}]
+        : [{localId: 'empty_pend', empty: true, isPendienteApi: true, mensaje: 'No hay sesiones pendientes'}]
     });
 
     if (historialNotifications.length > 0) {
