@@ -123,6 +123,7 @@ function TabNavigationContent() {
           name={TabNav.HomeTab}
           component={HomeStack}
           options={{
+            tabBarItemStyle: localStyles.compactTabItem,
             tabBarIcon: ({focused}) => (
               <TabText
                 iconName="home-outline"
@@ -136,6 +137,7 @@ function TabNavigationContent() {
           name={TabNav.CalenderTab}
           component={TasksScreen}
           options={{
+            tabBarItemStyle: localStyles.compactTabItem,
             tabBarIcon: ({focused}) => (
               <TabText
                 iconName="calendar-outline"
@@ -149,10 +151,11 @@ function TabNavigationContent() {
           name={TabNav.EvaluationsTab}
           component={EvaluationsStack}
           options={{
+            tabBarItemStyle: localStyles.wideTabItem,
             tabBarIcon: ({focused}) => (
               <TabText
                 iconName="document-text-outline"
-                label="Mis autoevaluaciones"
+                label={'Mis auto\nevaluaciones'}
                 focused={focused}
               />
             ),
@@ -162,6 +165,7 @@ function TabNavigationContent() {
           name={TabNav.TestsTab}
           component={TestsListScreen}
           options={{
+            tabBarItemStyle: localStyles.compactTabItem,
             tabBarIcon: ({focused}) => (
               <TabText
                 iconName="clipboard-outline"
@@ -181,7 +185,7 @@ export default function TabNavigation() {
 }
 const localStyles = StyleSheet.create({
   tabBarStyle: {
-    height: getHeight(80),
+    height: getHeight(88),
     ...styles.ph20,
     ...styles.pt10,
   },
@@ -189,7 +193,13 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
     width: getWidth(95),
     justifyContent: 'flex-start',
-    paddingTop: moderateScale(5),
+    paddingTop: moderateScale(4),
+  },
+  compactTabItem: {
+    flex: 0.92,
+  },
+  wideTabItem: {
+    flex: 1.24,
   },
   drawerOverlay: {
     position: 'absolute',

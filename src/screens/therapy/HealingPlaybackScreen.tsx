@@ -111,6 +111,20 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     return `${base}${u.startsWith('/') ? '' : '/'}${u}`;
   };
 
+  useEffect(() => {
+    console.log('[THERAPY] playback backend audio payload', {
+      sessionId,
+      title,
+      audio_url: data?.audio_url || null,
+      audio_url2: data?.audio_url2 || null,
+      audio_object_url: data?.audio?.url || null,
+      audio2_object_url: data?.audio2?.url || null,
+      audio_chain: data?.audio_chain || null,
+      resolved_audio_url: audioUrl1 ? ensureAbsoluteUrl(audioUrl1) : null,
+      resolved_audio_url2: audioUrl2 ? ensureAbsoluteUrl(audioUrl2) : null,
+    });
+  }, [audioUrl1, audioUrl2, data, sessionId, title]);
+
   const getCachedAudioUri = async (remoteUrl: string) => {
     const cached = cachedRemoteUrisRef.current[remoteUrl];
     if (cached) {

@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Audio } from 'expo-av';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CSafeAreaView from '../../components/common/CSafeAreaView';
+import CCustomScrollView from '../../components/common/CCustomScrollView';
 import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
@@ -27,21 +28,6 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 const localStyles = {
-  scrollIndicatorTrack: {
-    position: 'absolute' as const,
-    top: 4,
-    bottom: 4,
-    right: 4,
-    width: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(0, 0, 0, 0.08)',
-  },
-  scrollIndicatorThumb: {
-    position: 'absolute' as const,
-    left: 0,
-    right: 0,
-    borderRadius: 4,
-  },
 };
 
 export default function HealingIntroScreen({ navigation, route }: any) {
@@ -74,39 +60,6 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const [initialized, setInitialized] = useState(false);
   const [recommendationsCollapsed, setRecommendationsCollapsed] = useState(false);
   const continuingRef = useRef(false);
-  const [scrollIndicator, setScrollIndicator] = useState({
-    visible: false,
-    top: 0,
-    height: 0,
-  });
-  const scrollLayoutHeightRef = useRef(0);
-  const scrollContentHeightRef = useRef(0);
-
-  const updateScrollIndicator = (scrollY = 0) => {
-    const layoutHeight = scrollLayoutHeightRef.current;
-    const contentHeight = scrollContentHeightRef.current;
-
-    if (!layoutHeight || !contentHeight || contentHeight <= layoutHeight + 4) {
-      setScrollIndicator({ visible: false, top: 0, height: 0 });
-      return;
-    }
-
-    const trackHeight = Math.max(layoutHeight - 4, 1);
-    const thumbHeight = Math.max(
-      (layoutHeight / contentHeight) * trackHeight,
-      36
-    );
-    const maxScroll = Math.max(contentHeight - layoutHeight, 1);
-    const maxThumbTop = Math.max(trackHeight - thumbHeight, 0);
-    const thumbTop = (scrollY / maxScroll) * maxThumbTop;
-
-    setScrollIndicator({
-      visible: true,
-      top: thumbTop,
-      height: thumbHeight,
-    });
-  };
-
   const allRequiredChecked = useMemo(() => {
     if (!required.length) return true;
     return required.every((r: any) => checks[r?.key]);
@@ -259,7 +212,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   return (
     <CSafeAreaView>
       <TherapyHeader />
-      <ScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 240 }]}>
+      <CCustomScrollView contentContainerStyle={[styles.ph20, styles.pv20, { paddingBottom: 240 }]}>
         <CText type={'B18'}>{title}</CText>
         <View style={styles.mt10}>
           <CText type={'R14'} color={colors.labelColor} style={{ lineHeight: 24 }} align={'left'}>
@@ -278,24 +231,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
         <View style={styles.mt20}>
 
           {!recommendationsCollapsed && (
-            <View style={{ marginTop: 8, position: 'relative' }}>
-              <ScrollView
-                style={{ maxHeight: 300 }}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingRight: 18 }}
-                onLayout={event => {
-                  scrollLayoutHeightRef.current = event.nativeEvent.layout.height;
-                  updateScrollIndicator();
-                }}
-                onContentSizeChange={(_, height) => {
-                  scrollContentHeightRef.current = height;
-                  updateScrollIndicator();
-                }}
-                onScroll={event => {
-                  updateScrollIndicator(event.nativeEvent.contentOffset.y);
-                }}
-                scrollEventThrottle={16}
-              >
+            <View style={{ marginTop: 8 }}>
                 {required.map((opt: any, idx: number) => {
                 const key = opt?.key || String(idx);
                 const isOn = !!checks[key];
@@ -341,21 +277,6 @@ export default function HealingIntroScreen({ navigation, route }: any) {
                   />
                 </TouchableOpacity>
               )}
-              </ScrollView>
-              {scrollIndicator.visible && (
-                <View pointerEvents="none" style={localStyles.scrollIndicatorTrack}>
-                  <View
-                    style={[
-                      localStyles.scrollIndicatorThumb,
-                      {
-                        top: scrollIndicator.top,
-                        height: scrollIndicator.height,
-                        backgroundColor: colors.primary,
-                      },
-                    ]}
-                  />
-                </View>
-              )}
             </View>
           )}
         </View>
@@ -369,7 +290,7 @@ export default function HealingIntroScreen({ navigation, route }: any) {
             </ScrollView>
           </View>
         )}
-      </ScrollView>
+      </CCustomScrollView>
       <View
         style={{
           position: 'absolute',
