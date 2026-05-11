@@ -519,7 +519,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
               <View style={{flex: 1}}>
                 <CText type={'B16'}>Apoyo inmediato</CText>
                 <CText type={'S12'} color={colors.labelColor}>
-                  Si estas en riesgo, estos contactos pueden ayudarte ahora.
+                  Si estás en riesgo, estos contactos pueden ayudarte ahora.
                 </CText>
               </View>
             </View>
@@ -561,22 +561,22 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
                       ))
                     ) : (
                       <CText type={'S14'} color={colors.labelColor}>
-                        No encontramos telefonos para este pais.
+                        No encontramos telefonos para este país.
                       </CText>
                     )}
                   </View>
                 ) : (
                   <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
-                    No pudimos determinar tu ubicacion. Puedes buscar tu pais para ver telefonos de emergencia.
+                    No pudimos determinar tu ubicación. Puedes buscar tu país para ver teléfonos de emergencia.
                   </CText>
                 )}
                 <View style={styles.mb10}>
                   <CText type={'M14'} style={styles.mb5}>
-                    Buscar otro pais
+                    Buscar otro país
                   </CText>
                   <CInput
                     _value={countryQuery}
-                    placeHolder={'Escribe un pais'}
+                    placeHolder={'Escribe un país'}
                     toGetTextFieldValue={setCountryQuery}
                     insideLeftIcon={() => (
                       <Ionicons

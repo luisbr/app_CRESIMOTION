@@ -13,7 +13,8 @@ import {styles} from '../../theme';
 import {moderateScale} from '../../common/constants';
 import CDivider from '../../components/common/CDivider';
 import {getStoredNotifications, saveStoredNotifications} from '../../utils/notificationStorage';
-import {getPendingTherapySessions, continuePendingTherapy, getSessionDetails} from '../../api/sesionTerapeutica';
+import {getPendingTherapySessions, continuePendingTherapy, getSessionDetails, getResumenMensual} from '../../api/sesionTerapeutica';
+import {getSuscripcionActual, getMembresias} from '../../api/auth';
 
 const DATE_FILTERS = [
   {key: 'day', label: 'Día'},
@@ -61,7 +62,9 @@ export default function Notification() {
   const [loading, setLoading] = useState(true);
   const [dateFilter, setDateFilter] = useState('day');
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  // Modal deshabilitado en favor de la expansión
+  // const [modalVisible, setModalVisible] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -125,6 +128,42 @@ export default function Notification() {
     const updated = notifications.map(n => n.localId === id ? {...n, [field]: !n[field]} : n);
     setNotifications(updated);
     await saveStoredNotifications(updated);
+  };
+
+  const checkTherapyLimit = async () => {
+    try {
+      const resumen = await getResumenMensual();
+      const sesionesUsadas = resumen?.sesiones_realizadas?.count ?? 0;
+      const suscripcionId = resumen?.period?.suscripcion_id;
+      const membresiaId = resumen?.period?.membresia_id;
+
+      let limite = 0;
+
+      if (suscripcionId) {
+        const suscripcion = await getSuscripcionActual();
+        const conceptos = suscripcion?.conceptos ?? [];
+        const emotionConcept = conceptos.find(c => c.concepto_id === 1);
+        limite = emotionConcept?.cantidad_asignada ?? 0;
+
+        if (limite === 0 && membresiaId) {
+          const membresias = await getMembresias();
+          const membresia = membresias?.data?.find(m => String(m.id) === String(membresiaId));
+          const conceptoPlan = membresia?.conceptos?.find(c => String(c.conceptos_id) === '1');
+          limite = parseInt(conceptoPlan?.cantidad ?? 0, 10);
+        }
+      }
+
+      if (sesionesUsadas >= limite && limite > 0) {
+        Alert.alert(
+          'Límite alcanzado',
+          `Has alcanzado el límite de sesiones de tu plan actual (${sesionesUsadas} de ${limite}). Mejora tu plan para desbloquear más sesiones terapéuticas.`
+        );
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return true;
+    }
   };
 
   const addMockNotificationsSet = async () => {
@@ -251,7 +290,7 @@ export default function Notification() {
       title: 'Sesiones terapéuticas pendientes',
       data: pendientesCombinadas.length > 0 
         ? pendientesCombinadas 
-        : [{localId: 'empty_pend', empty: true, isPendienteApi: true, titulo: 'No hay sesiones pendientes'}]
+        : [{localId: 'empty_pend', empty: true, isPendienteApi: true, mensaje: 'No hay sesiones pendientes'}]
     });
 
     if (historialNotifications.length > 0) {
@@ -286,33 +325,103 @@ export default function Notification() {
       );
     }
 
-    if (item.isPendienteApi) {
+    const isPushPendiente = item.isPushPendiente || item.tipo === 'sesion_pendiente';
+
+    if (item.isPendienteApi || isPushPendiente) {
       if (item.empty) {
         return (
           <View style={localStyles.itemContainer}>
-            <CText type={'R14'} style={{color: colors.grayScale4}}>{item.titulo}</CText>
+            <CText type={'R14'} style={{color: colors.grayScale4}}>{item.mensaje || item.titulo}</CText>
           </View>
         );
       }
+      
+      const sessionKey = String(item.sesion_id || item.data?.sesion_id || item.localId);
+      const isExpanded = expandedId === sessionKey;
+      
       return (
-        <TouchableOpacity 
-          style={localStyles.itemContainer}
-          onPress={async () => {
-            try {
-              const next = await continuePendingTherapy({source_session_id: item.sesion_id});
-              navigation.navigate('TherapyFlowRouter', {initialNext: next, entrypoint: 'pending'});
-            } catch (e) {
-              console.log('Error continuing session:', e);
-              Alert.alert('Error', 'No se pudo continuar la sesión.');
-            }
-          }}
+        <TouchableOpacity
+          key={sessionKey}
+          style={[
+            styles.p15,
+            styles.mb10,
+            {
+              backgroundColor: colors.inputBg,
+              borderRadius: 12,
+            },
+          ]}
+          onPress={() => setExpandedId(isExpanded ? null : sessionKey)}
         >
-          <CText type={'R14'} style={{color: colors.primary}}>{item.titulo}</CText>
+          <CText type={'S16'}>
+            Sesión terapéutica pendiente
+          </CText>
+          <CText type={'S12'} color={colors.labelColor}>
+            Toca para ver detalles
+          </CText>
+          {isExpanded && (
+            <View style={[styles.mt10]}>
+              {!!item.motivo && (
+                <View style={styles.mb10}>
+                  <CText type={'S14'} style={styles.mb5}>
+                    Motivo
+                  </CText>
+                  <View style={[styles.mb10, {padding: 10, borderRadius: 10, backgroundColor: colors.backgroundColor}]}>
+                    <CText type={'S12'} style={{marginRight: 8}}>
+                      {item.motivo}
+                    </CText>
+                  </View>
+                </View>
+              )}
+              {!!item.emocion && (
+                <View style={styles.mb10}>
+                  <CText type={'S14'} style={styles.mb5}>
+                    Emoción
+                  </CText>
+                  <View style={[styles.mb10, {padding: 10, borderRadius: 10, backgroundColor: colors.backgroundColor}]}>
+                    <CText type={'S12'} style={{marginRight: 8}}>
+                      {item.emocion}
+                    </CText>
+                  </View>
+                </View>
+              )}
+              {(!item.motivo && !item.emocion) && (
+                <CText type={'S12'} color={colors.labelColor}>
+                  {item.titulo || item.mensaje || 'Sesión pendiente'}
+                </CText>
+              )}
+              <View style={[styles.rowEnd, styles.mt10]}>
+                <TouchableOpacity
+                  onPress={async () => {
+                    const sId = item.sesion_id || item.data?.sesion_id;
+                    if (!sId) {
+                      Alert.alert('Aviso', 'Esta notificación no tiene un ID de sesión válido.');
+                      return;
+                    }
+                    const canProceed = await checkTherapyLimit();
+                    if (!canProceed) return;
+                    try {
+                      const next = await continuePendingTherapy({source_session_id: sId});
+                      navigation.navigate('TherapyFlowRouter', {initialNext: next, entrypoint: 'pending'});
+                    } catch (e) {
+                      console.log('Error continuing session:', e);
+                      Alert.alert('Error', 'No se pudo continuar la sesión.');
+                    }
+                  }}
+                  style={{
+                    paddingVertical: 6,
+                    paddingHorizontal: 15,
+                    borderRadius: 8,
+                    backgroundColor: colors.primary,
+                  }}
+                >
+                  <CText type={'S12'} color={colors.white}>Sesión terapeutica</CText>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </TouchableOpacity>
       );
     }
-
-    const isPushPendiente = item.isPushPendiente || item.tipo === 'sesion_pendiente';
 
     return (
       <View style={localStyles.itemContainer}>
@@ -343,29 +452,15 @@ export default function Notification() {
   };
 
   const handleNotificationPress = async (item, isPushPendiente) => {
-    // Si es sesión pendiente, continúa a la sesión
-    if (isPushPendiente) {
-      const sId = item.data?.sesion_id || item.sesion_id;
-      if (!sId) {
-        Alert.alert('Aviso', 'Esta notificación no tiene un ID de sesión válido.');
-        return;
-      }
-      try {
-        const next = await continuePendingTherapy({source_session_id: sId});
-        navigation.navigate('TherapyFlowRouter', {initialNext: next, entrypoint: 'pending'});
-      } catch (e) {
-        console.log('Error continuing session:', e);
-        Alert.alert('Error', 'No se pudo continuar la sesión.');
-      }
-      return;
-    }
+    // Si es sesión pendiente ya es manejada por RenderItem
+    if (isPushPendiente) return;
     
     // Si es otro tipo de notificación, la marcamos como leída y mostramos el popup
     if (item.localId && !item.isRead) {
       toggleStatus(item.localId, 'isRead');
     }
     setSelectedNotification(item);
-    setModalVisible(true);
+    // setModalVisible(true); // Deshabilitamos modal temporalmente para usar la expansión, si es necesario lo podemos reactivar para otras notificaciones
   };
 
   const RenderHistorialSection = ({section}) => {
@@ -463,47 +558,15 @@ export default function Notification() {
         }
       />
 
-      {/* Modal de Detalle de Notificación */}
+      {/* Eliminamos temporalmente el modal si ya no lo usaremos, o podemos conservarlo. Vamos a comentar el código para que no de error si reactivamos modalVisible:
       <Modal
         animationType="fade"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={localStyles.modalOverlay}>
-          <View style={[localStyles.modalContent, {backgroundColor: colors.backgroundColor}]}>
-            <View style={localStyles.modalHeader}>
-              <CText type="B18" style={{color: colors.textColor}}>Detalle de Notificación</CText>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color={colors.textColor} />
-              </TouchableOpacity>
-            </View>
-            <CDivider style={styles.mv10} />
-            <ScrollView style={localStyles.modalBody}>
-              <CText type="R16" style={{color: colors.textColor, lineHeight: 24}}>
-                {selectedNotification?.titulo || ''}
-              </CText>
-              <CText type="R16" style={{color: colors.textColor, lineHeight: 24, marginTop: 10}}>
-                {selectedNotification?.mensaje || ''}
-              </CText>
-              
-              {selectedNotification?.createdAt && (
-                <CText type="R12" style={{color: colors.grayScale5, marginTop: 20}}>
-                  Fecha: {new Date(selectedNotification.createdAt).toLocaleString()}
-                </CText>
-              )}
-            </ScrollView>
-            <View style={localStyles.modalFooter}>
-              <CButton
-                title="Cerrar"
-                type="b1"
-                onPress={() => setModalVisible(false)}
-                containerStyle={localStyles.closeBtn}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
+        ...
+      </Modal> */}
     </CSafeAreaView>
   );
 }

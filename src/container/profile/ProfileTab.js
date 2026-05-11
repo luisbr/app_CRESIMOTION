@@ -508,6 +508,7 @@ export default function ProfileTab({navigation}) {
               _value={editFirstName}
               autoCapitalize={'words'}
               toGetTextFieldValue={setEditFirstName}
+              editable={false}
             />
             <CInput
               label="Apellido"
@@ -516,6 +517,7 @@ export default function ProfileTab({navigation}) {
               _value={editLastName}
               autoCapitalize={'words'}
               toGetTextFieldValue={setEditLastName}
+              editable={false}
             />
             <CInput
               label="Alias"
@@ -543,6 +545,7 @@ export default function ProfileTab({navigation}) {
                     syncEditBirthDate(editBirthYear, editBirthMonth, item?.value);
                   }}
                   style={localStyles.birthDropdown}
+                  disabled={true}
                 />
               </View>
               <View style={[localStyles.birthFieldWrapper, localStyles.birthFieldSpacer]}>
@@ -569,6 +572,7 @@ export default function ProfileTab({navigation}) {
                     syncEditBirthDate(editBirthYear, item?.value, editBirthDay);
                   }}
                   style={localStyles.birthDropdown}
+                  disabled={true}
                 />
               </View>
               <View style={localStyles.birthFieldWrapper}>
@@ -586,6 +590,7 @@ export default function ProfileTab({navigation}) {
                   _maxLength={4}
                   inputContainerStyle={localStyles.birthYearInputContainer}
                   inputBoxStyle={localStyles.birthYearInputBox}
+                  editable={false}
                 />
               </View>
             </View>
@@ -638,6 +643,7 @@ export default function ProfileTab({navigation}) {
                 _value={editEmail}
                 autoCapitalize={'none'}
                 toGetTextFieldValue={setEditEmail}
+                editable={false}
               />
               <CDropdown
                 label="Género"

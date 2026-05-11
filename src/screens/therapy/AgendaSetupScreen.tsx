@@ -60,6 +60,22 @@ const FREQUENCIES = [
   { key: 'semestral', label: 'Semestral' },
 ];
 
+const formatSmartTime = (value: string) => {
+  if (!value) return value;
+  let clean = value.replace(/[^\d:]/g, '');
+  if (clean.length === 4 && clean.indexOf(':') === 1) {
+    clean = `0${clean}`;
+  }
+  if (!clean.includes(':')) {
+    if (clean.length === 3) {
+      clean = `0${clean[0]}:${clean.slice(1)}`;
+    } else if (clean.length === 4) {
+      clean = `${clean.slice(0, 2)}:${clean.slice(2)}`;
+    }
+  }
+  return clean;
+};
+
 export default function AgendaSetupScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
   const safeNavigation = useSafeNavigation(navigation);
@@ -372,7 +388,7 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
           currentRow.frequency !== 'semanal' && currentRow.frequency !== 'diaria' && currentRow.frequency !== 'quincenal'
             ? Number(currentRow.day_of_month || 1)
             : undefined,
-        time: currentRow.time,
+        time: formatSmartTime(currentRow.time),
         duration_minutes: Number(currentRow.duration_minutes || 0),
         start_date: currentRow.start_date,
         end_date: currentRow.end_date,
@@ -715,6 +731,7 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
             <TextInput
               value={row.time}
               onChangeText={(v) => updateRow(idx, { time: v })}
+              onBlur={() => updateRow(idx, { time: formatSmartTime(row.time) })}
               placeholder={'21:30'}
               placeholderTextColor={colors.labelColor}
               style={{ borderWidth: 1, borderColor: colors.grayScale2, borderRadius: 8, padding: 10, color: colors.textColor, marginTop: 6 }}

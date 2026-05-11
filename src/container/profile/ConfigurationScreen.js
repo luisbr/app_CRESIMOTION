@@ -20,6 +20,7 @@ import {changeThemeAction, changeFontScaleAction} from '../../redux/action/theme
 import {setAsyncStorageData} from '../../utils/AsyncStorage';
 import {setProfilePreferences} from '../../redux/action/profileAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ConfirmCancelModal from '../../components/model/ConfirmCancelModal';
 
 export default function ConfigurationScreen({navigation}) {
   const currentTheme = useSelector(state => state.theme.theme);
@@ -45,6 +46,15 @@ export default function ConfigurationScreen({navigation}) {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordSaveError, setPasswordSaveError] = useState('');
   const [passwordSaveSuccess, setPasswordSaveSuccess] = useState('');
+
+  const [suspendModalVisible, setSuspendModalVisible] = useState(false);
+  const [suspendMessage, setSuspendMessage] = useState('');
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState('');
+
+  const [supportModalVisible, setSupportModalVisible] = useState(false);
+  const [supportMessage, setSupportMessage] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -183,53 +193,47 @@ export default function ConfigurationScreen({navigation}) {
   };
 
   const onSuspend = () => {
-    Alert.alert(
-      "Suspender cuenta",
-      "¿Estás seguro de que deseas suspender tu cuenta temporalmente?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Suspender", style: "destructive", onPress: async () => {
-            try {
-              const resp = await suspendAccount();
-              if (resp && resp.success) {
-                Alert.alert("Cuenta suspendida", "Tu cuenta ha sido suspendida. Puedes reactivarla en cualquier momento.", [
-                  { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
-                ]);
-              } else {
-                Alert.alert("Error", resp?.message || "No se pudo suspender la cuenta.");
-              }
-            } catch (e) {
-              console.log('Suspend error:', e);
-              Alert.alert("Error", e?.body?.message || e?.message || "No se pudo suspender la cuenta.");
-            }
-        }}
-      ]
-    );
+    setSuspendMessage("¿Estás seguro de que deseas suspender tu cuenta temporalmente?");
+    setSuspendModalVisible(true);
+  };
+
+  const handleConfirmSuspend = async () => {
+    setSuspendModalVisible(false);
+    try {
+      const resp = await suspendAccount();
+      if (resp && resp.success) {
+        Alert.alert("Cuenta suspendida", "Tu cuenta ha sido suspendida. Puedes reactivarla en cualquier momento.", [
+          { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
+        ]);
+      } else {
+        Alert.alert("Error", resp?.message || "No se pudo suspender la cuenta.");
+      }
+    } catch (e) {
+      console.log('Suspend error:', e);
+      Alert.alert("Error", e?.body?.message || e?.message || "No se pudo suspender la cuenta.");
+    }
   };
 
   const onDelete = () => {
-    Alert.alert(
-      "Eliminar cuenta",
-      "Esta acción es irreversible. ¿Deseas eliminar permanentemente tu cuenta y todos tus datos?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Eliminar", style: "destructive", onPress: async () => {
-            try {
-              const resp = await deleteAccount();
-              if (resp && resp.success) {
-                Alert.alert("Cuenta eliminada", "Tu cuenta ha sido eliminada.", [
-                  { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
-                ]);
-              } else {
-                Alert.alert("Error", resp?.message || "No se pudo eliminar la cuenta.");
-              }
-            } catch (e) {
-              console.log('Delete error:', e);
-              Alert.alert("Error", e?.body?.message || e?.message || "No se pudo eliminar la cuenta.");
-            }
-        }}
-      ]
-    );
+    setDeleteMessage("Esta acción es irreversible. ¿Deseas eliminar permanentemente tu cuenta y todos tus datos?");
+    setDeleteModalVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeleteModalVisible(false);
+    try {
+      const resp = await deleteAccount();
+      if (resp && resp.success) {
+        Alert.alert("Cuenta eliminada", "Tu cuenta ha sido eliminada.", [
+          { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
+        ]);
+      } else {
+        Alert.alert("Error", resp?.message || "No se pudo eliminar la cuenta.");
+      }
+    } catch (e) {
+      console.log('Delete error:', e);
+      Alert.alert("Error", e?.body?.message || e?.message || "No se pudo eliminar la cuenta.");
+    }
   };
 
   const onPressChangePassword = () => {
@@ -292,18 +296,18 @@ export default function ConfigurationScreen({navigation}) {
       if (canOpen) {
         await Linking.openURL(url);
       } else {
-        Alert.alert(
-          'Soporte',
-          'Puedes escribirnos directamente a: soporte@cresimotion.com',
-          [{ text: 'Copiar correo', onPress: async () => {
-            await Clipboard.setStringAsync('soporte@cresimotion.com');
-            Alert.alert('Copiado', 'El correo ha sido copiado al portapapeles.');
-          }}, { text: 'OK' }]
-        );
+        setSupportMessage('Puedes escribirnos directamente a: soporte@cresimotion.com');
+        setSupportModalVisible(true);
       }
     } catch (err) {
       console.log('Error opening mailto:', err);
     }
+  };
+
+  const handleConfirmSupport = async () => {
+    setSupportModalVisible(false);
+    await Clipboard.setStringAsync('soporte@cresimotion.com');
+    Alert.alert('Copiado', 'El correo ha sido copiado al portapapeles.');
   };
 
   return (
@@ -426,6 +430,45 @@ export default function ConfigurationScreen({navigation}) {
           </View>
         </View>
       </Modal>
+
+      <ConfirmCancelModal
+        visible={suspendModalVisible}
+        title="Suspender cuenta"
+        message={suspendMessage}
+        confirmText="Suspender"
+        cancelText="Cancelar"
+        confirmColor={colors.warning}
+        iconName="warning"
+        iconColor={colors.warning}
+        onCancel={() => setSuspendModalVisible(false)}
+        onConfirm={handleConfirmSuspend}
+      />
+
+      <ConfirmCancelModal
+        visible={deleteModalVisible}
+        title="Eliminar cuenta"
+        message={deleteMessage}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        confirmColor={colors.alertColor}
+        iconName="warning"
+        iconColor={colors.alertColor}
+        onCancel={() => setDeleteModalVisible(false)}
+        onConfirm={handleConfirmDelete}
+      />
+
+      <ConfirmCancelModal
+        visible={supportModalVisible}
+        title="Soporte"
+        message={supportMessage}
+        confirmText="Copiar correo"
+        cancelText="Cancelar"
+        confirmColor={currentTheme.primary}
+        iconName="mail"
+        iconColor={currentTheme.primary}
+        onCancel={() => setSupportModalVisible(false)}
+        onConfirm={handleConfirmSupport}
+      />
 
     </CSafeAreaView>
   );

@@ -20,6 +20,7 @@ export default function CDropdown(props) {
     label,
     style,
     required = false,
+    disabled = false,
   } = props;
   return (
     <View>
@@ -72,6 +73,7 @@ export default function CDropdown(props) {
             backgroundColor: colors.backgroundColor,
             color: colors.textColor,
           }}
+          disable={disabled}
         />
       </View>
     </View>
