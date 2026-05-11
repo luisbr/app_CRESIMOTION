@@ -388,16 +388,11 @@ export const getSuscripcionActual = async () => {
 };
 
 export const createSuscripcionIntent = async (membresia_id, success_url, cancel_url, codigo_apoyo = null, is_annual = false) => {
-  try {
-    const res = await requestApi('/suscripcion/intent', { membresia_id, success_url, cancel_url, codigo_apoyo, is_annual }, 'POST');
-    return res;
-  } catch (error) {
-    throw error;
-  }
+  return authPost(ENDPOINTS.SUSCRIPCION_INTENT, { membresia_id, success_url, cancel_url, codigo_apoyo, is_annual });
 };
 
-export const confirmarSuscripcion = async (membresia_id, session_id) => {
-  return authPost(ENDPOINTS.SUSCRIPCION_CONFIRMAR, { membresia_id, session_id });
+export const confirmarSuscripcion = async (membresia_id, session_id, is_annual = false) => {
+  return authPost(ENDPOINTS.SUSCRIPCION_CONFIRMAR, { membresia_id, session_id, is_annual });
 };
 
 export const cancelarSuscripcion = async () => {
