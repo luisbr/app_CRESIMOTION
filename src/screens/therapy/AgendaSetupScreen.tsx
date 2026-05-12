@@ -727,7 +727,7 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
               </>
             )}
 
-            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>Hora</CText>
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10} align="left">Hora (HH:MM - 24h)</CText>
             <TextInput
               value={row.time}
               onChangeText={(v) => updateRow(idx, { time: v })}

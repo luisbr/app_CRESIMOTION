@@ -534,7 +534,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
                 {emergencyCountry ? (
                   <View style={styles.mb10}>
                     <CText type={'S14'} color={colors.labelColor} style={styles.mb5}>
-                      {`Pais detectado: ${emergencyCountry.country_name || emergencyCountry.country_code || ''}`}
+                      {`País detectado: ${emergencyCountry.country_name || emergencyCountry.country_code || ''}`}
                     </CText>
                     {emergencyContacts.length ? (
                       emergencyContacts.map((contact, idx) => (
