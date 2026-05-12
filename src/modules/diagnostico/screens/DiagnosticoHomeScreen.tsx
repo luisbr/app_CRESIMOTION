@@ -351,12 +351,12 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
           const conceptoPlan = membresia?.conceptos?.find((c: any) => String(c.conceptos_id) === '1');
           limite = parseInt(conceptoPlan?.cantidad ?? 0, 10);
         }
-        // ======================= LIMITE TEMPORAL =======================
-        if (sesionesUsadas >= limite && limite > 0) {
-          setLimitInfo({ usadas: sesionesUsadas, limite });
-          setShowLimitModal(true);
-          return false;
-        }
+        // ======================= LIMITE TEMPORAL (Removido por petición) =======================
+        // if (sesionesUsadas >= limite && limite > 0) {
+        //   setLimitInfo({ usadas: sesionesUsadas, limite });
+        //   setShowLimitModal(true);
+        //   return false;
+        // }
         // ======================= LIMITE TEMPORAL =======================
       }
 
