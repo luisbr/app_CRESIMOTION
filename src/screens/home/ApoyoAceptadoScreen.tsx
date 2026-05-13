@@ -13,7 +13,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import CText from '../../components/common/CText';
 import CMainAppBar from '../../components/common/CMainAppBar';
-import {validarCodigoApoyo} from '../../api/apoyoFinanciero';
+import {validarCodigoApoyo, obtenerEstadoApoyo} from '../../api/apoyoFinanciero';
 import {StackNav, TabNav} from '../../navigation/NavigationKey';
 
 export default function ApoyoAceptadoScreen() {
@@ -21,10 +21,15 @@ export default function ApoyoAceptadoScreen() {
   const route = useRoute<any>();
   const {solicitudData} = route.params ?? {};
 
-  const yaAprobado = solicitudData?.estatus === 'aprobada';
-  const codigoInfo = solicitudData?.codigo;
+  const [freshEstado, setFreshEstado] = useState<any>(null);
+  const [cargandoEstado, setCargandoEstado] = useState(true);
+
+  const estadoFinal = freshEstado || solicitudData;
+
+  const yaAprobado = estadoFinal?.estatus === 'aprobada';
+  const codigoInfo = estadoFinal?.codigo;
   const membresia   = codigoInfo?.membresia;
-  const descuento   = codigoInfo?.porcentaje_descuento ?? solicitudData?.porcentaje_descuento ?? 0;
+  const descuento   = codigoInfo?.porcentaje_descuento ?? estadoFinal?.porcentaje_descuento ?? 0;
   const fechaExp    = codigoInfo?.fecha_expiracion ?? null;
 
   const [codigoInput, setCodigoInput] = useState('');
@@ -32,6 +37,22 @@ export default function ApoyoAceptadoScreen() {
   const [resultado, setResultado] = useState<{success: boolean; message?: string} | null>(null);
   const [copiado, setCopiado] = useState(false);
   const [diasRestantes, setDiasRestantes] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchEstadoFresco = async () => {
+      try {
+        const estado = await obtenerEstadoApoyo();
+        if (estado.success && estado.tiene_solicitud && estado.codigo) {
+          setFreshEstado(estado);
+        }
+      } catch (e) {
+        console.log('Error al obtener estado fresco:', e);
+      } finally {
+        setCargandoEstado(false);
+      }
+    };
+    fetchEstadoFresco();
+  }, []);
 
   useEffect(() => {
     if (fechaExp) {
@@ -92,7 +113,18 @@ export default function ApoyoAceptadoScreen() {
     navigation.navigate(StackNav.ApoyoFinanciero);
   };
 
-  const estaRechazado = solicitudData?.estatus === 'rechazada';
+  const estaRechazado = estadoFinal?.estatus === 'rechazada';
+
+  if (cargandoEstado) {
+    return (
+      <View style={localStyles.container}>
+        <CMainAppBar mode="sub" title="Apoyo financiero" />
+        <View style={localStyles.center}>
+          <ActivityIndicator size="large" color="#0aa693" />
+        </View>
+      </View>
+    );
+  }
 
   // Si la solicitud está rechazada
   if (estaRechazado) {

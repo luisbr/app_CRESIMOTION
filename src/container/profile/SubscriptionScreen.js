@@ -543,7 +543,7 @@ export default function SubscriptionScreen({navigation}) {
             </View>
           ) : (
             <CButton
-              title={tieneDescuentoApoyo ? `Elegir con ${descuento}% dto.` : "Elegir este plan"}
+              title={tieneDescuentoApoyo ? `Elegir con ${descuento}% de descuento.` : "Elegir este plan"}
               onPress={() => handleSelectPackage(pkg)}
               containerStyle={localStyles.btnSelectFull}
               bgColor={colors.primary}
@@ -577,7 +577,7 @@ export default function SubscriptionScreen({navigation}) {
                 style={[localStyles.toggleBtn, isAnnualPlan && [localStyles.toggleBtnActive, {backgroundColor: colors.primary}]]}
                 onPress={() => setIsAnnualPlan(true)}
               >
-                <CText type={"B14"} color={isAnnualPlan ? colors.white : colors.grayScale3}>Anual (10 meses)</CText>
+                <CText type={"B14"} color={isAnnualPlan ? colors.white : colors.grayScale3}>Anual</CText>
               </TouchableOpacity>
             </View>
             
