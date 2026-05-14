@@ -389,17 +389,6 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   );
 
   const toggleId = (id: number) => {
-    if (moduleKey === 'sintomas_emocionales' || moduleKey === 'motivos') {
-      const limitInfo = moduleLimits[moduleKey];
-      if (limitInfo && limitsLoaded) {
-        const isCurrentlySelected = selectedIds.includes(id);
-        const alreadyInResumen = isInResumen(id);
-        if (!isCurrentlySelected && !alreadyInResumen && limitInfo.remaining <= 0) {
-          setShowLimitModal(true);
-          return;
-        }
-      }
-    }
     setSelectedIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
   };
 
