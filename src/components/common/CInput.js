@@ -79,7 +79,7 @@ const CInput = props => {
               ? bgColor
               : colors.inputBg,
             height: multiline ? getHeight(130) : getHeight(52),
-            backgroundColor: bgColor ? bgColor : colors.inputBg,
+            backgroundColor: _editable == false ? colors.grayScale2 : (bgColor ? bgColor : colors.inputBg),
           },
           inputContainerStyle,
         ]}>
@@ -108,7 +108,7 @@ const CInput = props => {
               height: multiline ? getHeight(75) : getHeight(48),
             },
             inputBoxStyle,
-            _editable == false && {color: colors.white},
+            _editable == false && {color: colors.grayScale4},
           ]}
           {...props}
         />
