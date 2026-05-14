@@ -9,7 +9,8 @@
       "distribution": "internal",
       "env": {
         "ENABLE_FORWARD_BUTTON": "false"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "ios": {
@@ -17,14 +18,16 @@
       },
       "env": {
         "ENABLE_FORWARD_BUTTON": "false"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "API_BASE_URL": "https://cresimotion.staging.mx",
         "ENABLE_FORWARD_BUTTON": "false"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {
