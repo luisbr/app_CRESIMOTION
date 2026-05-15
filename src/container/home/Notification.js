@@ -15,6 +15,7 @@ import CDivider from '../../components/common/CDivider';
 import {getStoredNotifications, saveStoredNotifications} from '../../utils/notificationStorage';
 import {getPendingTherapySessions, continuePendingTherapy, getSessionDetails, getResumenMensual} from '../../api/sesionTerapeutica';
 import {getSuscripcionActual, getMembresias} from '../../api/auth';
+import SuccessPopup from '../../components/model/SuccessPopup';
 
 const DATE_FILTERS = [
   {key: 'day', label: 'Día'},
@@ -65,6 +66,8 @@ export default function Notification() {
   // Modal deshabilitado en favor de la expansión
   // const [modalVisible, setModalVisible] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [successPopupVisible, setSuccessPopupVisible] = useState(false);
+  const [successPopupMessage, setSuccessPopupMessage] = useState('');
 
   const loadData = async () => {
     setLoading(true);
@@ -249,7 +252,8 @@ export default function Notification() {
     const updated = [...mockSet, ...notifications];
     setNotifications(updated);
     await saveStoredNotifications(updated);
-    Alert.alert('Éxito', 'Set de notificaciones de prueba agregado');
+    setSuccessPopupMessage('Set de notificaciones de prueba agregado');
+    setSuccessPopupVisible(true);
   };
 
   const historialNotifications = useMemo(() => {
@@ -567,6 +571,13 @@ export default function Notification() {
       >
         ...
       </Modal> */}
+
+      <SuccessPopup
+        visible={successPopupVisible}
+        title="Éxito"
+        desc={successPopupMessage}
+        onClose={() => setSuccessPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }
