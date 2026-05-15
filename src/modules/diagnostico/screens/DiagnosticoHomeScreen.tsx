@@ -23,7 +23,7 @@ import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import CMainAppBar from '../../../components/common/CMainAppBar';
 import CCustomScrollView from '../../../components/common/CCustomScrollView';
 import {useSafeNavigation} from '../../../navigation/safeNavigation';
-import LimitReachedModal from '../../../components/common/LimitReachedModal';
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const THERAPY_SESSION_CHECKLIST_ACK_KEY = 'therapy_session_checklist_ack';
@@ -48,8 +48,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
   const isCheckingRef = useRef(false);
   const [navigating, setNavigating] = useState(false);
   const navigatingRef = useRef(false);
-  const [showLimitModal, setShowLimitModal] = useState(false);
-  const [limitInfo, setLimitInfo] = useState<{usadas: number; limite: number} | null>(null);
+  
   const [therapyIntroChecks, setTherapyIntroChecks] = useState<Record<string, boolean>>({
     alone: false,
     internet: false,
@@ -644,20 +643,7 @@ export default function DiagnosticoHomeScreen({navigation, route}: any) {
           </CText>
         </View>
       )}
-      <LimitReachedModal
-        visible={showLimitModal}
-        limitKey="max_emociones_nombradas_mes"
-        customMessage={`Has alcanzado el límite de sesiones de autoevaluación permitidos por tu plan actual (${limitInfo?.usadas || 0} de ${limitInfo?.limite || 0}). Mejora tu plan para desbloquear más sesiones.`}
-        onClose={() => {
-          setShowLimitModal(false);
-          setLimitInfo(null);
-        }}
-        onUpgrade={() => {
-          setShowLimitModal(false);
-          setLimitInfo(null);
-          safeNavigation.navigate('Subscription');
-        }}
-      />
+      
     </CSafeAreaView>
   );
 }

@@ -15,6 +15,7 @@ import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL, ENABLE_FORWARD_BUTTON } from '../../api/config';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 import { shouldAllowDownload } from '../../utils/networkCheck';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function FocusContentScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -41,6 +42,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
   const [loadingAudio, setLoadingAudio] = useState(false);
   const [continuing, setContinuing] = useState(false);
   const continuingRef = useRef(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   const withTimeout = <T,>(promise: Promise<T>, ms = 8000) =>
     Promise.race([
@@ -286,7 +289,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
       if (!postWorkGroupId || !motivoId) {
         continuingRef.current = false;
         setContinuing(false);
-        Alert.alert('Error', 'Falta información para continuar.');
+        setErrorPopupMessage('Falta información para continuar.');
+        setErrorPopupVisible(true);
         return;
       }
       safeNavigation.replace('TherapyFocusMotivoEval', {
@@ -303,7 +307,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
     if (!sessionId) {
       continuingRef.current = false;
       setContinuing(false);
-      Alert.alert('Error', 'No se encontró la sesión.');
+      setErrorPopupMessage('No se encontró la sesión.');
+      setErrorPopupVisible(true);
       return;
     }
     completeTherapyStep({ sessionId, action: 'NEXT' })
@@ -313,7 +318,8 @@ export default function FocusContentScreen({ navigation, route }: any) {
       .catch((e: any) => {
         continuingRef.current = false;
         setContinuing(false);
-        Alert.alert('Error', e?.message || 'No se pudo continuar.');
+        setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+        setErrorPopupVisible(true);
       });
   };
 
@@ -396,6 +402,13 @@ export default function FocusContentScreen({ navigation, route }: any) {
         <CButton title={'Siguiente'} disabled={!audioUrl || !ended || playing || continuing} loading={continuing} onPress={goNext} />
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

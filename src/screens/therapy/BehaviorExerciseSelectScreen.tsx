@@ -6,15 +6,15 @@ import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import ScreenTooltip from '../../components/common/ScreenTooltip';
-import LimitReachedModal from '../../components/common/LimitReachedModal';
+
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { submitBehaviorExercises } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
-import { isLimitReached } from '../../utils/apiError';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 import {StackNav} from '../../navigation/NavigationKey';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function BehaviorExerciseSelectScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -35,8 +35,9 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
-  const [showLimitModal, setShowLimitModal] = useState(false);
-  const [currentLimitKey, setCurrentLimitKey] = useState<string>('');
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
+  
 
   const selectedIds = useMemo(() => Object.entries(selected).filter(([, v]) => v).map(([k]) => Number(k)), [selected]);
 
@@ -44,11 +45,6 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
     setSelected(prev => {
       const next = { ...prev };
       const isOn = !!prev[id];
-      if (!isOn && maxTotal && selectedIds.length >= maxTotal) {
-        setCurrentLimitKey('max_ejercicios_total');
-        setShowLimitModal(true);
-        return prev;
-      }
       next[id] = !isOn;
       return next;
     });
@@ -74,15 +70,13 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
     }
     let didNavigate = false;
     if (!sessionId) {
-      Alert.alert('Error', 'No se encontró la sesión.');
+      setErrorPopupMessage('No se encontró la sesión.');
+      setErrorPopupVisible(true);
       return;
     }
     if (selectedIds.length === 0) {
-      Alert.alert(
-        'Mensaje',
-        'Escoge los ejercicios que se adapten a tu estilo de vida. Cada cambio positivo, por pequeño que sea, tiene un impacto significativo en tu calidad de vida.',
-        [{ text: 'Cerrar', style: 'cancel' }]
-      );
+      setErrorPopupMessage('Escoge los ejercicios que se adapten a tu estilo de vida. Cada cambio positivo, por pequeño que sea, tiene un impacto significativo en tu calidad de vida.');
+      setErrorPopupVisible(true);
       return;
     }
     const items: any[] = [];
@@ -113,12 +107,8 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
       didNavigate = true;
       safeNavigation.navigate('TherapyAgendaSetup', { sessionId, exercises: exercisesForAgenda });
     } catch (e: any) {
-      if (isLimitReached(e)) {
-        setCurrentLimitKey(e.meta?.limit_key || 'max_ejercicios_total');
-        setShowLimitModal(true);
-      } else {
-        Alert.alert('Error', e?.message || 'No se pudo guardar los ejercicios.');
-      }
+      setErrorPopupMessage(e?.message || 'No se pudo guardar los ejercicios.');
+      setErrorPopupVisible(true);
     } finally {
       if (didNavigate) return;
       submittingRef.current = false;
@@ -273,16 +263,14 @@ export default function BehaviorExerciseSelectScreen({ navigation, route }: any)
       >
         <CButton title={'Siguiente'} disabled={selectedIds.length === 0 || submitting} loading={submitting} onPress={onContinue} />
       </View>
-      <LimitReachedModal
-        visible={showLimitModal}
-        onClose={() => setShowLimitModal(false)}
-        onUpgrade={() => {
-          setShowLimitModal(false);
-          safeNavigation.navigate(StackNav.Subscription);
-        }}
-        limitKey={currentLimitKey}
-      />
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

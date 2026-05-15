@@ -15,6 +15,8 @@ import CDivider from '../../components/common/CDivider';
 import {getStoredNotifications, saveStoredNotifications} from '../../utils/notificationStorage';
 import {getPendingTherapySessions, continuePendingTherapy, getSessionDetails, getResumenMensual} from '../../api/sesionTerapeutica';
 import {getSuscripcionActual, getMembresias} from '../../api/auth';
+import SuccessPopup from '../../components/model/SuccessPopup';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 const DATE_FILTERS = [
   {key: 'day', label: 'Día'},
@@ -65,6 +67,10 @@ export default function Notification() {
   // Modal deshabilitado en favor de la expansión
   // const [modalVisible, setModalVisible] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [successPopupVisible, setSuccessPopupVisible] = useState(false);
+  const [successPopupMessage, setSuccessPopupMessage] = useState('');
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   const loadData = async () => {
     setLoading(true);
@@ -154,10 +160,8 @@ export default function Notification() {
       }
 
       if (sesionesUsadas >= limite && limite > 0) {
-        Alert.alert(
-          'Límite alcanzado',
-          `Has alcanzado el límite de sesiones de tu plan actual (${sesionesUsadas} de ${limite}). Mejora tu plan para desbloquear más sesiones terapéuticas.`
-        );
+        setErrorPopupMessage(`Has alcanzado el límite de sesiones de tu plan actual (${sesionesUsadas} de ${limite}). Mejora tu plan para desbloquear más sesiones terapéuticas.`);
+        setErrorPopupVisible(true);
         return false;
       }
       return true;
@@ -249,7 +253,8 @@ export default function Notification() {
     const updated = [...mockSet, ...notifications];
     setNotifications(updated);
     await saveStoredNotifications(updated);
-    Alert.alert('Éxito', 'Set de notificaciones de prueba agregado');
+    setSuccessPopupMessage('Set de notificaciones de prueba agregado');
+    setSuccessPopupVisible(true);
   };
 
   const historialNotifications = useMemo(() => {
@@ -394,7 +399,8 @@ export default function Notification() {
                   onPress={async () => {
                     const sId = item.sesion_id || item.data?.sesion_id;
                     if (!sId) {
-                      Alert.alert('Aviso', 'Esta notificación no tiene un ID de sesión válido.');
+                      setErrorPopupMessage('Esta notificación no tiene un ID de sesión válido.');
+                      setErrorPopupVisible(true);
                       return;
                     }
                     const canProceed = await checkTherapyLimit();
@@ -404,7 +410,8 @@ export default function Notification() {
                       navigation.navigate('TherapyFlowRouter', {initialNext: next, entrypoint: 'pending'});
                     } catch (e) {
                       console.log('Error continuing session:', e);
-                      Alert.alert('Error', 'No se pudo continuar la sesión.');
+                      setErrorPopupMessage('No se pudo continuar la sesión.');
+                      setErrorPopupVisible(true);
                     }
                   }}
                   style={{
@@ -567,6 +574,20 @@ export default function Notification() {
       >
         ...
       </Modal> */}
+
+      <SuccessPopup
+        visible={successPopupVisible}
+        title="Éxito"
+        desc={successPopupMessage}
+        onClose={() => setSuccessPopupVisible(false)}
+      />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

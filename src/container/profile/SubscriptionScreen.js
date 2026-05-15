@@ -14,6 +14,8 @@ import BadgeBasico from '../../assets/images/badges/CM_Badge__Basico_icn.svg';
 import BadgePlata from '../../assets/images/badges/CM_Badge__Plata_icn.svg';
 import BadgeOro from '../../assets/images/badges/CM_Badge__Oro_icn.svg';
 import ConfirmCancelModal from '../../components/model/ConfirmCancelModal';
+import SuccessPopup from '../../components/model/SuccessPopup';
+import ErrorPopup from '../../components/model/ErrorPopup';
 import {
   getMembresias,
   getSuscripcionActual,
@@ -78,6 +80,10 @@ export default function SubscriptionScreen({navigation}) {
   const [actionModalVisible, setActionModalVisible] = useState(false);
   const [actionModalConfig, setActionModalConfig] = useState(null);
   const [isAnnualPlan, setIsAnnualPlan] = useState(false);
+  const [successPopupVisible, setSuccessPopupVisible] = useState(false);
+  const [successPopupMessage, setSuccessPopupMessage] = useState('');
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   useEffect(() => {
     loadData();
@@ -108,25 +114,31 @@ export default function SubscriptionScreen({navigation}) {
           setLoading(true);
           const confirm = await confirmarSuscripcion(membresia_id, session_id, is_annual_from_url);
           if (confirm.success) {
-            Alert.alert('¡Éxito!', 'Pago realizado y suscripción actualizada correctamente.');
+            setSuccessPopupMessage('Pago realizado y suscripción actualizada correctamente.');
+            setSuccessPopupVisible(true);
             setIsAnnualPlan(is_annual_from_url); // Sincronizar el toggle visual
             loadData();
           } else {
-            Alert.alert('Error', 'El pago se procesó pero hubo un error al actualizar la suscripción.');
+            setErrorPopupMessage('El pago se procesó pero hubo un error al actualizar la suscripción.');
+            setErrorPopupVisible(true);
           }
         } catch (e) {
-          Alert.alert('Error', 'Error de red.');
+          setErrorPopupMessage('Error de red.');
+          setErrorPopupVisible(true);
         } finally {
-          setLoading(false);
-        }
+            setLoading(false);
+          }
       }
     } else if (url.includes('stripe/cancel')) {
-      Alert.alert('Cancelado', 'El proceso de pago fue cancelado.');
+      setSuccessPopupMessage('El proceso de pago fue cancelado.');
+      setSuccessPopupVisible(true);
     } else if (url.includes('stripe/setup_success')) {
-      Alert.alert('¡Éxito!', 'Método de pago actualizado correctamente.');
+      setSuccessPopupMessage('Método de pago actualizado correctamente.');
+      setSuccessPopupVisible(true);
       loadData();
     } else if (url.includes('stripe/setup_cancel')) {
-      Alert.alert('Cancelado', 'El cambio de método de pago fue cancelado.');
+      setSuccessPopupMessage('El cambio de método de pago fue cancelado.');
+      setSuccessPopupVisible(true);
     }
   };
 
@@ -156,7 +168,8 @@ export default function SubscriptionScreen({navigation}) {
               if (resActualNew && resActualNew.suscripcion) {
                 setCurrentSub(resActualNew.suscripcion);
               }
-              Alert.alert('¡Plan Asignado!', `Se te ha asignado automáticamente el plan ${basicPlan.nombre}.`);
+              setSuccessPopupMessage(`Se te ha asignado automáticamente el plan ${basicPlan.nombre}.`);
+              setSuccessPopupVisible(true);
             }
           }
         }
@@ -206,18 +219,21 @@ export default function SubscriptionScreen({navigation}) {
       const intent = await createSetupIntent(successUrl, cancelUrl);
       if (intent && intent.success && intent.checkout_url) {
         Linking.openURL(intent.checkout_url).catch(err => {
-          Alert.alert('Error', 'No se pudo abrir el navegador para actualizar el método de pago.');
+          setErrorPopupMessage('No se pudo abrir el navegador para actualizar el método de pago.');
+          setErrorPopupVisible(true);
           setLoading(false);
         });
         // We do not unset loading here because they leave the app to browser, 
         // it will be reset on focus or handleDeepLink if they return
         setTimeout(() => setLoading(false), 2000); 
       } else {
-        Alert.alert('Error', intent?.message || 'No se pudo iniciar la configuración.');
+        setErrorPopupMessage(intent?.message || 'No se pudo iniciar la configuración.');
+        setErrorPopupVisible(true);
         setLoading(false);
       }
     } catch (e) {
-      Alert.alert('Error', 'Ocurrió un problema al procesar.');
+      setErrorPopupMessage('Ocurrió un problema al procesar.');
+      setErrorPopupVisible(true);
       setLoading(false);
     }
   };
@@ -234,7 +250,8 @@ export default function SubscriptionScreen({navigation}) {
       const intent = await createSuscripcionIntent(pkg.id, successUrl, cancelUrl, codigoApoyoInfo?.codigo, isAnnualPlan);
       
       if (!intent.success) {
-        Alert.alert('Error', intent.message || 'No se pudo procesar la solicitud');
+        setErrorPopupMessage(intent.message || 'No se pudo procesar la solicitud');
+        setErrorPopupVisible(true);
         setLoading(false);
         return;
       }
@@ -311,8 +328,9 @@ export default function SubscriptionScreen({navigation}) {
         setActionModalVisible(true);
       }
     } catch (e) {
+      setErrorPopupMessage('Ocurrió un problema al procesar.');
+      setErrorPopupVisible(true);
       setLoading(false);
-      Alert.alert('Error', 'Ocurrió un problema al procesar.');
     }
   };
 
@@ -320,13 +338,16 @@ export default function SubscriptionScreen({navigation}) {
     try {
       const confirm = await confirmarSuscripcion(membresia_id, null, isAnnualPlan);
       if (confirm.success) {
-        Alert.alert('¡Éxito!', 'Suscripción actualizada correctamente.');
+        setSuccessPopupMessage('Suscripción actualizada correctamente.');
+        setSuccessPopupVisible(true);
         loadData();
       } else {
-        Alert.alert('Error', 'Hubo un error al actualizar la suscripción.');
+        setErrorPopupMessage('Hubo un error al actualizar la suscripción.');
+        setErrorPopupVisible(true);
       }
     } catch (e) {
-      Alert.alert('Error', 'Error de red.');
+      setErrorPopupMessage('Error de red.');
+      setErrorPopupVisible(true);
     } finally {
       setLoading(false);
     }
@@ -335,11 +356,13 @@ export default function SubscriptionScreen({navigation}) {
   const processPayment = async (checkoutUrl) => {
     if (checkoutUrl) {
       Linking.openURL(checkoutUrl).catch(err => {
-        Alert.alert('Error', 'No se pudo abrir el navegador para el pago.');
+        setErrorPopupMessage('No se pudo abrir el navegador para el pago.');
+        setErrorPopupVisible(true);
         setLoading(false);
       });
     } else {
-      Alert.alert('Error', 'URL de checkout no disponible.');
+      setErrorPopupMessage('URL de checkout no disponible.');
+      setErrorPopupVisible(true);
       setLoading(false);
     }
   };
@@ -368,10 +391,12 @@ export default function SubscriptionScreen({navigation}) {
     setLoading(true);
     const res = await cancelarSuscripcion();
     if (res.success) {
-      Alert.alert('Cancelada', 'Tu suscripción ha sido cancelada.');
+      setSuccessPopupMessage('Tu suscripción ha sido cancelada.');
+      setSuccessPopupVisible(true);
       loadData();
     } else {
-      Alert.alert('Error', res.message || 'No se pudo cancelar');
+      setErrorPopupMessage(res.message || 'No se pudo cancelar');
+      setErrorPopupVisible(true);
     }
     setLoading(false);
   };
@@ -674,6 +699,20 @@ export default function SubscriptionScreen({navigation}) {
             iconColor={actionModalConfig?.iconColor}
             onCancel={actionModalConfig?.onCancel}
             onConfirm={actionModalConfig?.onConfirm}
+          />
+
+          <SuccessPopup
+            visible={successPopupVisible}
+            title="¡Éxito!"
+            desc={successPopupMessage}
+            onClose={() => setSuccessPopupVisible(false)}
+          />
+
+          <ErrorPopup
+            visible={errorPopupVisible}
+            title="Error"
+            message={errorPopupMessage}
+            onClose={() => setErrorPopupVisible(false)}
           />
         </CSafeAreaView>
   );

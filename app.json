@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "CrestiMotion",
-    "slug": "crestimotion",
+    "slug": "cresimotion",
     "scheme": "cresimotion",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,10 +18,22 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Usamos tu ubicación para mostrarte teléfonos de emergencia cercanos en caso de riesgo.",
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["audio", "remote-notification"],
+        "UIBackgroundModes": [
+          "audio",
+          "remote-notification",
+          "audio",
+          "remote-notification"
+        ],
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["cresimotion"]
+            "CFBundleURLSchemes": [
+              "cresimotion"
+            ]
+          },
+          {
+            "CFBundleURLSchemes": [
+              "cresimotion"
+            ]
           }
         ]
       },
@@ -52,7 +64,10 @@
               "scheme": "cresimotion"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -63,7 +78,7 @@
       "API_BASE_URL": "https://cresimotion.staging.mx",
       "ENABLE_FORWARD_BUTTON": true,
       "eas": {
-        "projectId": "3addbbcb-6772-4100-aeda-cc592300a1a4"
+        "projectId": "48a8449f-01ad-40c3-a1d5-41e3e24a7de6"
       }
     },
     "plugins": [
@@ -75,7 +90,8 @@
     ],
     "runtimeVersion": "1.0.0",
     "updates": {
-      "url": "https://u.expo.dev/3addbbcb-6772-4100-aeda-cc592300a1a4"
-    }
+      "url": "https://u.expo.dev/48a8449f-01ad-40c3-a1d5-41e3e24a7de6"
+    },
+    "owner": "hululmx"
   }
 }

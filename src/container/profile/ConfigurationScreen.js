@@ -21,6 +21,8 @@ import {setAsyncStorageData} from '../../utils/AsyncStorage';
 import {setProfilePreferences} from '../../redux/action/profileAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfirmCancelModal from '../../components/model/ConfirmCancelModal';
+import SuccessPopup from '../../components/model/SuccessPopup';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function ConfigurationScreen({navigation}) {
   const currentTheme = useSelector(state => state.theme.theme);
@@ -55,6 +57,11 @@ export default function ConfigurationScreen({navigation}) {
 
   const [supportModalVisible, setSupportModalVisible] = useState(false);
   const [supportMessage, setSupportMessage] = useState('');
+  const [successPopupVisible, setSuccessPopupVisible] = useState(false);
+  const [successPopupTitle, setSuccessPopupTitle] = useState('');
+  const [successPopupMessage, setSuccessPopupMessage] = useState('');
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -202,15 +209,18 @@ export default function ConfigurationScreen({navigation}) {
     try {
       const resp = await suspendAccount();
       if (resp && resp.success) {
-        Alert.alert("Cuenta suspendida", "Tu cuenta ha sido suspendida. Puedes reactivarla en cualquier momento.", [
-          { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
-        ]);
+        setSuccessPopupTitle("Cuenta suspendida");
+        setSuccessPopupMessage("Tu cuenta ha sido suspendida. Puedes reactivarla en cualquier momento.");
+        setSuccessPopupVisible(true);
+        setTimeout(() => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] }), 1500);
       } else {
-        Alert.alert("Error", resp?.message || "No se pudo suspender la cuenta.");
+        setErrorPopupMessage(resp?.message || "No se pudo suspender la cuenta.");
+        setErrorPopupVisible(true);
       }
     } catch (e) {
       console.log('Suspend error:', e);
-      Alert.alert("Error", e?.body?.message || e?.message || "No se pudo suspender la cuenta.");
+      setErrorPopupMessage(e?.body?.message || e?.message || "No se pudo suspender la cuenta.");
+      setErrorPopupVisible(true);
     }
   };
 
@@ -224,15 +234,18 @@ export default function ConfigurationScreen({navigation}) {
     try {
       const resp = await deleteAccount();
       if (resp && resp.success) {
-        Alert.alert("Cuenta eliminada", "Tu cuenta ha sido eliminada.", [
-          { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] })}
-        ]);
+        setSuccessPopupTitle("Cuenta eliminada");
+        setSuccessPopupMessage("Tu cuenta ha sido eliminada.");
+        setSuccessPopupVisible(true);
+        setTimeout(() => navigation.reset({ index: 0, routes: [{name: StackNav.AuthNavigation}] }), 1500);
       } else {
-        Alert.alert("Error", resp?.message || "No se pudo eliminar la cuenta.");
+        setErrorPopupMessage(resp?.message || "No se pudo eliminar la cuenta.");
+        setErrorPopupVisible(true);
       }
     } catch (e) {
       console.log('Delete error:', e);
-      Alert.alert("Error", e?.body?.message || e?.message || "No se pudo eliminar la cuenta.");
+      setErrorPopupMessage(e?.body?.message || e?.message || "No se pudo eliminar la cuenta.");
+      setErrorPopupVisible(true);
     }
   };
 
@@ -307,7 +320,9 @@ export default function ConfigurationScreen({navigation}) {
   const handleConfirmSupport = async () => {
     setSupportModalVisible(false);
     await Clipboard.setStringAsync('soporte@cresimotion.com');
-    Alert.alert('Copiado', 'El correo ha sido copiado al portapapeles.');
+    setSuccessPopupTitle("Copiado");
+    setSuccessPopupMessage('El correo ha sido copiado al portapapeles.');
+    setSuccessPopupVisible(true);
   };
 
   return (
@@ -468,6 +483,20 @@ export default function ConfigurationScreen({navigation}) {
         iconColor={currentTheme.primary}
         onCancel={() => setSupportModalVisible(false)}
         onConfirm={handleConfirmSupport}
+      />
+
+      <SuccessPopup
+        visible={successPopupVisible}
+        title={successPopupTitle}
+        desc={successPopupMessage}
+        onClose={() => setSuccessPopupVisible(false)}
+      />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
       />
 
     </CSafeAreaView>

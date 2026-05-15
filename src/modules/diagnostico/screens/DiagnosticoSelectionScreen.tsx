@@ -13,7 +13,7 @@ import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import CInput from '../../../components/common/CInput';
 import CCustomScrollView from '../../../components/common/CCustomScrollView';
-import LimitReachedModal from '../../../components/common/LimitReachedModal';
+
 import {styles} from '../../../theme';
 import type {CatalogItem, ModuleKey, MotivoCategory} from '../types';
 import {getMotivosCatalog, getMotivosCategories, getSintomasEmocionalesCatalog, getSintomasFisicosCatalog} from '../api/wsCatalogApi';
@@ -27,6 +27,7 @@ import {API_BASE_URL} from '../../../api/config';
 import {getSession, getMembresias, getProfile} from '../../../api/auth';
 import {getOrCreateDeviceUUID} from '../../../utils/uuid';
 import {getResumenMensual} from '../../../api/sesionTerapeutica';
+import {isLimitReached} from '../../../utils/apiError';
 
 const capitalizeSentence = (value: string) => {
   const trimmed = value.trim();
@@ -223,7 +224,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
     motivos: { used: 0, limit: 0, remaining: 0 },
     sintomas_emocionales: { used: 0, limit: 0, remaining: 0 },
   });
-  const [showLimitModal, setShowLimitModal] = useState(false);
+  
   const [limitsLoaded, setLimitsLoaded] = useState(false);
   const [resumenMotivoIds, setResumenMotivoIds] = useState<number[]>([]);
   const [resumenEmocionIds, setResumenEmocionIds] = useState<number[]>([]);
@@ -389,17 +390,6 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
   );
 
   const toggleId = (id: number) => {
-    if (moduleKey === 'sintomas_emocionales' || moduleKey === 'motivos') {
-      const limitInfo = moduleLimits[moduleKey];
-      if (limitInfo && limitsLoaded) {
-        const isCurrentlySelected = selectedIds.includes(id);
-        const alreadyInResumen = isInResumen(id);
-        if (!isCurrentlySelected && !alreadyInResumen && limitInfo.remaining <= 0) {
-          setShowLimitModal(true);
-          return;
-        }
-      }
-    }
     setSelectedIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
   };
 
@@ -448,9 +438,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
       });
     } catch (e: any) {
       console.log('[DiagnosticoSelection] saveSelection error', e?.body || e?.message || e);
-      if (isLimitReached(e)) {
-        setShowLimitModal(true);
-      } else {
+      if (!isLimitReached(e)) {
         setError(e?.body?.message || e?.message || 'No se pudo guardar la seleccion.');
       }
     } finally {
@@ -694,20 +682,7 @@ export default function DiagnosticoSelectionScreen({navigation, route}: any) {
           <CButton title={'Siguiente'} onPress={onPressNext} disabled={savingSelection} loading={savingSelection} />
         </View>
       )}
-      <LimitReachedModal
-        visible={showLimitModal}
-        limitKey={moduleKey === 'motivos' ? 'max_enfoques_mes' : 'max_emociones_nombradas_mes'}
-        customMessage={
-          moduleKey === 'motivos'
-            ? `Has alcanzado el límite de cambios de enfoque de tu plan actual (${moduleLimits.motivos.used} de ${moduleLimits.motivos.limit}). Mejora tu plan para desbloquear más.`
-            : `Has alcanzado el límite de emociones a resolver de tu plan actual (${moduleLimits.sintomas_emocionales.used} de ${moduleLimits.sintomas_emocionales.limit}). Mejora tu plan para desbloquear más.`
-        }
-        onClose={() => setShowLimitModal(false)}
-        onUpgrade={() => {
-          setShowLimitModal(false);
-          safeNavigation.navigate(StackNav.Subscription);
-        }}
-      />
+      
       {SHOW_SCREEN_TOOLTIP && (
         <View style={localStyles.screenTooltip} pointerEvents="none">
           <CText type={'S12'} color={'#fff'}>

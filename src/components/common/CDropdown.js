@@ -40,13 +40,13 @@ export default function CDropdown(props) {
           localStyles.genderContainer,
           style,
           {
-            backgroundColor: colors.inputBg,
+            backgroundColor: disabled ? colors.grayScale2 : colors.inputBg,
           },
         ]}>
         <Dropdown
           data={data}
           maxHeight={300}
-          iconColor={colors.textColor}
+          iconColor={disabled ? colors.grayScale4 : colors.textColor}
           activeColor={colors.backgroundColor}
           labelField="label"
           valueField="value"
@@ -57,7 +57,7 @@ export default function CDropdown(props) {
           selectedTextStyle={[
             localStyles.selectedTextStyle,
             {
-              color: colors.textColor,
+              color: disabled ? colors.grayScale4 : colors.textColor,
             },
           ]}
           placeholderStyle={[

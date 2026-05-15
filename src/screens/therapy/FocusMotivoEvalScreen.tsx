@@ -10,6 +10,7 @@ import { styles } from '../../theme';
 import { postMotivoEval } from '../../api/sesionTerapeutica';
 import { postPostWorkEval } from '../../modules/diagnostico/api/sessionsApi';
 import { getMotivoId, getMotivoLabel, normalizeTherapyNext } from './therapyUtils';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function FocusMotivoEvalScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -27,6 +28,8 @@ export default function FocusMotivoEvalScreen({ navigation, route }: any) {
   const [selectedValue, setSelectedValue] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [nextResponse, setNextResponse] = useState<any>(null);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   const postEvalMessage = nextResponse?.post_eval_message || null;
   const hasResponse = !!nextResponse;
@@ -76,7 +79,8 @@ export default function FocusMotivoEvalScreen({ navigation, route }: any) {
         setNextResponse(next);
       }
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+      setErrorPopupVisible(true);
     } finally {
       setLoading(false);
     }
@@ -172,6 +176,13 @@ export default function FocusMotivoEvalScreen({ navigation, route }: any) {
         )}
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

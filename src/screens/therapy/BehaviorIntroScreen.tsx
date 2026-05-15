@@ -13,7 +13,8 @@ import { API_BASE_URL } from '../../api/config';
 import { getSession } from '../../api/auth';
 import { getOrCreateDeviceUUID } from '../../utils/uuid';
 import { normalizeTherapyNext } from './therapyUtils';
-import {useSafeNavigation} from '../../navigation/safeNavigation';
+import { useSafeNavigation } from '../../navigation/safeNavigation';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function BehaviorIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -70,6 +71,8 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   const [nextResponse, setNextResponse] = useState<any>(null);
   const [continuing, setContinuing] = useState(false);
   const continuingRef = useRef(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   const postEvalMessage = nextResponse?.post_eval_message || null;
   const title = postEvalMessage?.message_title || '';
@@ -142,7 +145,8 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
         setNextResponse(next);
       }
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+      setErrorPopupVisible(true);
     } finally {
       setLoading(false);
     }
@@ -232,6 +236,13 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
         )}
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

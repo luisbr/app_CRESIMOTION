@@ -13,6 +13,7 @@ import { getTherapyNext } from '../../api/sesionTerapeutica';
 // Removed victory-native usage to avoid reanimated/skia deps; use pure SVG instead
 import Svg, { Polygon, Circle, G, Text as SvgText, Rect, Path } from 'react-native-svg';
 import { moderateScale } from '../../common/constants';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function SummaryScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -41,6 +42,8 @@ export default function SummaryScreen({ navigation, route }: any) {
   const data = motivos.map((m: any) => ({ x: String(m.motivo), y: byMotivo.get(String(m.id)) ?? 0 }));
   const [view, setView] = useState<'bar' | 'pie' | 'radar'>('bar');
   const [startingTherapy, setStartingTherapy] = useState(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   const maxValue = useMemo(() => (data.length ? Math.max(...data.map(d => d.y)) : 0), [data]);
 
@@ -84,7 +87,8 @@ export default function SummaryScreen({ navigation, route }: any) {
                 console.log('[NAV] iniciar sesion terapeutica');
                 navigation.navigate('TherapyFlowRouter', { initialNext: next, entrypoint: 'results' });
               } catch (e: any) {
-                Alert.alert('Error', e?.message || 'No se pudo iniciar la sesión terapéutica.');
+                setErrorPopupMessage(e?.message || 'No se pudo iniciar la sesión terapéutica.');
+                setErrorPopupVisible(true);
               } finally {
                 setStartingTherapy(false);
               }
@@ -108,6 +112,13 @@ export default function SummaryScreen({ navigation, route }: any) {
       </View>
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

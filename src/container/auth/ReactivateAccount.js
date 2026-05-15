@@ -13,6 +13,7 @@ import typography from '../../theme/typography';
 import CButton from '../../components/common/CButton';
 import {AuthNav} from '../../navigation/NavigationKey';
 import {requestReactivate, confirmReactivate} from '../../api/auth';
+import SuccessPopup from '../../components/model/SuccessPopup';
 
 export default function ReactivateAccount({navigation}) {
   const colors = useSelector(state => state.theme.theme);
@@ -31,6 +32,8 @@ export default function ReactivateAccount({navigation}) {
   const [requestSuccess, setRequestSuccess] = useState('');
   const [reactivating, setReactivating] = useState(false);
   const [reactivateError, setReactivateError] = useState('');
+  const [successPopupVisible, setSuccessPopupVisible] = useState(false);
+  const [successPopupMessage, setSuccessPopupMessage] = useState('');
 
   useEffect(() => {
     if (timer <= 0 || step !== 'otp') return;
@@ -98,9 +101,8 @@ export default function ReactivateAccount({navigation}) {
     try {
       const resp = await confirmReactivate({correo: email.toLowerCase(), codigo: trimmed});
       if (resp && resp.success) {
-        Alert.alert('Cuenta reactivada', 'Tu cuenta ha sido reactivada correctamente. Ahora puedes iniciar sesión.', [
-          {text: 'OK', onPress: () => navigation.navigate(AuthNav.Login)}
-        ]);
+        setSuccessPopupMessage('Tu cuenta ha sido reactivada correctamente. Ahora puedes iniciar sesión.');
+        setSuccessPopupVisible(true);
       } else {
         setReactivateError(resp?.message || 'El código no es válido.');
       }
@@ -258,6 +260,16 @@ export default function ReactivateAccount({navigation}) {
           </View>
         )}
       </KeyBoardAvoidWrapper>
+
+      <SuccessPopup
+        visible={successPopupVisible}
+        title="Cuenta reactivada"
+        desc={successPopupMessage}
+        onClose={() => {
+          setSuccessPopupVisible(false);
+          navigation.navigate(AuthNav.Login);
+        }}
+      />
     </CSafeAreaView>
   );
 }
