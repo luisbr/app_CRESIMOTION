@@ -6,12 +6,11 @@ import TherapyHeader from './TherapyHeader';
 import CText from '../../components/common/CText';
 import CButton from '../../components/common/CButton';
 import ScreenTooltip from '../../components/common/ScreenTooltip';
-import LimitReachedModal from '../../components/common/LimitReachedModal';
+
 import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import { submitBehaviorRecommendations } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
-import { isLimitReached } from '../../utils/apiError';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 import {StackNav} from '../../navigation/NavigationKey';
@@ -39,8 +38,7 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
   const [submitting, setSubmitting] = useState(false);
   const [showIntroStep, setShowIntroStep] = useState(true);
   const submittingRef = useRef(false);
-  const [showLimitModal, setShowLimitModal] = useState(false);
-  const [currentLimitKey, setCurrentLimitKey] = useState<string>('');
+  
 
   const getItemKey = (item: any, index: number) =>
     String(item?.recomendacion_id ?? item?.id ?? index);
@@ -69,11 +67,6 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
     setSelected(prev => {
       const next = { ...prev };
       const isOn = !!prev[key];
-      if (!isOn && max && selectedCount >= max) {
-        setCurrentLimitKey('max_recomendaciones');
-        setShowLimitModal(true);
-        return prev;
-      }
       next[key] = !isOn;
       return next;
     });
@@ -110,12 +103,7 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
       didNavigate = true;
       safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
-      if (isLimitReached(e)) {
-        setCurrentLimitKey(e.meta?.limit_key || 'max_recomendaciones');
-        setShowLimitModal(true);
-      } else {
-        Alert.alert('Error', e?.message || 'No se pudo continuar.');
-      }
+      Alert.alert('Error', e?.message || 'No se pudo continuar.');
     } finally {
       if (didNavigate) return;
       submittingRef.current = false;
@@ -266,15 +254,6 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
           onPress={showIntroStep ? () => setShowIntroStep(false) : onContinue}
         />
       </View>
-      <LimitReachedModal
-        visible={showLimitModal}
-        onClose={() => setShowLimitModal(false)}
-        onUpgrade={() => {
-          setShowLimitModal(false);
-          safeNavigation.navigate(StackNav.Subscription);
-        }}
-        limitKey={currentLimitKey}
-      />
       <ScreenTooltip />
     </CSafeAreaView>
   );
