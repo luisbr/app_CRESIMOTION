@@ -130,13 +130,15 @@ export default function SubscriptionScreen({navigation}) {
           }
       }
     } else if (url.includes('stripe/cancel')) {
-      Alert.alert('Cancelado', 'El proceso de pago fue cancelado.');
+      setSuccessPopupMessage('El proceso de pago fue cancelado.');
+      setSuccessPopupVisible(true);
     } else if (url.includes('stripe/setup_success')) {
       setSuccessPopupMessage('Método de pago actualizado correctamente.');
       setSuccessPopupVisible(true);
       loadData();
     } else if (url.includes('stripe/setup_cancel')) {
-      Alert.alert('Cancelado', 'El cambio de método de pago fue cancelado.');
+      setSuccessPopupMessage('El cambio de método de pago fue cancelado.');
+      setSuccessPopupVisible(true);
     }
   };
 

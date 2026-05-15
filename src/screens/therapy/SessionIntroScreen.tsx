@@ -12,6 +12,7 @@ import { completeTherapyStep } from '../../api/sesionTerapeutica';
 import { getAudioTitle, getAudioUrl, normalizeTherapyNext } from './therapyUtils';
 import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL } from '../../api/config';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function SessionIntroScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -21,6 +22,8 @@ export default function SessionIntroScreen({ navigation, route }: any) {
   const [checked, setChecked] = useState(false);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   console.log('[THERAPY] next payload', nextPayload)
 
@@ -89,7 +92,8 @@ export default function SessionIntroScreen({ navigation, route }: any) {
       const next = await completeTherapyStep({ sessionId, action: 'START' });
       navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+      setErrorPopupVisible(true);
     }
   };
 
@@ -159,6 +163,13 @@ export default function SessionIntroScreen({ navigation, route }: any) {
         </View>
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

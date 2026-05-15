@@ -16,6 +16,7 @@ import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL } from '../../api/config';
 import { useSafeNavigation } from '../../navigation/safeNavigation';
 import { getHideTherapyRecommendations } from '../../utils/AsyncStorage';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 const DEFAULT_TEXT =
   'Recuerda tomar en cuenta las siguientes recomendaciones para aprovechar al máximo tu experiencia:';
@@ -60,6 +61,8 @@ export default function HealingIntroScreen({ navigation, route }: any) {
   const [initialized, setInitialized] = useState(false);
   const [recommendationsCollapsed, setRecommendationsCollapsed] = useState(false);
   const continuingRef = useRef(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
   const allRequiredChecked = useMemo(() => {
     if (!required.length) return true;
     return required.every((r: any) => checks[r?.key]);
@@ -201,7 +204,8 @@ export default function HealingIntroScreen({ navigation, route }: any) {
       didNavigate = true;
       safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+      setErrorPopupVisible(true);
     } finally {
       if (didNavigate) return;
       continuingRef.current = false;
@@ -316,6 +320,13 @@ export default function HealingIntroScreen({ navigation, route }: any) {
         <CButton title={data?.actions?.primary?.label || 'Comenzar'} disabled={!allRequiredChecked || loadingNext} loading={loadingNext} onPress={onContinue} />
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

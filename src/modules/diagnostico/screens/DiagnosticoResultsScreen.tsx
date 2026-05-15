@@ -14,6 +14,7 @@ import Svg, {G, Text as SvgText, Rect, Path, Polygon, Circle, TSpan} from 'react
 import {moderateScale} from '../../../common/constants';
 import {SHOW_SCREEN_TOOLTIP} from '../../../config/debug';
 import {useDiagnosticoFlow} from '../../../navigation/DiagnosticoFlowContext';
+import ErrorPopup from '../../../components/model/ErrorPopup';
 
 export default function DiagnosticoResultsScreen({navigation, route}: any) {
   const colors = useSelector(state => state.theme.theme);
@@ -27,6 +28,8 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
   const [view, setView] = useState<'bar' | 'pie' | 'radar'>('bar');
   const [continuing, setContinuing] = useState(false);
   const isNavigatingRef = useRef(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
   const {setIsDiagnosticoFlow} = useDiagnosticoFlow();
   const intensityColorMap: Record<string, string> = {
     grave: '#EF4444',
@@ -236,10 +239,8 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
         navigation.replace('DiagnosticoHome', {hideHeroImage: true});
         return;
       } catch (e: any) {
-        Alert.alert(
-          'Error',
-          e?.message || 'No se pudo iniciar la sesión terapéutica.'
-        );
+        setErrorPopupMessage(e?.message || 'No se pudo iniciar la sesión terapéutica.');
+        setErrorPopupVisible(true);
       }
     }
     await clearLastRoute();
@@ -476,6 +477,13 @@ export default function DiagnosticoResultsScreen({navigation, route}: any) {
           </CText>
         </View>
       )}
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

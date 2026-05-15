@@ -14,6 +14,7 @@ import { normalizeTherapyNext } from './therapyUtils';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 import {StackNav} from '../../navigation/NavigationKey';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -38,6 +39,8 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
   const [submitting, setSubmitting] = useState(false);
   const [showIntroStep, setShowIntroStep] = useState(true);
   const submittingRef = useRef(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
   
 
   const getItemKey = (item: any, index: number) =>
@@ -87,7 +90,8 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
       if (!sessionId) throw new Error('No se encontró la sesión.');
       if (selectedCount < min) return;
       if (!selectedIds.length) {
-        Alert.alert('Error', 'No pudimos identificar las recomendaciones seleccionadas.');
+        setErrorPopupMessage('No pudimos identificar las recomendaciones seleccionadas.');
+        setErrorPopupVisible(true);
         return;
       }
       submittingRef.current = true;
@@ -103,7 +107,8 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
       didNavigate = true;
       safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+      setErrorPopupVisible(true);
     } finally {
       if (didNavigate) return;
       submittingRef.current = false;
@@ -255,6 +260,13 @@ export default function BehaviorRecoSelectScreen({ navigation, route }: any) {
         />
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

@@ -19,6 +19,7 @@ import {
   normalizeTherapyNext,
 } from './therapyUtils';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 const INTRO_TEXT =
   'Nos alegra tenerte aquí. La sanación emocional es el camino para sanar las heridas del pasado, procesar las emociones no resueltas y restaurar la paz interna. A través de herramientas avanzadas y personalizadas, te ayudaremos a reconocer, comprender y liberar esas emociones, permitiéndote vivir con mayor equilibrio, autocomprensión y resiliencia.\n\nSelecciona la emoción que más está teniendo impacto en tu vida en este momento, entre las emociones que marcaste en nivel Muy alto, Alto o Medio.';
@@ -39,6 +40,8 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
   const [scrollIndicator, setScrollIndicator] = useState({visible: false, top: 0, height: 0});
   const scrollLayoutHeightRef = useRef(0);
   const scrollContentHeightRef = useRef(0);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   const updateScrollIndicator = (scrollY = 0) => {
     const layoutHeight = scrollLayoutHeightRef.current;
@@ -141,7 +144,8 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
       didNavigate = true;
       safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+      setErrorPopupVisible(true);
     } finally {
       if (didNavigate) return;
       submittingRef.current = false;
@@ -308,6 +312,13 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
         )}
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

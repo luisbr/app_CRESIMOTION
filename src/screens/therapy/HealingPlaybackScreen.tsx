@@ -14,6 +14,7 @@ import { normalizeTherapyNext } from './therapyUtils';
 import { API_BASE_URL, ENABLE_FORWARD_BUTTON } from '../../api/config';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 import { shouldAllowDownload } from '../../utils/networkCheck';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 type PlaybackItem =
   | { type: 'local'; source: number; label: string }
@@ -87,6 +88,8 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   const [resolvedSequence, setResolvedSequence] = useState<ResolvedPlaybackItem[]>([]);
   const [continuing, setContinuing] = useState(false);
   const continuingRef = useRef(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
   const cachedRemoteUrisRef = useRef<Record<string, string>>({});
 
   const ensureAudioMode = async () => {
@@ -530,7 +533,8 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       const next = await completeTherapyStep({ sessionId, action: actionKey });
       //navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+      setErrorPopupVisible(true);
     } finally {
       if (didNavigate) return;
       continuingRef.current = false;
@@ -653,6 +657,13 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
         </View>
       )}
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

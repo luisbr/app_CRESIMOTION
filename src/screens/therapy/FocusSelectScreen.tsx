@@ -12,6 +12,7 @@ import { selectTherapyFocus } from '../../api/sesionTerapeutica';
 import { postPostWorkMotivoIntro } from '../../modules/diagnostico/api/sessionsApi';
 import { extractMotivos, getMotivoLabel, normalizeTherapyNext } from './therapyUtils';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 export default function FocusSelectScreen({ navigation, route }: any) {
   const colors = useSelector((s: any) => s.theme.theme);
@@ -29,6 +30,8 @@ export default function FocusSelectScreen({ navigation, route }: any) {
   const [scrollIndicator, setScrollIndicator] = useState({visible: false, top: 0, height: 0});
   const scrollLayoutHeightRef = useRef(0);
   const scrollContentHeightRef = useRef(0);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   const updateScrollIndicator = (scrollY = 0) => {
     const layoutHeight = scrollLayoutHeightRef.current;
@@ -87,7 +90,8 @@ export default function FocusSelectScreen({ navigation, route }: any) {
       const next = await selectTherapyFocus({ sessionId, motivoId: selectedId });
       navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'No se pudo continuar.');
+      setErrorPopupMessage(e?.message || 'No se pudo continuar.');
+      setErrorPopupVisible(true);
     }
   };
 
@@ -274,6 +278,13 @@ export default function FocusSelectScreen({ navigation, route }: any) {
         )}
       </View>
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

@@ -10,6 +10,7 @@ import { styles } from '../../theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { updateAgendaItem } from '../../api/sesionTerapeutica';
 import { ApiError } from '../../utils/apiError';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 const DAYS = [
   { key: 'mon', label: 'Lun' },
@@ -37,6 +38,8 @@ export default function TaskDetailScreen({ navigation, route }: any) {
     end_date: item.end_date || '2026-02-12',
   });
   const [datePicker, setDatePicker] = useState<{ field: 'start_date' | 'end_date' } | null>(null);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   const formatDate = (d: Date) => {
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -89,9 +92,11 @@ export default function TaskDetailScreen({ navigation, route }: any) {
     } catch (e: any) {
       const err = e as ApiError;
       if (err?.code === 'AGENDA_OVERLAP') {
-        Alert.alert('Traslape de agenda', err.message || 'La agenda se traslapa con otra actividad.');
+        setErrorPopupMessage(err.message || 'La agenda se traslapa con otra actividad.');
+        setErrorPopupVisible(true);
       } else {
-        Alert.alert('Error', e?.message || 'No se pudo actualizar.');
+        setErrorPopupMessage(e?.message || 'No se pudo actualizar.');
+        setErrorPopupVisible(true);
       }
     }
   };
@@ -239,6 +244,13 @@ export default function TaskDetailScreen({ navigation, route }: any) {
         </View>
       )}
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }

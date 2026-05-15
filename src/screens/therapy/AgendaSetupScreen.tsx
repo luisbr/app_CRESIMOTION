@@ -15,6 +15,7 @@ import {useSafeNavigation} from '../../navigation/safeNavigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { moderateScale } from '../../common/constants';
 import { ApiError } from '../../utils/apiError';
+import ErrorPopup from '../../components/model/ErrorPopup';
 
 const DAYS = [
   { key: 'mon', label: 'Lun' },
@@ -110,6 +111,8 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
   const [savedExerciseIds, setSavedExerciseIds] = useState<Record<string, boolean>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const savingRef = useRef(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [errorPopupMessage, setErrorPopupMessage] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -363,11 +366,8 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
         throw new Error('No se encontró el ejercicio actual.');
       }
       if (!isValidRange(currentRow)) {
-        Alert.alert(
-          'Error',
-          'La fecha fin debe permitir al menos una ejecución según la periodicidad seleccionada.',
-          [{ text: 'Cerrar', style: 'cancel' }]
-        );
+        setErrorPopupMessage('La fecha fin debe permitir al menos una ejecución según la periodicidad seleccionada.');
+        setErrorPopupVisible(true);
         return;
       }
       savingRef.current = true;
@@ -434,9 +434,11 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
         }));
       }
       if (err?.code === 'AGENDA_OVERLAP') {
-        Alert.alert('Traslape de agenda', err.message || 'La agenda se traslapa con otra actividad.');
+        setErrorPopupMessage(err.message || 'La agenda se traslapa con otra actividad.');
+        setErrorPopupVisible(true);
       } else {
-        Alert.alert('Error', e?.message || 'No se pudo guardar la agenda.');
+        setErrorPopupMessage(e?.message || 'No se pudo guardar la agenda.');
+        setErrorPopupVisible(true);
       }
     } finally {
       savingRef.current = false;
@@ -809,6 +811,13 @@ export default function AgendaSetupScreen({ navigation, route }: any) {
         </View>
       )}
       <ScreenTooltip />
+
+      <ErrorPopup
+        visible={errorPopupVisible}
+        title="Error"
+        message={errorPopupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </CSafeAreaView>
   );
 }
