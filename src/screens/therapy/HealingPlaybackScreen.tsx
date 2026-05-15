@@ -11,10 +11,11 @@ import ScreenTooltip from '../../components/common/ScreenTooltip';
 import { styles } from '../../theme';
 import { completeTherapyStep, sendPlaybackEvent } from '../../api/sesionTerapeutica';
 import { normalizeTherapyNext } from './therapyUtils';
-import { API_BASE_URL, ENABLE_FORWARD_BUTTON } from '../../api/config';
+import { API_BASE_URL } from '../../api/config';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 import { shouldAllowDownload } from '../../utils/networkCheck';
 import ErrorPopup from '../../components/model/ErrorPopup';
+import { SHOW_SCREEN_TOOLTIP } from '../../config/debug';
 
 type PlaybackItem =
   | { type: 'local'; source: number; label: string }
@@ -90,6 +91,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   const [resolvedSequence, setResolvedSequence] = useState<ResolvedPlaybackItem[]>([]);
   const [continuing, setContinuing] = useState(false);
   const continuingRef = useRef(false);
+  const finishHandledRef = useRef(false);
   const [errorPopupVisible, setErrorPopupVisible] = useState(false);
   const [errorPopupMessage, setErrorPopupMessage] = useState('');
   const cachedRemoteUrisRef = useRef<Record<string, string>>({});
@@ -342,6 +344,43 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     };
   }, [dispatch, playing]);
 
+  const handlePlaybackFinished = async () => {
+    if (finishHandledRef.current) {
+      return;
+    }
+    finishHandledRef.current = true;
+    setPlaying(false);
+    setFinished(true);
+    console.log('[THERAPY] playback finished', {
+      merged: mergedAudioEnabled,
+      currentIndex,
+      totalTracks: resolvedSequence.length,
+    });
+    if (sessionId) {
+      try {
+        await sendPlaybackEvent({ sessionId, event: 'FINISH' });
+        safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
+      } catch (e) {
+        console.log('[THERAPY] playback finish error', e);
+        safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
+      }
+      return;
+    }
+    safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
+  };
+
+  useEffect(() => {
+    if (!resolvedSequence.length) return;
+    const isLastTrack = currentIndex >= resolvedSequence.length - 1;
+    if (!isLastTrack) return;
+    const duration = playbackStatus.durationMillis || 0;
+    const position = playbackStatus.positionMillis || 0;
+    if (!duration || playing) return;
+    if (position >= Math.max(0, duration - 500)) {
+      handlePlaybackFinished();
+    }
+  }, [currentIndex, playbackStatus.durationMillis, playbackStatus.positionMillis, playing, resolvedSequence.length]);
+
   const queuePlayback = async (
     idx: number,
     options: { tailSeconds?: number; allowContinue: boolean; tailForAll?: boolean }
@@ -360,6 +399,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       }
     }
     setCurrentIndex(idx);
+    finishHandledRef.current = false;
     setFinished(false);
     setPlaybackStatus({ positionMillis: 0, durationMillis: 0, isLoaded: false });
     try {
@@ -410,17 +450,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
               })
               .catch(e => console.log('[THERAPY] healing playback next error', e));
           } else if (nextIdx >= resolvedSequence.length) {
-            setFinished(true);
-            if (sessionId) {
-              sendPlaybackEvent({ sessionId, event: 'FINISH' })
-                .then(() => safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload }))
-                .catch(e => {
-                  console.log('[THERAPY] playback finish error', e);
-                  safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
-                });
-            } else {
-              safeNavigation.replace('TherapyHealingDone', { entrypoint, next: nextPayload });
-            }
+            handlePlaybackFinished();
           }
         }
       });
@@ -596,7 +626,7 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
                 disabled={preloading || playing}
               />
             </View>
-            {ENABLE_FORWARD_BUTTON && <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />}
+            {SHOW_SCREEN_TOOLTIP && <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />}
           </View>
           <View style={styles.mt10}>
             {/* 
