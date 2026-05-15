@@ -586,14 +586,16 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       if (!sessionId) throw new Error('No se encontró la sesión.');
       const actionKey = data?.actions?.primary?.key || 'CONTINUE';
       const next = await completeTherapyStep({ sessionId, action: actionKey });
-      //navigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
+      didNavigate = true;
+      safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
       setErrorPopupMessage(e?.message || 'No se pudo continuar.');
       setErrorPopupVisible(true);
     } finally {
-      if (didNavigate) return;
-      continuingRef.current = false;
-      setContinuing(false);
+      if (!didNavigate) {
+        continuingRef.current = false;
+        setContinuing(false);
+      }
     }
   };
 

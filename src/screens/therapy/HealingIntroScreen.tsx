@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { View, ScrollView, TouchableOpacity, Alert, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Alert, LayoutAnimation, Platform, UIManager, ActivityIndicator, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Audio } from 'expo-av';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -207,7 +207,10 @@ export default function HealingIntroScreen({ navigation, route }: any) {
       setErrorPopupMessage(e?.message || 'No se pudo continuar.');
       setErrorPopupVisible(true);
     } finally {
-      if (didNavigate) return;
+      if (didNavigate) {
+        setLoadingNext(false);
+        return;
+      }
       continuingRef.current = false;
       setLoadingNext(false);
     }
@@ -327,6 +330,22 @@ export default function HealingIntroScreen({ navigation, route }: any) {
         message={errorPopupMessage}
         onClose={() => setErrorPopupVisible(false)}
       />
+      {loadingNext && (
+        <View
+          style={{
+            ...StyleSheet.absoluteFillObject,
+            backgroundColor: colors.backgroundColor + 'ee',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+        >
+          <ActivityIndicator size="large" color={colors.primary} />
+          <CText type={'B16'} style={styles.mt10}>
+            Preparando la sesión...
+          </CText>
+        </View>
+      )}
     </CSafeAreaView>
   );
 }
