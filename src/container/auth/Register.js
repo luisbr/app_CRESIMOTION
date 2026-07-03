@@ -1030,24 +1030,25 @@ export default function Register({navigation}) {
             placeholder={strings.selectGender}
             value={generoOption}
             data={[
-              {label: 'Agénero', value: 'Agénero'},
-              {label: 'Andrógino', value: 'Andrógino'},
-              {label: 'Bigénero', value: 'Bigénero'},
-              {label: 'Cisgénero', value: 'Cisgénero'},
-              {label: 'Demigénero', value: 'Demigénero'},
+              //{label: 'Agénero', value: 'Agénero'},
+              //{label: 'Andrógino', value: 'Andrógino'},
+              //{label: 'Bigénero', value: 'Bigénero'},
+              //{label: 'Cisgénero', value: 'Cisgénero'},
+              //{label: 'Demigénero', value: 'Demigénero'},
               {label: 'Femenino', value: 'Femenino'},
-              {label: 'Género fluido', value: 'Género fluido'},
-              {label: 'Intergénero', value: 'Intergénero'},
+              //{label: 'Género fluido', value: 'Género fluido'},
+              //{label: 'Intergénero', value: 'Intergénero'},
               {label: 'Masculino', value: 'Masculino'},
-              {label: 'Neutro', value: 'Neutro'},
-              {label: 'No binario', value: 'No binario'},
-              // {label: 'Otro', value: 'Otro'},
-              {label: 'Pangénero', value: 'Pangénero'},
-              
-              {label: 'Transgénero (FtM)', value: 'Transgénero (FtM)'},
-              {label: 'Transgénero (MtF)', value: 'Transgénero (MtF)'},
-              {label: 'Prefiero no especificar', value: 'Prefiero no especificar'},
+              {label: 'LGBT+', value: 'LGBT'},
+              //{label: 'Neutro', value: 'Neutro'},
+              //{label: 'No binario', value: 'No binario'},
               {label: 'Otro', value: 'Otro'},
+              //{label: 'Pangénero', value: 'Pangénero'},
+              
+              //{label: 'Transgénero (FtM)', value: 'Transgénero (FtM)'},
+              //{label: 'Transgénero (MtF)', value: 'Transgénero (MtF)'},
+              {label: 'Prefiero no especificar', value: 'Prefiero no especificar'},
+              //{label: 'Otro', value: 'Otro'},
             ]}
             onChange={onChangeGenero}
             required

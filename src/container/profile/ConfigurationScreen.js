@@ -24,6 +24,27 @@ import ConfirmCancelModal from '../../components/model/ConfirmCancelModal';
 import SuccessPopup from '../../components/model/SuccessPopup';
 import ErrorPopup from '../../components/model/ErrorPopup';
 
+const getReadableApiError = (error, fallback) => {
+  const detail = error?.body?.detail;
+  if (Array.isArray(detail) && detail.length) {
+    const first = detail[0];
+    if (typeof first === 'string' && first.trim()) {
+      return first.trim();
+    }
+    if (first?.msg) {
+      return first.msg;
+    }
+    if (first?.message) {
+      return first.message;
+    }
+    if (Array.isArray(first?.loc) && first.loc.length && first?.msg) {
+      const field = first.loc[first.loc.length - 1];
+      return `${field}: ${first.msg}`;
+    }
+  }
+  return error?.body?.message || error?.message || fallback;
+};
+
 export default function ConfigurationScreen({navigation}) {
   const currentTheme = useSelector(state => state.theme.theme);
   const dispatch = useDispatch();
@@ -296,7 +317,7 @@ export default function ConfigurationScreen({navigation}) {
         setPasswordSaveError(res?.message || 'Error al actualizar');
       }
     } catch (e) {
-      setPasswordSaveError('Contraseña actual inválida.');
+      setPasswordSaveError(getReadableApiError(e, 'No fue posible actualizar la contraseña.'));
     } finally {
       setPasswordSaving(false);
     }

@@ -25,6 +25,15 @@ type ResolvedPlaybackItem =
   | { type: 'local'; source: number; label: string }
   | { type: 'remote'; source: string; label: string; originalSource: string };
 
+type PlaybackDebugEntry = {
+  at: string;
+  event: string;
+  sessionId: number | null;
+  currentIndex: number;
+  playing: boolean;
+  payload?: Record<string, any>;
+};
+
 const formatTime = (ms: number) => {
   const value = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(value / 60);
@@ -92,9 +101,37 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
   const [continuing, setContinuing] = useState(false);
   const continuingRef = useRef(false);
   const finishHandledRef = useRef(false);
+  const lastProgressPositionRef = useRef(0);
+  const lastProgressAtRef = useRef(0);
+  const debugEventsRef = useRef<PlaybackDebugEntry[]>([]);
+  const remoteReportedEventsRef = useRef<Record<string, boolean>>({});
   const [errorPopupVisible, setErrorPopupVisible] = useState(false);
   const [errorPopupMessage, setErrorPopupMessage] = useState('');
   const cachedRemoteUrisRef = useRef<Record<string, string>>({});
+
+  const pushPlaybackDebug = (event: string, payload?: Record<string, any>) => {
+    const entry: PlaybackDebugEntry = {
+      at: new Date().toISOString(),
+      event,
+      sessionId: sessionId || null,
+      currentIndex,
+      playing,
+      payload,
+    };
+    debugEventsRef.current = [...debugEventsRef.current.slice(-59), entry];
+    (global as any).__THERAPY_PLAYBACK_DEBUG__ = debugEventsRef.current;
+    console.log('[THERAPY][DEBUG]', JSON.stringify(entry));
+  };
+
+  const reportPlaybackEvent = (event: string, payload?: Record<string, any>) => {
+    pushPlaybackDebug(event, payload);
+    if (!sessionId) return;
+    if (remoteReportedEventsRef.current[event]) return;
+    remoteReportedEventsRef.current[event] = true;
+    sendPlaybackEvent({sessionId, event}).catch(error => {
+      console.log('[THERAPY] playback remote debug event failed', {event, error});
+    });
+  };
 
   const ensureAudioMode = async () => {
     try {
@@ -294,6 +331,10 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
           total += durationMillis;
         } catch (error) {
           console.log('[THERAPY] preload error', item.label, error);
+          pushPlaybackDebug('preload_error', {
+            label: item.label,
+            message: error instanceof Error ? error.message : String(error || ''),
+          });
           if (mounted) {
             setPreloadError('No se pudieron descargar todos los audios. Revisa tu conexión.');
           }
@@ -356,6 +397,12 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       currentIndex,
       totalTracks: resolvedSequence.length,
     });
+    reportPlaybackEvent('FINISH_DEBUG', {
+      merged: mergedAudioEnabled,
+      totalTracks: resolvedSequence.length,
+      durationMillis: playbackStatus.durationMillis || 0,
+      positionMillis: playbackStatus.positionMillis || 0,
+    });
     if (sessionId) {
       try {
         await sendPlaybackEvent({ sessionId, event: 'FINISH' });
@@ -381,6 +428,47 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     }
   }, [currentIndex, playbackStatus.durationMillis, playbackStatus.positionMillis, playing, resolvedSequence.length]);
 
+  useEffect(() => {
+    if (!resolvedSequence.length || !playing) return;
+    const isLastTrack = currentIndex >= resolvedSequence.length - 1;
+    if (!isLastTrack) return;
+
+    const interval = setInterval(() => {
+      const duration = playbackStatus.durationMillis || 0;
+      const position = playbackStatus.positionMillis || 0;
+      if (!duration || !position) return;
+
+      const remainingMillis = Math.max(0, duration - position);
+      const frozenForMillis = Date.now() - lastProgressAtRef.current;
+      const isNearEnd = remainingMillis <= Math.min(15000, Math.max(4000, duration * 0.03));
+
+      if (isNearEnd && frozenForMillis >= 4000) {
+        console.log('[THERAPY] playback watchdog forcing finish', {
+          currentIndex,
+          duration,
+          position,
+          remainingMillis,
+          frozenForMillis,
+        });
+        reportPlaybackEvent('WATCHDOG_FORCE_FINISH', {
+          duration,
+          position,
+          remainingMillis,
+          frozenForMillis,
+        });
+        handlePlaybackFinished();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [
+    currentIndex,
+    playbackStatus.durationMillis,
+    playbackStatus.positionMillis,
+    playing,
+    resolvedSequence.length,
+  ]);
+
   const queuePlayback = async (
     idx: number,
     options: { tailSeconds?: number; allowContinue: boolean; tailForAll?: boolean }
@@ -401,9 +489,16 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
     setCurrentIndex(idx);
     finishHandledRef.current = false;
     setFinished(false);
+    lastProgressPositionRef.current = 0;
+    lastProgressAtRef.current = Date.now();
     setPlaybackStatus({ positionMillis: 0, durationMillis: 0, isLoaded: false });
     try {
       await ensureAudioMode();
+      pushPlaybackDebug('track_load_start', {
+        index: idx,
+        label: item.label,
+        type: item.type,
+      });
       console.log('[THERAPY] now playing audio', {
         index: idx,
         label: item.label,
@@ -417,6 +512,11 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       }
       const st = await s.getStatusAsync();
       const duration = (st as any)?.durationMillis ?? 0;
+      pushPlaybackDebug('track_loaded', {
+        index: idx,
+        label: item.label,
+        durationMillis: duration,
+      });
       const tailPosition =
         options.tailSeconds != null ? Math.max(0, duration - options.tailSeconds * 1000) : null;
       if (tailPosition !== null && tailPosition > 0) {
@@ -429,12 +529,23 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       setPlaying(true);
       s.setOnPlaybackStatusUpdate((status: any) => {
         if (!status) return;
+        const nextPosition = status.positionMillis ?? 0;
+        if (nextPosition > lastProgressPositionRef.current) {
+          lastProgressPositionRef.current = nextPosition;
+          lastProgressAtRef.current = Date.now();
+        }
         setPlaybackStatus({
-          positionMillis: status.positionMillis ?? 0,
+          positionMillis: nextPosition,
           durationMillis: status.durationMillis ?? 0,
           isLoaded: status.isLoaded ?? false,
         });
         if (status?.didJustFinish) {
+          pushPlaybackDebug('did_just_finish', {
+            index: idx,
+            label: item.label,
+            durationMillis: status.durationMillis ?? 0,
+            positionMillis: status.positionMillis ?? 0,
+          });
           setPlaying(false);
           const nextIdx = idx + 1;
           if (options.allowContinue && nextIdx < resolvedSequence.length) {
@@ -457,6 +568,11 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       return true;
     } catch (error) {
       console.log('[THERAPY] healing playback load error', { index: idx, label: item.label, error });
+      reportPlaybackEvent('PLAYBACK_LOAD_ERROR', {
+        index: idx,
+        label: item.label,
+        message: error instanceof Error ? error.message : String(error || ''),
+      });
       try {
         s.setOnPlaybackStatusUpdate(null);
         await withTimeout(s.stopAsync(), 3000).catch(() => {});
@@ -510,6 +626,9 @@ export default function HealingPlaybackScreen({ navigation, route }: any) {
       setPlaying(true);
     } catch (e) {
       console.log('[THERAPY] healing playback error', e);
+      reportPlaybackEvent('PLAYBACK_RESUME_ERROR', {
+        message: e instanceof Error ? e.message : String(e || ''),
+      });
       setPlaying(false);
     }
   };

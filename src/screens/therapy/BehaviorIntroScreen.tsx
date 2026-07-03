@@ -80,7 +80,10 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   const message = rawMessage
     ? rawMessage.replace(/de\s+(\w+)/, (match: string, p1: string) => `de ${p1.toLowerCase()}`)
     : `¿Cómo percibes ahora la emoción de ${(resolvedEmotionLabel || `#${emocionId || ''}`).toLowerCase()}?`;
+  
 
+
+  const message2 = message.replace(/\.\s*$/, '');
   useEffect(() => {
     if (inferredPostWork && nextResponse && !postEvalMessage) {
       safeNavigation.navigate('DiagnosticoHistory');
@@ -174,7 +177,7 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
       <ScrollView contentContainerStyle={[styles.ph20, { paddingBottom: 140 }]} keyboardShouldPersistTaps={'handled'}>
         <CText type={'B20'}>{title}</CText>
         <CText type={postEvalMessage?.recommendation_label ? 'R18' : 'B20'} color={colors.textColor} style={styles.mt10}>
-          {message} <CText type={'R18'} color={colors.textColor}></CText>
+          {message2}, o antes si fuese necesario. <CText type={'R18'} color={colors.textColor}></CText>
         </CText>
         {!postEvalMessage && (
           <View style={styles.mt20}>
@@ -205,8 +208,10 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
           </View>
         )}
         {!!postEvalMessage?.recommendation_label && (
-          <CText type={'R14'} color={colors.labelColor} style={styles.mt10}>
+          <CText style={styles.mt20} type={'R18'} >
             {/*{postEvalMessage.recommendation_label} */}
+            A partir de mañana, también puedes seguir trabajando las emociones que actualmente se encuentran en un nivel Alto y Muy alto para
+            continuar fortaleciendo tu bienestar emocional. 
           </CText>
         )}
       </ScrollView>

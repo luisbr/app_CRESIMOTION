@@ -13,6 +13,7 @@ import { canSkipAudio, getAudioTitle, getAudioUrl, getMotivoId, getMotivoLabel, 
 import { completeTherapyStep } from '../../api/sesionTerapeutica';
 import { getDebugTailPosition } from '../../utils/audioDebug';
 import { API_BASE_URL, ENABLE_FORWARD_BUTTON } from '../../api/config';
+import {SHOW_SCREEN_TOOLTIP} from '../../config/debug';
 import {useSafeNavigation} from '../../navigation/safeNavigation';
 import { shouldAllowDownload } from '../../utils/networkCheck';
 import ErrorPopup from '../../components/model/ErrorPopup';
@@ -332,7 +333,9 @@ export default function FocusContentScreen({ navigation, route }: any) {
             <View style={{ flex: 1 }}>
               <CButton title={playing ? ' ll ' : 'Reproducir'} onPress={onPlay} disabled={ended} />
             </View>
-            {ENABLE_FORWARD_BUTTON && <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />}
+            {ENABLE_FORWARD_BUTTON && SHOW_SCREEN_TOOLTIP && (
+              <CButton title={'>> 10s'} onPress={onForward} disabled={!sound} />
+            )}
           </View>
           <View style={[styles.rowSpaceBetween, { marginTop: 8 }]}>
             <CText type={'S14'}>{fmt(positionMillis)}</CText>

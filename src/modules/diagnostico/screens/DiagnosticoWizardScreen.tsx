@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {ActivityIndicator, Linking, Modal, ScrollView, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Linking, Modal, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import {useSelector} from 'react-redux';
@@ -8,6 +8,7 @@ import CMainAppBar from '../../../components/common/CMainAppBar';
 import CText from '../../../components/common/CText';
 import CButton from '../../../components/common/CButton';
 import CInput from '../../../components/common/CInput';
+import CCustomScrollView from '../../../components/common/CCustomScrollView';
 import {styles} from '../../../theme';
 import type {CatalogItem, CatalogOption, ModuleKey} from '../types';
 import {normalizeOptions, saveLastRoute} from '../utils';
@@ -47,10 +48,6 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   const [answeredIds, setAnsweredIds] = useState<Set<number>>(initialAnswered);
   const [selectedOption, setSelectedOption] = useState<CatalogOption | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
-  const scrollRef = useRef<ScrollView | null>(null);
-  const [showSpecialInput, setShowSpecialInput] = useState(false);
-  const [specialValue, setSpecialValue] = useState('');
-  const [specialValueError, setSpecialValueError] = useState('');
   const [error, setError] = useState('');
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [emergencyVisible, setEmergencyVisible] = useState(false);
@@ -160,13 +157,6 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       matchesOtrasAdicciones: String(opt?.key || '').toLowerCase() === 'otras_adicciones',
     });
     setError('');
-    const shouldShow = isOtherAddictionsItem;
-    setShowSpecialInput(shouldShow);
-    if (shouldShow) {
-      setTimeout(() => {
-        scrollRef.current?.scrollToEnd({animated: true});
-      }, 80);
-    }
     const emergenciaRecentKeys = ['desde_hace_pocos_meses', 'desde_hace_varios_dias_o_semanas'];
     const isRecentEmergencyOption = emergenciaRecentKeys.some(k =>
       String(opt?.key || '').toLowerCase().includes(k)
@@ -293,10 +283,6 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       setError('Selecciona una opcion para continuar.');
       return;
     }
-    if (isOtherAddictionsItem && !specialValue.trim()) {
-      setSpecialValueError('Especifica tu respuesta.');
-      return;
-    }
     console.log('[DiagnosticoWizard] item', {currentItem});
     console.log('[DiagnosticoWizard] save answer start', {
       sessionId,
@@ -315,7 +301,7 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
       payload.intensity_key = selectedOption.key;
       payload.intensity_value = selectedOption.value ?? 0;
       if (isOtherAddictionsItem) {
-        payload.special_value = specialValue.trim();
+        payload.special_value = '--';
       }
     }
     console.log('[DiagnosticoWizard] save answer payload', payload);
@@ -336,9 +322,6 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     next.add(Number(currentItem.id));
     setAnsweredIds(next);
     setSelectedOption(null);
-    setShowSpecialInput(false);
-    setSpecialValue('');
-    setSpecialValueError('');
     if (currentIndex != null) {
       const nextIndex = Math.min(selectedItems.length, currentIndex + 1);
       setCurrentIndex(nextIndex);
@@ -397,9 +380,6 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
     console.log('[DiagnosticoWizard] onPressBack: going to previous item', currentIndex - 1);
     setCurrentIndex(Math.max(0, currentIndex - 1));
     setSelectedOption(null);
-    setShowSpecialInput(false);
-    setSpecialValue('');
-    setSpecialValueError('');
   };
 
   return (
@@ -410,94 +390,107 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
         onPressBack={onPressBack}
         hideBackButton={!!isFirstFlow}
       />
-      <View style={[styles.p20, {paddingBottom: 120, paddingTop: moderateScale(10)}]}>
-        {!!currentItem && totalItems > 0 && (
-          <>
-            <CText type={'S14'} color={colors.labelColor} style={styles.mb5}>
-              {moduleKey === 'motivos'
-                ? `Motivos de tu estado emocional (${currentStep} de ${totalItems})`
-                : moduleKey === 'sintomas_fisicos'
-                ? `Síntoma físico (${currentStep} de ${totalItems})`
-                : `Síntoma emocional (${currentStep} de ${totalItems})`}
+      <View style={localStyles.contentContainer}>
+        <View style={[localStyles.body, styles.ph20, {paddingTop: moderateScale(10)}]}>
+          {!!currentItem && totalItems > 0 && (
+            <>
+              <CText type={'S14'} color={colors.labelColor} style={styles.mb5}>
+                {moduleKey === 'motivos'
+                  ? `Motivos de tu estado emocional (${currentStep} de ${totalItems})`
+                  : moduleKey === 'sintomas_fisicos'
+                  ? `Síntoma físico (${currentStep} de ${totalItems})`
+                  : `Síntoma emocional (${currentStep} de ${totalItems})`}
+              </CText>
+              <CText type={'B22'} color={colors.textColor} style={styles.mb10}>
+                {currentItem.titulo}
+              </CText>
+            </>
+          )}
+          <ProgressBar progress={progress} />
+          {!selectedIds.length ? (
+            <CText type={'S14'} color={colors.labelColor} style={styles.mt10}>
+              No encontramos tu seleccion. Vuelve a elegir las opciones para continuar.
             </CText>
-            <CText type={'B22'} color={colors.textColor} style={styles.mb10}>
-              {currentItem.titulo}
-            </CText>
-          </>
-        )}
-        <ProgressBar progress={progress} />
-        {!selectedIds.length ? (
-          <CText type={'S14'} color={colors.labelColor}>
-            No encontramos tu seleccion. Vuelve a elegir las opciones para continuar.
-          </CText>
-        ) : currentItem ? (
-          <ScrollView
-            ref={scrollRef}
-            showsVerticalScrollIndicator={true}
-            contentContainerStyle={{paddingBottom: 140}}
-            keyboardShouldPersistTaps="handled"
-          >
-            <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
-              {introPrompt}
-            </CText>
-            {catalogLoading ? (
-              <ActivityIndicator color={colors.primary} />
-            ) : (
-              <>
-                {options.map(opt => (
-                  <OptionCard
-                    key={String(opt.key)}
-                    label={opt.label}
-                    selected={selectedOption?.key === opt.key}
-                    onPress={() => {
-                      onSelectOption(opt);
-                      if (!isOtherAddictionsItem) {
-                        setSpecialValue('');
-                        setSpecialValueError('');
-                      }
-                    }}
-                  />
-                ))}
-                {showSpecialInput && (
-                  <View style={styles.mt10}>
-                    <CInput
-                      label={'Especifica'}
-                      placeHolder={'Escribe aquí'}
-                      keyBoardType={'default'}
-                      _value={specialValue}
-                      _errorText={specialValueError}
-                      autoCapitalize={'sentences'}
-                      toGetTextFieldValue={(val) => {
-                        setSpecialValue(val);
-                        if (val.trim()) setSpecialValueError('');
+          ) : currentItem ? (
+            <CCustomScrollView
+              style={localStyles.scrollView}
+              contentContainerStyle={localStyles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showIndicatorWhenNoScroll={false}
+            >
+              <CText type={'S14'} color={colors.labelColor} style={styles.mb10}>
+                {introPrompt}
+              </CText>
+              {catalogLoading ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <>
+                  {options.map(opt => (
+                    <OptionCard
+                      key={String(opt.key)}
+                      label={opt.label}
+                      selected={selectedOption?.key === opt.key}
+                      onPress={() => {
+                        onSelectOption(opt);
                       }}
-                      required
-                      multiline
                     />
-                  </View>
-                )}
-                <BehaviorMessageCard behavior={selectedBehavior} />
-              </>
-            )}
-          </ScrollView>
-        ) : (
-          <CText type={'S16'} color={colors.labelColor}>
-            {`Has completado todas las respuestas de ${
-              moduleKey === 'motivos'
-                ? 'Motivos de tu estado emocional'
-                : moduleKey === 'sintomas_fisicos'
-                ? 'Sintomatología física'
-                : moduleKey === 'sintomas_emocionales'
-                ? 'Sintomatología emocional'
-                : 'esta sección'
-            }. ¡Gracias por compartirnos la información que nos permitirá acompañarte en tu proceso de sanación emocional!`}
-          </CText>
-        )}
-        {!!error && (
-          <CText type={'S14'} align={'center'} color={colors.redAlert}>
-            {error}
-          </CText>
-        )}
+                  ))}
+                  <BehaviorMessageCard behavior={selectedBehavior} />
+                </>
+              )}
+            </CCustomScrollView>
+          ) : (
+            <View style={localStyles.completionState}>
+              <CText type={'S16'} color={colors.labelColor}>
+                {`Has completado todas las respuestas de ${
+                  moduleKey === 'motivos'
+                    ? 'Motivos de tu estado emocional'
+                    : moduleKey === 'sintomas_fisicos'
+                    ? 'Sintomatología física'
+                    : moduleKey === 'sintomas_emocionales'
+                    ? 'Sintomatología emocional'
+                    : 'esta sección'
+                }. ¡Gracias por compartirnos la información que nos permitirá acompañarte en tu proceso de sanación emocional!`}
+              </CText>
+            </View>
+          )}
+          {!!error && (
+            <View style={localStyles.errorContainer}>
+              <CText type={'S14'} align={'center'} color={colors.redAlert}>
+                {error}
+              </CText>
+            </View>
+          )}
+        </View>
+        <View
+          style={[
+            localStyles.footer,
+            styles.ph20,
+            {
+              backgroundColor: colors.backgroundColor,
+              borderTopColor: colors.grayScale3,
+            },
+          ]}
+        >
+          {currentItem ? (
+            <CButton
+              title={'Siguiente'}
+              onPress={onPressNext}
+              disabled={savingAnswer || !selectedOption}
+              loading={savingAnswer}
+            />
+          ) : selectedIds.length ? (
+            <CButton title={'Continuar'} onPress={onPressComplete} disabled={completing} loading={completing} />
+          ) : (
+            <CButton
+              title={'Volver a seleccion'}
+              onPress={() => {
+                isNavigatingRef.current = true;
+                safeNavigation.replace('DiagnosticoSelection', {module_key: moduleKey, sessionId});
+              }}
+            />
+          )}
+        </View>
       </View>
       <Modal visible={emergencyVisible} transparent animationType="fade" onRequestClose={closeEmergencyModal}>
         <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 20}}>
@@ -611,37 +604,6 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
           </View>
         </View>
       </Modal>
-      <View
-        style={[
-          styles.p20,
-          {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: colors.backgroundColor,
-          },
-        ]}
-      >
-        {currentItem ? (
-          <CButton
-            title={'Siguiente'}
-            onPress={onPressNext}
-            disabled={savingAnswer || !selectedOption || (isOtherAddictionsItem && !specialValue.trim())}
-            loading={savingAnswer}
-          />
-        ) : selectedIds.length ? (
-          <CButton title={'Continuar'} onPress={onPressComplete} disabled={completing} loading={completing} />
-        ) : (
-          <CButton
-            title={'Volver a seleccion'}
-            onPress={() => {
-              isNavigatingRef.current = true;
-              safeNavigation.replace('DiagnosticoSelection', {module_key: moduleKey, sessionId});
-            }}
-          />
-        )}
-      </View>
       {SHOW_SCREEN_TOOLTIP && (
         <View style={localStyles.screenTooltip} pointerEvents="none">
           <CText type={'S12'} color={'#fff'}>
@@ -653,7 +615,32 @@ export default function DiagnosticoWizardScreen({navigation, route}: any) {
   );
 }
 
-const localStyles = {
+const localStyles = StyleSheet.create({
+  body: {
+    flex: 1,
+  },
+  completionState: {
+    marginTop: moderateScale(10),
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  errorContainer: {
+    paddingBottom: moderateScale(12),
+  },
+  footer: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: moderateScale(12),
+    paddingBottom: moderateScale(20),
+  },
+  scrollContent: {
+    paddingTop: moderateScale(10),
+    paddingBottom: moderateScale(24),
+    paddingRight: moderateScale(18),
+  },
+  scrollView: {
+    flex: 1,
+  },
   screenTooltip: {
     position: 'absolute',
     top: 8,
@@ -663,4 +650,4 @@ const localStyles = {
     paddingVertical: 4,
     borderRadius: 6,
   },
-};
+});
