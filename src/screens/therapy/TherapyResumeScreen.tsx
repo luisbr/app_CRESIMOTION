@@ -33,6 +33,9 @@ export default function TherapyResumeScreen({ navigation }: any) {
   const [motivosCatalog, setMotivosCatalog] = useState<any[]>([]);
   const [emotionsCatalog, setEmotionsCatalog] = useState<any[]>([]);
   
+  const [historyMotivos, setHistoryMotivos] = useState<any[]>([]);
+  const [historyEmotions, setHistoryEmotions] = useState<any[]>([]);
+
   const [selectedMotivos, setSelectedMotivos] = useState<number[]>([]);
   const [selectedEmotions, setSelectedEmotions] = useState<number[]>([]);
 
@@ -67,6 +70,36 @@ export default function TherapyResumeScreen({ navigation }: any) {
         // Pre-select items
         const motiveIds = prevMotivos.map((m: any) => Number(m.item_id || m.id || m.motivo_id)).filter((id) => !isNaN(id));
         const emotionIds = prevEmotions.map((e: any) => Number(e.item_id || e.id || e.emocion_id)).filter((id) => !isNaN(id));
+
+        // Enrich the history items with titles from the catalog
+        const enrichedMotivos = prevMotivos.map((m: any) => {
+          const id = Number(m.item_id || m.id || m.motivo_id);
+          const catalogItem = flatMotivos.find((c: any) => Number(c.id) === id);
+          const isTrabajado = Array.isArray(m.evaluations) && m.evaluations.length > 0;
+          return {
+            ...m,
+            id,
+            titulo: catalogItem?.titulo || m.titulo || m.label || m.name || 'Motivo',
+            descripcion: isTrabajado ? '✅ Trabajado' : '⏳ Pendiente',
+            isTrabajado,
+          };
+        });
+
+        const enrichedEmotions = prevEmotions.map((e: any) => {
+          const id = Number(e.item_id || e.id || e.emocion_id);
+          const catalogItem = emotionsCat.find((c: any) => Number(c.id) === id);
+          const isTrabajado = Array.isArray(e.evaluations) && e.evaluations.length > 0;
+          return {
+            ...e,
+            id,
+            titulo: catalogItem?.titulo || e.titulo || e.label || e.name || 'Emoción',
+            descripcion: isTrabajado ? '✅ Trabajado' : '⏳ Pendiente',
+            isTrabajado,
+          };
+        });
+
+        setHistoryMotivos(enrichedMotivos);
+        setHistoryEmotions(enrichedEmotions);
 
         setSelectedMotivos(motiveIds);
         setSelectedEmotions(emotionIds);
@@ -202,26 +235,34 @@ export default function TherapyResumeScreen({ navigation }: any) {
             )}
 
             <CText type="B16" style={styles.mb10} color={colors.textColor} align={null}>Motivos</CText>
-            {motivosCatalog.map(item => (
-              <ChecklistItem
-                key={`motivo-${item.id}`}
-                title={capitalizeSentence(String(item.titulo || ''))}
-                description={capitalizeSentence(String(item.descripcion || ''))}
-                selected={selectedMotivos.includes(Number(item.id))}
-                onPress={() => toggleMotivo(Number(item.id))}
-              />
-            ))}
+            {historyMotivos.length === 0 ? (
+              <CText type="S14" color={colors.labelColor} style={styles.mb10} align={null}>No tienes motivos en tu historial.</CText>
+            ) : (
+              historyMotivos.map(item => (
+                <ChecklistItem
+                  key={`motivo-${item.id}`}
+                  title={capitalizeSentence(String(item.titulo || ''))}
+                  description={item.descripcion}
+                  selected={selectedMotivos.includes(Number(item.id))}
+                  onPress={() => toggleMotivo(Number(item.id))}
+                />
+              ))
+            )}
 
             <CText type="B16" style={[styles.mb10, styles.mt20]} color={colors.textColor} align={null}>Emociones</CText>
-            {emotionsCatalog.map(item => (
-              <ChecklistItem
-                key={`emocion-${item.id}`}
-                title={capitalizeSentence(String(item.titulo || ''))}
-                description={capitalizeSentence(String(item.descripcion || ''))}
-                selected={selectedEmotions.includes(Number(item.id))}
-                onPress={() => toggleEmotion(Number(item.id))}
-              />
-            ))}
+            {historyEmotions.length === 0 ? (
+              <CText type="S14" color={colors.labelColor} style={styles.mb10} align={null}>No tienes emociones en tu historial.</CText>
+            ) : (
+              historyEmotions.map(item => (
+                <ChecklistItem
+                  key={`emocion-${item.id}`}
+                  title={capitalizeSentence(String(item.titulo || ''))}
+                  description={item.descripcion}
+                  selected={selectedEmotions.includes(Number(item.id))}
+                  onPress={() => toggleEmotion(Number(item.id))}
+                />
+              ))
+            )}
           </ScrollView>
         )}
       </View>
