@@ -35,6 +35,7 @@ import HealingStartScreen from '../screens/forms/HealingStartScreen';
 import HealingSelectMotivoScreen from '../screens/forms/HealingSelectMotivoScreen';
 import HealingSanacionScreen from '../screens/forms/HealingSanacionScreen';
 import TherapyFlowRouter from '../screens/therapy/TherapyFlowRouter';
+import TherapyResumeScreen from '../screens/therapy/TherapyResumeScreen';
 import SessionIntroScreen from '../screens/therapy/SessionIntroScreen';
 import FocusSelectScreen from '../screens/therapy/FocusSelectScreen';
 import FocusContentScreen from '../screens/therapy/FocusContentScreen';
@@ -109,6 +110,7 @@ export const StackRoute = {
   TasksScreen,
   TaskDetailScreen,
   WelcomeEmotion: WelcomeEmotionScreen,
+  TherapyResume: TherapyResumeScreen,
   About: AboutScreen,
   AboutDetail: AboutDetailScreen,
   WellnessNetwork: WellnessNetworkScreen,
