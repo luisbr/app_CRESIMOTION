@@ -271,7 +271,7 @@ export default function TherapyResumeScreen({ navigation }: any) {
           borderTopWidth: 1, borderTopColor: colors.grayScale2,
       }]}>
         <CButton
-          title={'Comenzar sesión'}
+          title={'Iniciar sesión'}
           onPress={onContinue}
           disabled={!isContinueEnabled || submitting}
           loading={submitting}
