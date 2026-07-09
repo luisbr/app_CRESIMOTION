@@ -90,6 +90,10 @@ export default function StackNavigation() {
         component={StackRoute.WelcomeEmotion}
       />
       <Stack.Screen
+        name={StackNav.TherapyResume}
+        component={StackRoute.TherapyResume}
+      />
+      <Stack.Screen
         name={StackNav.About}
         component={StackRoute.About}
       />

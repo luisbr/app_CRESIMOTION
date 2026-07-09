@@ -21,6 +21,7 @@ import {getStoredNotifications} from '../../utils/notificationStorage';
 import CMainAppBar from '../../components/common/CMainAppBar';
 import CCustomScrollView from '../../components/common/CCustomScrollView';
 import {checkFirstDiagnosticComplete} from '../../modules/diagnostico/api/sessionsApi';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   MOTIVATIONAL_PHRASES,
   PAINFUL_PHRASES,
@@ -172,6 +173,10 @@ export default function WelcomeEmotionScreen() {
   };
 
 
+  const handleContinuarAutoevaluacion = () => {
+    navigation.navigate(StackNav.TherapyResume);
+  };
+
   const renderWelcomeSection = () => (
     <View style={localStyles.welcomeCard}>
       {isLoggedIn && userName && (
@@ -183,6 +188,30 @@ export default function WelcomeEmotionScreen() {
         ¿Cómo te sientes hoy?
       </CText>
     </View>
+  );
+
+  const renderResumeSection = () => (
+    <TouchableOpacity 
+      style={localStyles.resumeCard}
+      onPress={handleContinuarAutoevaluacion}
+      activeOpacity={0.8}
+    >
+      <View style={localStyles.resumeContent}>
+        <View style={localStyles.resumeIconContainer}>
+          <Ionicons name="calendar-outline" size={32} color={colors.primary} />
+        </View>
+        <View style={localStyles.resumeTextContainer}>
+          <CText type="B18" color={colors.textColor}>Autoevaluación</CText>
+          <CText type="R16" color={colors.textColor}>Pendiente</CText>
+          {/* Aquí podrías agregar lógica dinámica para la hora/fecha si la tienes */}
+          {/* <CText type="R14" color={colors.labelColor}>(Hoy)</CText> */}
+        </View>
+      </View>
+      <View style={localStyles.resumeFooter}>
+        <CText type="S14" color={colors.primary}>Continuar autoevaluación</CText>
+        <Ionicons name="chevron-forward-outline" size={16} color={colors.primary} style={{marginLeft: 4}} />
+      </View>
+    </TouchableOpacity>
   );
 
   if (checkingDiagnostic) {
@@ -299,6 +328,7 @@ export default function WelcomeEmotionScreen() {
         contentContainerStyle={[localStyles.scrollContent, {paddingBottom: insets.bottom + 20}]}
       >
         {renderWelcomeSection()}
+        {renderResumeSection()}
         {renderEmotionSelector()}
       </CCustomScrollView>
     </CSafeAreaView>
@@ -396,6 +426,39 @@ const localStyles = StyleSheet.create({
   },
   welcomeSubtitle: {
     color: '#5A7A8A',
+  },
+  resumeCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: moderateScale(20),
+    marginBottom: moderateScale(15),
+    marginHorizontal: moderateScale(20),
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E7EB',
+  },
+  resumeContent: {
+    flexDirection: 'row',
+    padding: moderateScale(20),
+    alignItems: 'center',
+  },
+  resumeIconContainer: {
+    width: moderateScale(64),
+    height: moderateScale(64),
+    borderRadius: moderateScale(32),
+    backgroundColor: '#E7F6EE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: moderateScale(15),
+  },
+  resumeTextContainer: {
+    flex: 1,
+  },
+  resumeFooter: {
+    backgroundColor: '#E7F6EE',
+    paddingVertical: moderateScale(12),
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emotionSection: {
     backgroundColor: '#FFFFFF',

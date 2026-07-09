@@ -89,6 +89,10 @@ export default function FocusMotivoEvalScreen({ navigation, route }: any) {
   const onContinue = () => {
     if (!nextResponse) return;
     if (postWork) {
+      if (postWorkEmotions.length === 0) {
+        navigation.navigate('WelcomeEmotion');
+        return;
+      }
       navigation.replace('TherapyHealingSelectEmotion', {
         postWork: true,
         groupId: postWorkGroupId,

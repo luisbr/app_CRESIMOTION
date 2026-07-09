@@ -21,6 +21,7 @@ export const StackNav = {
   FormsStack: 'FormsStack',
   Subscription: 'Subscription',
   WelcomeEmotion: 'WelcomeEmotion',
+  TherapyResume: 'TherapyResume',
   About: 'About',
   AboutDetail: 'AboutDetail',
   SessionsMenu: 'SessionsMenu',

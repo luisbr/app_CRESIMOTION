@@ -52,10 +52,7 @@ export default function SessionsMenuScreen() {
           {paddingBottom: insets.bottom + moderateScale(24)},
         ]}
         showsVerticalScrollIndicator={true}>
-        <View style={localStyles.heroCard}>
-          <View style={localStyles.heroBadge}>
-            <Ionicons name="leaf-outline" size={22} color="#0AA693" />
-          </View>
+        <View style={localStyles.heroHeader}>
           <CText type="B22" color={colors.primary2} style={localStyles.heroTitle}>
             Tu espacio para avanzar con calma
           </CText>
@@ -107,31 +104,18 @@ const localStyles = StyleSheet.create({
     paddingHorizontal: moderateScale(20),
     paddingTop: moderateScale(18),
   },
-  heroCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: moderateScale(24),
-    padding: moderateScale(22),
-    marginBottom: moderateScale(18),
-    shadowColor: '#0E4033',
-    shadowOffset: {width: 0, height: 10},
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 5,
-  },
-  heroBadge: {
-    width: moderateScale(44),
-    height: moderateScale(44),
-    borderRadius: moderateScale(14),
-    backgroundColor: '#E8F7F2',
+  heroHeader: {
+    marginBottom: moderateScale(24),
+    paddingHorizontal: moderateScale(12),
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: moderateScale(14),
   },
   heroTitle: {
     marginBottom: moderateScale(8),
+    textAlign: 'center',
   },
   heroText: {
     lineHeight: moderateScale(21),
+    textAlign: 'center',
   },
   optionsGroup: {
   },

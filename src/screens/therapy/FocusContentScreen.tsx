@@ -390,19 +390,7 @@ export default function FocusContentScreen({ navigation, route }: any) {
           elevation: 6,
         }}
       >
-        {allowSkip && (
-          <View style={styles.mb10}>
-            <CButton
-              title={skipLabel}
-              bgColor={colors.inputBg}
-              color={colors.primary}
-              disabled={playing || continuing}
-              loading={continuing}
-              onPress={goNext}
-            />
-          </View>
-        )}
-        <CButton title={'Siguiente'} disabled={!audioUrl || !ended || playing || continuing} loading={continuing} onPress={goNext} />
+        <CButton title={'Siguiente'} disabled={continuing} loading={continuing} onPress={goNext} />
       </View>
       <ScreenTooltip />
 

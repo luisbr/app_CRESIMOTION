@@ -117,11 +117,23 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
     }
     let didNavigate = false;
     try {
-      if (selectedId == null) return;
       submittingRef.current = true;
       setSubmitting(true);
+      
+      const isEmptyList = items.length === 0 && otherOptions.length === 0;
+
       if (postWork) {
         if (!postWorkGroupId) return;
+        
+        if (isEmptyList) {
+          // If empty, just go back to history since postWork doesn't have a specific "skip" API flow
+          didNavigate = true;
+          safeNavigation.navigate('DiagnosticoHistory');
+          return;
+        }
+
+        if (selectedId == null) return;
+        
         const next = await postPostWorkEmotion(Number(postWorkGroupId), {
           emocion_id: Number(selectedId),
         });
@@ -136,11 +148,22 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
         });
         return;
       }
+      
       if (!sessionId) return;
-      const next = await selectHealingEmotion({
-        sessionId,
-        emocionId: selectedId,
-      });
+
+      let next;
+      if (isEmptyList) {
+        // Skip this step if there are no emotions
+        const { completeTherapyStep } = require('../../api/sesionTerapeutica');
+        next = await completeTherapyStep({ sessionId, action: 'SKIP' });
+      } else {
+        if (selectedId == null) return;
+        next = await selectHealingEmotion({
+          sessionId,
+          emocionId: selectedId,
+        });
+      }
+
       didNavigate = true;
       safeNavigation.replace('TherapyFlowRouter', { initialNext: next, entrypoint });
     } catch (e: any) {
@@ -304,11 +327,11 @@ export default function HealingSelectEmotionScreen({ navigation, route }: any) {
               />
             </View>
             <View style={{ flex: 1, marginLeft: 8 }}>
-              <CButton title={'Siguiente'} disabled={selectedId == null || submitting} loading={submitting} onPress={onContinue} />
+              <CButton title={'Siguiente'} disabled={(items.length > 0 || otherOptions.length > 0) ? (selectedId == null || submitting) : submitting} loading={submitting} onPress={onContinue} />
             </View>
           </View>
         ) : (
-          <CButton title={'Siguiente'} disabled={selectedId == null || submitting} loading={submitting} onPress={onContinue} />
+          <CButton title={'Siguiente'} disabled={(items.length > 0 || otherOptions.length > 0) ? (selectedId == null || submitting) : submitting} loading={submitting} onPress={onContinue} />
         )}
       </View>
       <ScreenTooltip />
