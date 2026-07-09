@@ -10,10 +10,6 @@ import { styles } from '../../theme';
 import { moderateScale } from '../../common/constants';
 import {
   getHistory,
-  startSession,
-  saveSelection,
-  saveAnswer,
-  completeSession,
   getPostWork
 } from '../../modules/diagnostico/api/sessionsApi';
 import {
@@ -38,6 +34,8 @@ export default function TherapyResumeScreen({ navigation }: any) {
 
   const [selectedMotivos, setSelectedMotivos] = useState<number[]>([]);
   const [selectedEmotions, setSelectedEmotions] = useState<number[]>([]);
+  
+  const [currentGroupId, setCurrentGroupId] = useState<number | null>(null);
 
   useEffect(() => {
     loadData();
@@ -63,6 +61,9 @@ export default function TherapyResumeScreen({ navigation }: any) {
       const latestHistory = Array.isArray(list) && list.length > 0 ? list[0] : null;
 
       if (latestHistory) {
+        const groupId = latestHistory?.group_id || latestHistory?.id;
+        setCurrentGroupId(groupId);
+
         const summary = latestHistory?.summary || {};
         const prevMotivos = Array.isArray(summary.motivos) ? summary.motivos : [];
         const prevEmotions = Array.isArray(summary.emotions) ? summary.emotions : [];
@@ -83,6 +84,9 @@ export default function TherapyResumeScreen({ navigation }: any) {
             descripcion: isTrabajado ? '✅ Trabajado' : '⏳ Pendiente',
             isTrabajado,
           };
+        }).sort((a: any, b: any) => {
+          if (a.isTrabajado === b.isTrabajado) return 0;
+          return a.isTrabajado ? 1 : -1;
         });
 
         const enrichedEmotions = prevEmotions.map((e: any) => {
@@ -96,6 +100,9 @@ export default function TherapyResumeScreen({ navigation }: any) {
             descripcion: isTrabajado ? '✅ Trabajado' : '⏳ Pendiente',
             isTrabajado,
           };
+        }).sort((a: any, b: any) => {
+          if (a.isTrabajado === b.isTrabajado) return 0;
+          return a.isTrabajado ? 1 : -1;
         });
 
         setHistoryMotivos(enrichedMotivos);
@@ -129,61 +136,37 @@ export default function TherapyResumeScreen({ navigation }: any) {
     setSubmitting(true);
     setError('');
     try {
-      // Create new session for motivos
-      const sessionRespM: any = await startSession('motivos', 'MX', null);
-      const groupId = sessionRespM.session.group_id;
-      const sessionMId = sessionRespM.session.id;
-
-      await saveSelection(sessionMId, selectedMotivos);
-      
-      // Save fake answers so we can complete session
-      for (const mId of selectedMotivos) {
-        await saveAnswer(sessionMId, {
-          item_id: mId,
-          response_type: 'intensidad_estandar',
-          intensity_key: '5',
-          intensity_value: 5
-        });
-      }
-      await completeSession(sessionMId);
-
-      // Create new session for emotions
-      const sessionRespE: any = await startSession('sintomas_emocionales', 'MX', groupId);
-      const sessionEId = sessionRespE.session.id;
-
-      await saveSelection(sessionEId, selectedEmotions);
-      
-      for (const eId of selectedEmotions) {
-        await saveAnswer(sessionEId, {
-          item_id: eId,
-          response_type: 'intensidad_estandar',
-          intensity_key: '5',
-          intensity_value: 5
-        });
-      }
-      await completeSession(sessionEId);
+      if (!currentGroupId) throw new Error('No se encontró el identificador de la sesión (group_id).');
 
       // Fetch post-work and navigate
-      const data = await getPostWork(groupId);
+      const data = await getPostWork(currentGroupId);
       
+      const filteredMotivos = (data?.motivos || []).filter((m: any) => 
+        selectedMotivos.includes(Number(m.id || m.motivo_id || m.item_id))
+      );
+      
+      const filteredEmotions = (data?.emotions || []).filter((e: any) => 
+        selectedEmotions.includes(Number(e.id || e.emocion_id || e.item_id))
+      );
+
       navigation.navigate(StackNav.TabNavigation, {
         screen: TabNav.HomeTab,
         params: {
           screen: 'TherapyFocusSelect',
           params: {
             postWork: true,
-            groupId,
-            motivos: data?.motivos || [],
-            emotions: data?.emotions || [],
+            groupId: currentGroupId,
+            motivos: filteredMotivos,
+            emotions: filteredEmotions,
             entrypoint: 'history',
           },
         },
       });
 
     } catch (e: any) {
-      console.log('Error creating resume session', e);
+      console.log('Error continuing resume session', e);
       if (!isLimitReached(e)) {
-        setError(e?.body?.message || e?.message || 'No se pudo iniciar la sesión.');
+        setError(e?.body?.message || e?.message || 'No se pudo continuar la sesión.');
       }
     } finally {
       setSubmitting(false);
