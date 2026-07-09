@@ -131,7 +131,7 @@ export default function TherapyResumeScreen({ navigation }: any) {
   };
 
   const onContinue = async () => {
-    if (selectedMotivos.length === 0 || selectedEmotions.length === 0) return;
+    if (selectedMotivos.length === 0 && selectedEmotions.length === 0) return;
     
     setSubmitting(true);
     setError('');
@@ -149,19 +149,36 @@ export default function TherapyResumeScreen({ navigation }: any) {
         selectedEmotions.includes(Number(e.id || e.emocion_id || e.item_id))
       );
 
-      navigation.navigate(StackNav.TabNavigation, {
-        screen: TabNav.HomeTab,
-        params: {
-          screen: 'TherapyFocusSelect',
+      if (filteredMotivos.length === 0 && filteredEmotions.length > 0) {
+        // Skip motivos screen directly
+        navigation.navigate(StackNav.TabNavigation, {
+          screen: TabNav.HomeTab,
           params: {
-            postWork: true,
-            groupId: currentGroupId,
-            motivos: filteredMotivos,
-            emotions: filteredEmotions,
-            entrypoint: 'history',
+            screen: 'TherapyHealingSelectEmotion',
+            params: {
+              postWork: true,
+              groupId: currentGroupId,
+              emotions: filteredEmotions,
+              entrypoint: 'history',
+            },
           },
-        },
-      });
+        });
+      } else {
+        // Normal flow (motivos first)
+        navigation.navigate(StackNav.TabNavigation, {
+          screen: TabNav.HomeTab,
+          params: {
+            screen: 'TherapyFocusSelect',
+            params: {
+              postWork: true,
+              groupId: currentGroupId,
+              motivos: filteredMotivos,
+              emotions: filteredEmotions,
+              entrypoint: 'history',
+            },
+          },
+        });
+      }
 
     } catch (e: any) {
       console.log('Error continuing resume session', e);
@@ -183,7 +200,7 @@ export default function TherapyResumeScreen({ navigation }: any) {
     );
   };
 
-  const isContinueEnabled = selectedMotivos.length > 0 && selectedEmotions.length > 0;
+  const isContinueEnabled = selectedMotivos.length > 0 || selectedEmotions.length > 0;
 
   return (
     <CSafeAreaView color={null}>
