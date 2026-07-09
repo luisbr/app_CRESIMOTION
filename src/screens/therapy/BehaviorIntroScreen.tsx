@@ -86,7 +86,7 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
   const message2 = message.replace(/\.\s*$/, '');
   useEffect(() => {
     if (inferredPostWork && nextResponse && !postEvalMessage) {
-      safeNavigation.navigate('DiagnosticoHistory');
+      safeNavigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint: 'behavior' });
     }
   }, [inferredPostWork, nextResponse, postEvalMessage, safeNavigation]);
 
@@ -161,7 +161,7 @@ export default function BehaviorIntroScreen({ navigation, route }: any) {
     continuingRef.current = true;
     setContinuing(true);
     if (inferredPostWork) {
-      safeNavigation.navigate('DiagnosticoHistory');
+      safeNavigation.replace('TherapyFlowRouter', { initialNext: nextResponse, entrypoint: 'behavior' });
       return;
     }
     if (nextResponse?.route === 'BEHAVIOR_RECO_SELECT') {

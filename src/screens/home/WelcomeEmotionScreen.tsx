@@ -201,10 +201,10 @@ export default function WelcomeEmotionScreen() {
           <Ionicons name="calendar-outline" size={32} color={colors.primary} />
         </View>
         <View style={localStyles.resumeTextContainer}>
-          <CText type="B18" color={colors.textColor}>Sesión:</CText>
+          <CText type="B18" color={colors.textColor}>Autoevaluación</CText>
           <CText type="R16" color={colors.textColor}>Pendiente</CText>
           {/* Aquí podrías agregar lógica dinámica para la hora/fecha si la tienes */}
-          <CText type="R14" color={colors.labelColor}>(Hoy)</CText>
+          {/* <CText type="R14" color={colors.labelColor}>(Hoy)</CText> */}
         </View>
       </View>
       <View style={localStyles.resumeFooter}>
